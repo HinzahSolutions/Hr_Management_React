@@ -1,0 +1,90 @@
+* {
+    /* margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif; */
+    /* overflow-x: hidden; */
+}
+
+.employee-chart-container {
+    width: 350px;/* Set the width */
+    height: 400px;/* Set the height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}
+
+.loan-chart-container {
+    width: 350px;/* Set width */
+    height: 400px;/* Set height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}
+.salary-advance-chart-container{
+    width: 350px;/* Set width */
+    height: 400px;/* Set height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}
+.salary-chart-container{
+    width: 550px;/* Set width */
+    height: 380px;/* Set height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}
+
+.month-salary-chart-container{
+    width: 550px;/* Set width */
+    height: 380px;/* Set height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}
+.pfesi-chart-container{
+    width: 350px;/* Set width */
+    height: 400px;/* Set height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}
+.salary-holding-chart-container{
+    width: 350px;/* Set width */
+    height: 400px;/* Set height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}
+.allowance-chart-container{
+    width: 350px;/* Set width */
+    height: 400px;/* Set height */
+    margin: 20px auto;/* Center the chart */
+    background-color: #f8f9fa;/* Light background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    /* border: 2px solid; */
+}

@@ -1,0 +1,26 @@
+* {
+    /* margin: 0;
+    padding: 0; */
+    /* box-sizing: border-box; */
+    /* font-family: "Roboto", sans-serif; */
+    /* overflow-x: hidden; */
+}
+
+.top-chart-container {
+    /* border: 2px solid salmon; */
+    display: flex;
+    align-items:center; 
+    justify-content: space-around;
+}
+.center-chart-container {
+    /* border: 2px solid salmon; */
+    display: flex;
+    align-items:center; 
+    justify-content: space-around;
+}
+.bottom-chart-container {
+    /* border: 2px solid salmon; */
+    display: flex;
+    align-items:center; 
+    justify-content: space-around;
+}
