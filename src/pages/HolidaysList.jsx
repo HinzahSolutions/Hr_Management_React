@@ -20,17 +20,37 @@ const HolidaysList = () => {
         <div className="container-fluid p-3 mt-4">
             <h3 className="mb-3 text-center">Holidays List</h3>
 
-            <div className="row mb-3">
-                <div className="col-md-6 col-sm-10 mx-auto d-flex flex-wrap gap-2 border border-dark">
+            {/* <div className="row mb-3">
+                <div className="col-md-6 col-sm-10 mx-auto border border-success">
                     <Form.Control
                         type="text"
                         placeholder="Search Holiday"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                </div>
+                <div className="col-md-6 col-sm-10 mx-auto border border-danger">
                     <Button variant="success">+ Add Holiday</Button>
                 </div>
+            </div> */}
+
+
+            <div className="row mb-3 ">
+                <div className="col-md-6 col-sm-10 mx-auto p-3 rounded ">
+                    {/* Flex container: Row direction, centered horizontally & vertically */}
+                    <div className="d-flex flex-row justify-content-center align-items-center gap-2">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search Holiday"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="flex-grow-1"
+                        />
+                        <Button className="w-50" variant="success">+ Add Holiday</Button>
+                    </div>
+                </div>
             </div>
+
 
 
             <div className="table-responsive">

@@ -6,6 +6,7 @@ import Leaves from "./Leaves"
 import LoanList from "./LoanList"
 import Navbarmain from "./Navbarmain"
 import SalaryList from "./SalaryList"
+import ShiftList from "./ShiftList"
 import Sidebar from "./Sidebar"
 
 export {
@@ -18,4 +19,5 @@ export {
     Sidebar,
     Bonus,
     HolidaysList,
+    ShiftList,
 }
