@@ -182,7 +182,7 @@ const Leaves = () => {
       name: "Murali Sambatham",
       designation: "Telecalling",
       group: "IT Team",
-      leaveDate: "07-Feb-2025",
+      leaveDate: "07-Feb-2024",
       status: "Approved",
     },
     {

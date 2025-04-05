@@ -1,5 +1,6 @@
 import Bonus from "./Bonus"
 import Dashboard from "./Dashboard"
+import DateWiseAttendance from "./DateWiseAttendance"
 import HolidaysList from "./HolidaysList"
 import Incentive from "./Incentive"
 import Leaves from "./Leaves"
@@ -20,4 +21,5 @@ export {
     Bonus,
     HolidaysList,
     ShiftList,
+    DateWiseAttendance,
 }
