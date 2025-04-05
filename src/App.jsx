@@ -12,7 +12,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // import LoanList from './pages/LoanList'
 // import Incentive from './pages/Incentive'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Dashboard, Leaves, SalaryList, LoanList, Incentive, Navbarmain, Sidebar, Bonus, HolidaysList, ShiftList, DateWiseAttendance } from './pages'
+import { Dashboard, Leaves, SalaryList, LoanList, Incentive, Navbarmain, Sidebar, Bonus, HolidaysList, ShiftList, DateWiseAttendance, AttendanceReport, PFESIReport, AllowanceReport, LoanReport, SalaryReport } from './pages'
 
 
 function App() {
@@ -33,6 +33,11 @@ function App() {
             <Route path='/holidays' element={<HolidaysList />} />
             <Route path='/shift' element={<ShiftList />} />
             <Route path='/datewise-attendance' element={<DateWiseAttendance />} />
+            <Route path='/attendance-report' element={<AttendanceReport />} />
+            <Route path='/pf-esi-report' element={<PFESIReport />} />
+            <Route path='/allowance-report' element={<AllowanceReport />} />
+            <Route path='/loan-report' element={<LoanReport />} />
+            <Route path='/salary-report' element={<SalaryReport />} />
           </Routes>
         </>
       </Router>

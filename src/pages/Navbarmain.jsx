@@ -16,7 +16,7 @@
 //         <Navbar.Collapse id="basic-navbar-nav">
 //           <Nav className="ms-auto">
 //             <Nav.Link href="/"><BsSpeedometer /> Dashboard</Nav.Link>
-            
+
 //             <NavDropdown title={<><BsPeople /> Employee</>} id="employee-dropdown">
 //               <NavDropdown.Item href="#"><FaUserTie /> Employee</NavDropdown.Item>
 //               <NavDropdown.Item href="#"><FaUsers /> Designation</NavDropdown.Item>
@@ -30,7 +30,7 @@
 //               <NavDropdown.Item href="#"><FaCalendarCheck /> Monthly Attendance</NavDropdown.Item>  {/* ✅ Fixed FaCalendarCheck */}
 //               <NavDropdown.Item href="#"><FaUserClock /> Datewise Overduty</NavDropdown.Item>
 //             </NavDropdown>
-            
+
 //             <Nav.Link as={Link} to="/leaves" ><BsFileEarmarkText /> Leaves</Nav.Link>
 //             <Nav.Link href="/salarylist"><BsCurrencyDollar /> Salary</Nav.Link>
 //             <Nav.Link  as={Link} to="/loanlist" ><FaMoneyBillWave /> Loan</Nav.Link>
@@ -107,11 +107,11 @@ const Navbarmain = () => {
             <Nav.Link as={Link} to="/leaves" className={location.pathname === "/leaves" ? "active" : ""}>
               <BsFileEarmarkText /> Leaves
             </Nav.Link>
-            
+
             <Nav.Link as={Link} to="/salarylist" className={location.pathname === "/salarylist" ? "active" : ""}>
               <BsCurrencyDollar /> Salary
             </Nav.Link>
-            
+
             <Nav.Link as={Link} to="/loanlist" className={location.pathname === "/loanlist" ? "active" : ""}>
               <FaMoneyBillWave /> Loan
             </Nav.Link>
@@ -134,10 +134,29 @@ const Navbarmain = () => {
               </NavDropdown.Item>
             </NavDropdown>
 
-            <Nav.Link as={Link} to="/reports" className={location.pathname === "/reports" ? "active" : ""}>
+
+            <NavDropdown title={<><BsBoxArrowRight /> Reports</>} id="reports-dropdown">
+              <NavDropdown.Item as={Link} to="/attendance-report" className={location.pathname === "/attendance-report" ? "active" : ""}>
+                <FaHandHoldingUsd /> Attendance Report
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/pf-esi-report" className={location.pathname === "/pf-esi-report" ? "active" : ""}>
+                <FaGift /> PF / ESI Report
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/allowance-report" className={location.pathname === "/allowance-report" ? "active" : ""}>
+                <BsCurrencyDollar /> Allowance Report
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/loan-report" className={location.pathname === "/loan-report" ? "active" : ""}>
+                <FaMoneyBillWave /> Loan Report
+              </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/salary-report" className={location.pathname === "/salary-report" ? "active" : ""}>
+                <FaHamburger /> Salary Report
+              </NavDropdown.Item>
+            </NavDropdown>
+
+            {/* <Nav.Link as={Link} to="/reports" className={location.pathname === "/reports" ? "active" : ""}>
               <BsFileEarmarkText /> Reports
-            </Nav.Link>
-            
+            </Nav.Link> */}
+
             <Nav.Link as={Link} to="/users" className={location.pathname === "/users" ? "active" : ""}>
               <BsPerson /> Users
             </Nav.Link>
