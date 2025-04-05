@@ -14,6 +14,9 @@ import SalaryList from "./SalaryList"
 import SalaryReport from "./SalaryReport"
 import ShiftList from "./ShiftList"
 import Sidebar from "./Sidebar"
+import Signup from "./Signup"
+import AddEmployee from './AddEmployee';
+import Employee from "./Employee"
 
 export {
     Dashboard,
@@ -32,4 +35,7 @@ export {
     AllowanceReport,
     PFESIReport,
     AttendanceReport,
+    Signup,
+    AddEmployee,
+    Employee,
 }

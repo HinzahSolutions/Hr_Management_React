@@ -157,7 +157,7 @@ const Navbarmain = () => {
               <BsFileEarmarkText /> Reports
             </Nav.Link> */}
 
-            <Nav.Link as={Link} to="/users" className={location.pathname === "/users" ? "active" : ""}>
+            <Nav.Link as={Link} to="/signup" className={location.pathname === "/users" ? "active" : ""}>
               <BsPerson /> Users
             </Nav.Link>
           </Nav>
