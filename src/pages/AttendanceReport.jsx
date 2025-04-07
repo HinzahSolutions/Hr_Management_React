@@ -152,7 +152,7 @@
 // export default AttendanceReport;
 
 
-import React, { useState } from 'react';
+import React,{ useState }  from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -204,7 +204,7 @@ const AttendanceReport = () => {
   };
 
   const handleCancel = () => {
-    setDateRange([new Date(''), new Date('')]);
+    // setDateRange([new Date(''), new Date('')]);
     setFilters({
       designation: 'All',
       group: 'All',
