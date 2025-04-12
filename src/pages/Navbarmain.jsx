@@ -58,6 +58,7 @@ import React from "react";
 import { Navbar, Nav, NavDropdown, Container } from "react-bootstrap";
 import { BsSpeedometer, BsPeople, BsCalendarCheck, BsCurrencyDollar, BsFileEarmarkText, BsPerson, BsBoxArrowRight } from "react-icons/bs";
 import { FaUserTie, FaUsers, FaUserClock, FaMoneyBillWave, FaGift, FaHamburger, FaHandHoldingUsd, FaCalendarCheck } from "react-icons/fa";
+import { TfiPanel } from "react-icons/tfi";
 import { Link, useLocation } from "react-router-dom"; // ✅ Import useLocation
 
 const Navbarmain = () => {
@@ -113,7 +114,7 @@ const Navbarmain = () => {
             </Nav.Link>
 
             <Nav.Link as={Link} to="/loanlist" className={location.pathname === "/loanlist" ? "active" : ""}>
-              <FaMoneyBillWave /> Loan
+              <FaMoneyBillWave /> 
             </Nav.Link>
 
             <NavDropdown title={<><BsBoxArrowRight /> Others</>} id="others-dropdown">
@@ -159,6 +160,9 @@ const Navbarmain = () => {
 
             <Nav.Link as={Link} to="/signup" className={location.pathname === "/users" ? "active" : ""}>
               <BsPerson /> Users
+            </Nav.Link>
+            <Nav.Link as={Link} to="/adminsetting" className={location.pathname === "/users" ? "active" : ""}>
+            <TfiPanel /> Admin Panel
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>

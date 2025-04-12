@@ -13,8 +13,7 @@ const LoanChart = () => {
       {
         label: "Loan",
         data: [80, 20],
-        // backgroundColor: ["#3498db", "#9b59b6", "#e74c3c", "#2ecc71"],
-        // hoverBackgroundColor: ["#2980b9", "#8e44ad", "#c0392b", "#27ae60"],
+       
         backgroundColor: ["#2ecc71", "#e74c3c"],
         hoverBackgroundColor: ["#27ae60", "#c0392b"],
         borderWidth: 2,
@@ -29,14 +28,14 @@ const LoanChart = () => {
       legend: {
         position: "bottom",
         labels: {
-          color: "#333", // Legend text color
+          color: "#333", 
           font: {
             size: 14,
           },
         },
       },
       tooltip: {
-        backgroundColor: "rgba(0,0,0,0.8)", // Dark tooltip background
+        backgroundColor: "rgba(0,0,0,0.8)",
         titleColor: "white",
         bodyColor: "white",
       },
