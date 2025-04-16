@@ -4,33 +4,38 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const DateWiseAttendance = () => {
+
+const WeeklyAttendance = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [dateRange, setDateRange] = useState([new Date('2025-01-01'), new Date('2025-01-31')]);
+    const [startDate, endDate] = dateRange;
     const [filters, setFilters] = useState({
         group: "All",
         attendance: "All",
         sort: "None",
         status: "All",
-    })
+    });
 
-    const dateWiseAttendance = [
-        { id: 1, employee: "Jhon", group: "IT Team", attendance: "Present", inTime: "10.00 AM", outTime: "10.00 PM", delayAllowedUpto: "0 Mins", breakTime: "0 Mins", totalHours: "12.00" },
-        { id: 2, employee: "David", group: "Billing Team", attendance: "Absent", inTime: "10.00 AM", outTime: "10.00 PM", delayAllowedUpto: "0 Mins", breakTime: "0 Mins", totalHours: "12.00" },
-        { id: 3, employee: "Mathuew", group: "Marketing Team", attendance: "Present", inTime: "10.00 AM", outTime: "10.00 PM", delayAllowedUpto: "0 Mins", breakTime: "0 Mins", totalHours: "12.00" },
-        { id: 4, employee: "Charles", group: "HR Team", attendance: "Absent", inTime: "10.00 AM", outTime: "10.00 PM", delayAllowedUpto: "0 Mins", breakTime: "0 Mins", totalHours: "12.00" },
-        { id: 5, employee: "Victor", group: "IT Team", attendance: "Present", inTime: "10.00 AM", outTime: "10.00 PM", delayAllowedUpto: "0 Mins", breakTime: "0 Mins", totalHours: "12.00" },
+
+    const weeklyAttendance = [
+        { id: 1, employee: "Jhon", group: "IT Team", attendance: "Present", },
+        { id: 2, employee: "David", group: "Billing Team", attendance: "Absent", },
+        { id: 3, employee: "Mathuew", group: "Marketing Team", attendance: "Present", },
+        { id: 4, employee: "Charles", group: "HR Team", attendance: "Absent", },
+        { id: 5, employee: "Victor", group: "IT Team", attendance: "Present", },
 
     ];
+
 
     // Function to handle filter changes
     const handleFilterChange = (type, value) => {
         setFilters((prevFilters) => ({ ...prevFilters, [type]: value }));
     };
 
+
     // Filtered Data based on selected filters
-    const filterDateWiseAttendance = dateWiseAttendance.filter((item) => {
+    const filterWeeklyAttendance = weeklyAttendance.filter((item) => {
         const status = item.balance === "0" ? "Non - Active" : "Active";
 
         return (
@@ -44,26 +49,27 @@ const DateWiseAttendance = () => {
 
     // Sorting logic
     if (filters.sort === "A-Z") {
-        filterDateWiseAttendance.sort((a, b) => a.employee.localeCompare(b.employee));
+        filterWeeklyAttendance.sort((a, b) => a.employee.localeCompare(b.employee));
     } else if (filters.sort === "Z-A") {
-        filterDateWiseAttendance.sort((a, b) => b.employee.localeCompare(a.employee));
+        filterWeeklyAttendance.sort((a, b) => b.employee.localeCompare(a.employee));
     }
 
     return (
         <div className="container-fluid p-3 mt-4">
-            <h3 className="mb-3 text-center">DateWise Attendance</h3>
+            <h3 className="mb-3 text-center">Weekly Attendance</h3>
 
-            {/* Filters Section */}
             <div className="row mb-3">
                 <div className="col-lg-10 col-md-12 mx-auto">
                     <div className="d-flex flex-wrap gap-2 justify-content-center">
                         <DatePicker
-                            selected={selectedDate}
-                            onChange={(date) => setSelectedDate(date)}
+                            selectsRange
+                            startDate={startDate}
+                            endDate={endDate}
+                            onChange={(update) => setDateRange(update)}
                             isClearable
-                            placeholderText="Select Date"
+                            placeholderText="Select Date Range"
                             className="form-control"
-                            dateFormat="dd-MM-yyyy"
+                            dateFormat="dd-MM-yyyy" // 👈 Add this line
                         />
 
                         <DropdownButton title={`Group : ${filters.group}`} onSelect={(e) => handleFilterChange("group", e)}>
@@ -95,6 +101,7 @@ const DateWiseAttendance = () => {
                         <Button variant="danger" onClick={() => setFilters({ group: "All", attendance: "All", sort: "All", status: "All" })}>
                             Reset
                         </Button>
+
                     </div>
                 </div>
             </div>
@@ -110,35 +117,37 @@ const DateWiseAttendance = () => {
                 </div>
             </div>
 
+
+
             <div className="table-responsive">
                 <Table striped bordered hover>
                     <thead className="table-dark text-center">
                         <tr>
                             <th>#</th>
                             <th>Employee Name</th>
-                            {/* <th>Group</th> */}
-                            <th>In Time</th>
-                            <th>Out Time</th>
-                            <th>Delay Allowed Upto</th>
-                            <th>Break Time</th>
-                            <th>Total Hours</th>
-                            <th>Attendance</th>
-                            <th>Attendance Status</th>
+                            <th>MONDAY</th>
+                            <th>TUESDAY</th>
+                            <th>WEDNESDAY</th>
+                            <th>THURSDAY</th>
+                            <th>FRIDAY</th>
+                            <th>SATAURDAY</th>
+                            <th>SUNDAY</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filterDateWiseAttendance.length > 0 ? (
-                            filterDateWiseAttendance.map((item, index) => (
+                        {filterWeeklyAttendance.length > 0 ? (
+                            filterWeeklyAttendance.map((item, index) => (
                                 <tr key={item.id}>
                                     <td>{index + 1}</td>
                                     <td>{item.employee}<br />{item.group}</td>
-                                    {/* <td>{item.group}</td> */}
-                                    <td>{item.inTime}</td>
-                                    <td>{item.outTime}</td>
-                                    <td>{item.delayAllowedUpto}</td>
-                                    <td>{item.breakTime}</td>
-                                    <td>{item.totalHours}</td>
+                                    <td>{item.attendance}</td>
+                                    <td>{item.attendance}</td>
+                                    <td>{item.attendance}</td>
+                                    <td>{item.attendance}</td>
+                                    <td>{item.attendance}</td>
+                                    <td>{item.attendance}</td>
                                     <td>{item.attendance}</td>
                                     <td className="text-center">
                                         <Button variant="success" size="sm">Active</Button>
@@ -159,8 +168,9 @@ const DateWiseAttendance = () => {
             </div>
 
 
+
         </div>
     )
 }
 
-export default DateWiseAttendance
+export default WeeklyAttendance

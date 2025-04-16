@@ -17,8 +17,9 @@ import Sidebar from "./Sidebar"
 import Signup from "./Signup"
 import AddEmployee from './AddEmployee';
 import Employee from "./Employee";
-// import PFESIReport from "./PFESIReport"
 import Settingpage from "./Settingpage"
+import WeeklyAttendance from "./WeeklyAttendance"
+
 
 export {
     Dashboard,
@@ -40,5 +41,6 @@ export {
     Signup,
     AddEmployee,
     Employee,
-    Settingpage
+    Settingpage,
+    WeeklyAttendance
 }

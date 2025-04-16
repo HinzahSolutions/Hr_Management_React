@@ -97,6 +97,9 @@ const Navbarmain = () => {
               <NavDropdown.Item as={Link} to="/datewise-attendance" className={location.pathname === "/datewise-attendance" ? "active" : ""}>
                 <FaCalendarCheck /> Datewise Attendance
               </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/weekly-attendance" className={location.pathname === "/weekly-attendance" ? "active" : ""}>
+                <FaCalendarCheck /> Weekly Attendance
+              </NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/monthly-attendance" className={location.pathname === "/monthly-attendance" ? "active" : ""}>
                 <FaCalendarCheck /> Monthly Attendance
               </NavDropdown.Item>
@@ -114,7 +117,7 @@ const Navbarmain = () => {
             </Nav.Link>
 
             <Nav.Link as={Link} to="/loanlist" className={location.pathname === "/loanlist" ? "active" : ""}>
-              <FaMoneyBillWave /> 
+              <FaMoneyBillWave />
             </Nav.Link>
 
             <NavDropdown title={<><BsBoxArrowRight /> Others</>} id="others-dropdown">
@@ -162,7 +165,7 @@ const Navbarmain = () => {
               <BsPerson /> Users
             </Nav.Link>
             <Nav.Link as={Link} to="/adminsetting" className={location.pathname === "/users" ? "active" : ""}>
-            <TfiPanel /> Admin Panel
+              <TfiPanel /> Admin Panel
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>
@@ -174,5 +177,5 @@ const Navbarmain = () => {
 export default Navbarmain;
 
 
-  
+
 
