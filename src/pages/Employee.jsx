@@ -1,13 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button, Form, Dropdown, DropdownButton, DropdownItem } from "react-bootstrap";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getEmployees } from "../features/employeeSlice";
 
 function Employee() {
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { data: employeesData, loading, error } = useSelector((state) => state.employees);
+  console.log('employeesData', employeesData);
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState([new Date('2025-01-01'), new Date('2025-01-31')]);
@@ -20,6 +27,19 @@ function Employee() {
   });
 
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A"; // Handle null or empty values
+
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is 0-based
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  };
+
+
+
   const employeeList = [
     { id: 1, empID: 2001, employeeName: "Jhon", designation: "IT Team", group: "CEO", nationality: "indian", email: "jhon@gmail.com", address: "chennai", joiningDate: "09-Nov-2024", contact: "1234567890" },
     { id: 2, empID: 2002, employeeName: "David", designation: "HR Team", group: "CEO", nationality: "indian", email: "david@gmail.com", address: "chennai", joiningDate: "19-May-2025", contact: "0987654321" },
@@ -27,6 +47,11 @@ function Employee() {
     { id: 4, empID: 2004, employeeName: "Mathuew", designation: "HR Team", group: "Manager", nationality: "indian", email: "mathuew@gmail.com", address: "chennai", joiningDate: "06-Dec-2021", contact: "0987612345" },
     { id: 5, empID: 2005, employeeName: "Victor", designation: "IT Team", group: "CEO", nationality: "indian", email: "victor@gmail.com", address: "chennai", joiningDate: "07-Apr-2025", contact: "5432167890" },
   ];
+
+
+  useEffect(() => {
+    dispatch(getEmployees());
+  }, [dispatch]);
 
 
   // Function to handle filter changes
@@ -108,51 +133,57 @@ function Employee() {
 
 
       <div className="table-responsive">
-        <Table striped bordered hover>
-          <thead className="table-dark text-center">
-            <tr>
-              <th>#</th>
-              <th>Emp ID</th>
-              <th>Employee Name</th>
-              <th>email</th>
-              <th>Contact</th>
-              <th>Designation / Group</th>
-              <th>Joining Date</th>
-              <th>Nationality</th>
-              <th>Address</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEmployeeList.length > 0 ? (
-              filteredEmployeeList.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{index + 1}</td>
-                  <td>{item.empID}</td>
-                  <td>{item.employeeName}</td>
-                  <td>{item.email}</td>
-                  <td>{item.contact}</td>
-                  <td>{item.group}<br />{item.designation}</td>
-                  <td>{item.joiningDate}</td>
-                  <td>{item.nationality}</td>
-                  <td>{item.address}</td>
-                  <td>
-                    <Button variant="success" size="sm">Active</Button>
-                  </td>
-                  <td>
-                    <Button variant="primary" size="sm">✏️ Edit</Button>{" "}
-                    <Button variant="danger" size="sm">🗑 Delete</Button>
-                  </td>
-                </tr>
-              ))
-            ) : (
+        {loading ? (
+          <div className="text-center text-primary">Loading...</div>
+        ) : error ? (
+          <div className="text-center text-danger">Error: {error}</div>
+        ) : (
+          <Table striped bordered hover>
+            <thead className="table-dark text-center">
               <tr>
-                <td colSpan="12" className="text-center text-danger">No records found</td>
+                <th>#</th>
+                <th>Emp ID</th>
+                <th>Employee Name</th>
+                <th>email</th>
+                <th>Contact</th>
+                <th>Designation / Group</th>
+                <th>Joining Date</th>
+                <th>Nationality</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            )}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {employeesData.length > 0 ? (
+                employeesData.map((item, index) => (
+                  <tr key={item.employee_id}>
+                    <td>{index + 1}</td>
+                    <td>{item.emp_id}</td>
+                    <td>{item.emp_name}</td>
+                    <td>{item.email_id}</td>
+                    <td>{item.contact_no}</td>
+                    <td>{item.emp_group}<br />{item.designation}</td>
+                    <td>{formatDate(item.joining_date)}</td>
+                    <td>{item.nationality}</td>
+                    <td>{item.address}</td>
+                    <td>
+                      <Button variant="success" size="sm">Active</Button>
+                    </td>
+                    <td>
+                      <Button variant="primary" size="sm">✏️ Edit</Button>{" "}
+                      <Button variant="danger" size="sm">🗑 Delete</Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="12" className="text-center text-danger">No records found</td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        )}
       </div>
 
 
@@ -163,3 +194,15 @@ function Employee() {
 }
 
 export default Employee
+
+// const [employeesData, setEmployeesData] = useState([]);
+
+// const fetchEmployeesData = async () => {
+//   try {
+//     const response = await axios.get('http://192.168.0.2:15930/employeelist');
+//     console.log("response", response.data);
+//     setEmployeesData(response.data);
+//   } catch (error) {
+//     console.error('Fetch error:', error.message);
+//   }
+// }

@@ -1,11 +1,18 @@
+import axios from 'axios';
 import React, { useState } from 'react'
-import { Button, Form } from 'react-bootstrap';
+import { Alert, Button, Form } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { toast, ToastContainer } from 'react-toastify';
+import { addNewEmployees } from '../features/employeeSlice';
 
 function AddEmployee() {
+
+  const dispatch = useDispatch();
 
   const [empID, setEmpID] = useState("");
   const [empName, setEmpName] = useState("");
   const [designation, setDesignation] = useState("");
+  const [group, setGroup] = useState("");
   const [contactNo, setContactNo] = useState("");
   const [emailId, setEmailId] = useState("");
   const [indianContactNo, setIndianContactNo] = useState("");
@@ -18,30 +25,83 @@ function AddEmployee() {
   const [allowance, setAllowance] = useState("");
   const [actFlag, setActFlag] = useState("");
   const [address, setAddress] = useState("");
+  const [newEmployeeData, setNewEmployeeData] = useState([]);
 
 
-  const handleSubmit = (e) => {
+  const toastNotifySuccess = () => {
+    toast.success('Successfully!', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      // transition: Bounce,
+    });
+  }
+
+  const toastNotifyError = () => {
+    toast.error('Error!', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      // transition: Bounce,
+    });
+  }
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const employeeData = {
-      empID,
-      empName,
-      designation,
-      contactNo,
-      emailId,
-      indianContactNo,
-      dateOfBirth,
-      joiningDate,
-      nationality,
-      dutyDate,
-      basicAmount,
-      accomodation,
-      allowance,
-      actFlag,
-      address
-    };
 
-    console.log("New Employee:", employeeData);
-    // You can now send this data to your backend or Redux store
+    if (
+      !empID || !empName || !designation || !group || !contactNo || !emailId ||
+      !indianContactNo || !dateOfBirth || !joiningDate || !nationality ||
+      !basicAmount || !dutyDate || !accomodation || !allowance || !actFlag || !address
+    ) {
+      // return alert('Error', 'All fields are required.');
+      return toastNotifyError();
+    }
+
+    try {
+      const employeeData = {
+        emp_id: empID,
+        emp_name: empName,
+        designation: designation,
+        emp_group: group,
+        contact_no: contactNo,
+        email_id: emailId,
+        ind_contact_no: indianContactNo,
+        dob: dateOfBirth,
+        joining_date: joiningDate,
+        nationality: nationality,
+        duty_date: dutyDate,
+        basic_amt: basicAmount,
+        accommodation: accomodation,
+        allowance: allowance,
+        act_flag: actFlag,
+        address: address
+      };
+
+      const resultAction = await dispatch(addNewEmployees(employeeData));
+      if (addNewEmployees.fulfilled.match(resultAction)) {
+        toastNotifySuccess();
+        clearForm();
+      } else {
+        toastNotifyError();
+        console.error("Add failed:", resultAction.payload || resultAction.error.message);
+      }
+
+      // You can now send this data to your backend or Redux store
+    } catch (error) {
+      console.error('Error adding new employee:', error.response ? error.response.data : error.message);
+    }
   };
 
 
@@ -49,6 +109,7 @@ function AddEmployee() {
     setEmpID("");
     setEmpName("");
     setDesignation("");
+    setGroup("");
     setContactNo("");
     setEmailId("");
     setIndianContactNo("");
@@ -103,6 +164,16 @@ function AddEmployee() {
                   <option>CEO</option>
                   <option>DEVELOPER</option>
                   <option>EMPLOYEE</option>
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group className="mb-6 col-xxl-3 col-md-12 col-lg-5 col-xl-4">
+                <Form.Label className='fw-bold'>GROUP</Form.Label>
+                <Form.Select type="text" value={group} onChange={(e) => setGroup(e.target.value)}>
+                  <option>NONE</option>
+                  <option>HR TEAM</option>
+                  <option>IT TEAM</option>
+                  {/* <option>EMPLOYEE</option> */}
                 </Form.Select>
               </Form.Group>
 
@@ -169,7 +240,7 @@ function AddEmployee() {
               <Form.Group className="mb-6 col-xxl-3 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label className='fw-bold'>BASIC AMT</Form.Label>
                 <Form.Control
-                  type="text"
+                  type="number"
                   name="basic_amount"
                   value={basicAmount}
                   onChange={(e) => setBasicAmount(e.target.value)}
@@ -189,7 +260,7 @@ function AddEmployee() {
               <Form.Group className="mb-6 col-xxl-3 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label className='fw-bold'>ACCOMODATION</Form.Label>
                 <Form.Control
-                  type="text"
+                  type="number"
                   name="accomodation"
                   value={accomodation}
                   onChange={(e) => setAccomodation(e.target.value)}
@@ -199,7 +270,7 @@ function AddEmployee() {
               <Form.Group className="mb-6 col-xxl-3 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label className='fw-bold'>ALLOWANCE</Form.Label>
                 <Form.Control
-                  type="text"
+                  type="number"
                   name="allowance"
                   value={allowance}
                   onChange={(e) => setAllowance(e.target.value)}
@@ -209,7 +280,7 @@ function AddEmployee() {
               <Form.Group className="mb-6 col-xxl-3 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label className='fw-bold'>ACT FLAG</Form.Label>
                 <Form.Control
-                  type="text"
+                  type="number"
                   name="act_flag"
                   value={actFlag}
                   onChange={(e) => setActFlag(e.target.value)}
@@ -238,6 +309,7 @@ function AddEmployee() {
             </div>
 
           </div>
+          <ToastContainer />
         </Form>
 
       </div>
@@ -246,6 +318,75 @@ function AddEmployee() {
 }
 
 export default AddEmployee
+
+
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+
+//   if (
+//     !empID || !empName || !designation || !group || !contactNo || !emailId ||
+//     !indianContactNo || !dateOfBirth || !joiningDate || !nationality ||
+//     !basicAmount || !dutyDate || !accomodation || !allowance || !actFlag || !address
+//   ) {
+//     // return alert('Error', 'All fields are required.');
+//     return toastNotifyError();
+//   }
+
+//   try {
+//     const employeeData = {
+//       emp_id: empID,
+//       emp_name: empName,
+//       designation: designation,
+//       emp_group: group,
+//       contact_no: contactNo,
+//       email_id: emailId,
+//       ind_contact_no: indianContactNo,
+//       dob: dateOfBirth,
+//       joining_date: joiningDate,
+//       nationality: nationality,
+//       duty_date: dutyDate,
+//       basic_amt: basicAmount,
+//       accommodation: accomodation,
+//       allowance: allowance,
+//       act_flag: actFlag,
+//       address: address
+//     };
+
+//     const response = await axios.post(`http://192.168.0.2:15930/createEmployee`, employeeData);
+//     setNewEmployeeData(response.data);
+
+//     toastNotifySuccess();
+
+//     // console.log("response.data:", response.data);
+//     // console.log("New Employee:", employeeData);
+
+//     setEmpID("");
+//     setEmpName("");
+//     setDesignation("");
+//     setGroup("");
+//     setContactNo("");
+//     setEmailId("");
+//     setIndianContactNo("");
+//     setDateOfBirth("");
+//     setJoiningDate("");
+//     setNationality("");
+//     setDutyDate("");
+//     setBasicAmount("");
+//     setAccomodation("");
+//     setAllowance("");
+//     setActFlag("");
+//     setAddress("");
+
+//     // You can now send this data to your backend or Redux store
+//   } catch (error) {
+//     console.error('Error adding new employee:', error.response ? error.response.data : error.message);
+//   }
+// };
+
+
+
+
+
 
 {/* <Form.Group className="mb- col-xxl-3 col-md-12 col-lg-4 col-xl-4">
                 <Form.Label className='fw-bold'>EMP CODE</Form.Label>
