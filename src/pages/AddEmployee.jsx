@@ -171,7 +171,7 @@ function AddEmployee() {
       toast.success("Employee added successfully!");
     }
 
-    clearForm();
+    // clearForm();
   }
 
 
