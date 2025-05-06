@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { AddEmployee, AllowanceReport, AttendanceReport, Bonus, Dashboard, DateWiseAttendance, Employee, HolidaysList, Incentive, Leaves, LoanList, LoanReport, PFESIReport, SalaryList, SalaryReport, Settingpage, ShiftList, Signup, WeeklyAttendance } from '../pages'
+import { AddEmployee, AllowanceReport, AttendanceReport, Bonus, Dashboard, DateWiseAttendance, Employee, HolidaysList, Incentive, Leaves, LoanList, LoanReport, PFESIReport, SalaryList, SalaryReport, Settingpage, ShiftList, Signup, UpdateEmployee, WeeklyAttendance } from '../pages'
 
 const AppRoutes = () => {
     return (
@@ -24,6 +24,8 @@ const AppRoutes = () => {
             <Route path='/employee' element={<Employee />} />
             <Route path='/adminsetting' element={<Settingpage />} />
             <Route path='/weekly-attendance' element={<WeeklyAttendance />} />
+            <Route path='/update-employee/:id' element={<UpdateEmployee />} />
+            <Route path="/edit/:id" element={<AddEmployee />} />
         </Routes>
     )
 }

@@ -1,127 +1,228 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, Button, Form } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
-import { addNewEmployees } from '../features/employeeSlice';
+import { addNewEmployees, updateEmployee } from '../features/employeeSlice';
+import { toastError, toastSuccess } from '../utils/toastHelper';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function AddEmployee() {
 
   const dispatch = useDispatch();
-
-  const [empID, setEmpID] = useState("");
-  const [empName, setEmpName] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [group, setGroup] = useState("");
-  const [contactNo, setContactNo] = useState("");
-  const [emailId, setEmailId] = useState("");
-  const [indianContactNo, setIndianContactNo] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [joiningDate, setJoiningDate] = useState("");
-  const [nationality, setNationality] = useState("");
-  const [basicAmount, setBasicAmount] = useState("");
-  const [dutyDate, setDutyDate] = useState("");
-  const [accomodation, setAccomodation] = useState("");
-  const [allowance, setAllowance] = useState("");
-  const [actFlag, setActFlag] = useState("");
-  const [address, setAddress] = useState("");
-  const [newEmployeeData, setNewEmployeeData] = useState([]);
+  const navigate = useNavigate();
+  const { id } = useParams();  // for edit mode
+  console.log('id', id);
+  const isEdit = Boolean(id);
+  const { data: employeesData, loading, error } = useSelector((state) => state.employees);
+  // console.log('employeesData', employeesData);
 
 
-  const toastNotifySuccess = () => {
-    toast.success('Successfully!', {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      // transition: Bounce,
-    });
-  }
-
-  const toastNotifyError = () => {
-    toast.error('Error!', {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      // transition: Bounce,
-    });
-  }
+  // const [empID, setEmpID] = useState("");
+  // const [empName, setEmpName] = useState("");
+  // const [designation, setDesignation] = useState("");
+  // const [group, setGroup] = useState("");
+  // const [contactNo, setContactNo] = useState("");
+  // const [emailId, setEmailId] = useState("");
+  // const [indianContactNo, setIndianContactNo] = useState("");
+  // const [dateOfBirth, setDateOfBirth] = useState("");
+  // const [joiningDate, setJoiningDate] = useState("");
+  // const [nationality, setNationality] = useState("");
+  // const [basicAmount, setBasicAmount] = useState("");
+  // const [dutyDate, setDutyDate] = useState("");
+  // const [accomodation, setAccomodation] = useState("");
+  // const [allowance, setAllowance] = useState("");
+  // const [actFlag, setActFlag] = useState("");
+  // const [address, setAddress] = useState("");
+  // const [newEmployeeData, setNewEmployeeData] = useState([]);
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    if (
-      !empID || !empName || !designation || !group || !contactNo || !emailId ||
-      !indianContactNo || !dateOfBirth || !joiningDate || !nationality ||
-      !basicAmount || !dutyDate || !accomodation || !allowance || !actFlag || !address
-    ) {
-      // return alert('Error', 'All fields are required.');
-      return toastNotifyError();
-    }
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-    try {
-      const employeeData = {
-        emp_id: empID,
-        emp_name: empName,
-        designation: designation,
-        emp_group: group,
-        contact_no: contactNo,
-        email_id: emailId,
-        ind_contact_no: indianContactNo,
-        dob: dateOfBirth,
-        joining_date: joiningDate,
-        nationality: nationality,
-        duty_date: dutyDate,
-        basic_amt: basicAmount,
-        accommodation: accomodation,
-        allowance: allowance,
-        act_flag: actFlag,
-        address: address
-      };
+  //   if (
+  //     !empID || !empName || !designation || !group || !contactNo || !emailId ||
+  //     !indianContactNo || !dateOfBirth || !joiningDate || !nationality ||
+  //     !basicAmount || !dutyDate || !accomodation || !allowance || !actFlag || !address
+  //   ) {
+  //     // return alert('Error', 'All fields are required.');
+  //     return toastError('Failed to Create Employee!')
+  //   }
 
-      const resultAction = await dispatch(addNewEmployees(employeeData));
-      if (addNewEmployees.fulfilled.match(resultAction)) {
-        toastNotifySuccess();
-        clearForm();
-      } else {
-        toastNotifyError();
-        console.error("Add failed:", resultAction.payload || resultAction.error.message);
-      }
+  //   try {
+  //     const newEmployeeData = {
+  //       emp_id: empID,
+  //       emp_name: empName,
+  //       designation: designation,
+  //       emp_group: group,
+  //       contact_no: contactNo,
+  //       email_id: emailId,
+  //       ind_contact_no: indianContactNo,
+  //       dob: dateOfBirth,
+  //       joining_date: joiningDate,
+  //       nationality: nationality,
+  //       duty_date: dutyDate,
+  //       basic_amt: basicAmount,
+  //       accommodation: accomodation,
+  //       allowance: allowance,
+  //       act_flag: actFlag,
+  //       address: address
+  //     };
 
-      // You can now send this data to your backend or Redux store
-    } catch (error) {
-      console.error('Error adding new employee:', error.response ? error.response.data : error.message);
-    }
+  //     const resultAction = await dispatch(addNewEmployees(newEmployeeData));
+
+  //     if (addNewEmployees.fulfilled.match(resultAction)) {
+  //       toastSuccess('Employee Added Successfully!')
+  //       clearForm();
+  //     } else {
+  //       toastError('Failed to Create Employee!')
+  //       console.error("Add failed:", resultAction.payload || resultAction.error.message);
+  //     }
+
+  //     // You can now send this data to your backend or Redux store
+  //   } catch (error) {
+  //     console.error('Error adding new employee:', error.response ? error.response.data : error.message);
+  //   }
+  // };
+
+
+  // const clearForm = () => {
+  //   setEmpID("");
+  //   setEmpName("");
+  //   setDesignation("");
+  //   setGroup("");
+  //   setContactNo("");
+  //   setEmailId("");
+  //   setIndianContactNo("");
+  //   setDateOfBirth("");
+  //   setJoiningDate("");
+  //   setNationality("");
+  //   setDutyDate("");
+  //   setBasicAmount("");
+  //   setAccomodation("");
+  //   setAllowance("");
+  //   setActFlag("");
+  //   setAddress("");
+  // };
+
+  const [form, setForm] = useState({
+    emp_id: "",
+    emp_name: "",
+    designation: "",
+    emp_group: "",
+    contact_no: "",
+    email_id: "",
+    ind_contact_no: "",
+    dob: "",
+    joining_date: "",
+    nationality: "",
+    duty_date: "",
+    basic_amt: "",
+    accommodation: "",
+    allowance: "",
+    act_flag: "",
+    address: ""
+  });
+
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (
+      !form.emp_id || !form.emp_name || !form.designation || !form.emp_group ||
+      !form.contact_no || !form.email_id || !form.ind_contact_no || !form.dob ||
+      !form.joining_date || !form.nationality || !form.basic_amt || !form.duty_date ||
+      !form.accommodation || !form.allowance || !form.act_flag || !form.address
+    ) {
+      // return alert('Error', 'All fields are required.');
+      return toast.error('Please Fill in All Fields!');
+    }
+
+    const newEmployee = {
+      emp_id: form.emp_id,
+      emp_name: form.emp_name,
+      designation: form.designation,
+      emp_group: form.emp_group,
+      contact_no: form.contact_no,
+      email_id: form.email_id,
+      ind_contact_no: form.ind_contact_no,
+      dob: form.dob,
+      joining_date: form.joining_date,
+      nationality: form.nationality,
+      duty_date: form.duty_date,
+      basic_amt: form.basic_amt,
+      accommodation: form.accommodation,
+      allowance: form.allowance,
+      act_flag: form.act_flag,
+      address: form.address
+    };
+
+    if (isEdit) {
+      dispatch(updateEmployee({ id, updatedData: newEmployee }));
+      toast.success("Employee updated successfully!");
+    } else {
+      dispatch(addNewEmployees(newEmployee));
+      toast.success("Employee added successfully!");
+    }
+
+    clearForm();
+  }
+
+
+  useEffect(() => {
+    if (isEdit) {
+      const employee = employeesData.find((emp) => String(emp.employee_id) === String(id));
+      console.log('employee', employee);
+      const formatDate = (dateStr) => dateStr ? dateStr.split('T')[0] : "";
+
+      if (employee) {
+        setForm({
+          emp_id: employee.emp_id || "",
+          emp_name: employee.emp_name || "",
+          designation: employee.designation || "",
+          emp_group: employee.emp_group || "",
+          contact_no: employee.contact_no || "",
+          email_id: employee.email_id || "",
+          ind_contact_no: employee.ind_contact_no || "",
+          dob: formatDate(employee.dob),
+          joining_date: formatDate(employee.joining_date),
+          nationality: employee.nationality || "",
+          duty_date: formatDate(employee.duty_date),
+          basic_amt: employee.basic_amt || "",
+          accommodation: employee.accommodation || "",
+          allowance: employee.allowance || "",
+          act_flag: employee.act_flag || "",
+          address: employee.address || ""
+        });
+      }
+    }
+  }, [id, isEdit, employeesData])
+
   const clearForm = () => {
-    setEmpID("");
-    setEmpName("");
-    setDesignation("");
-    setGroup("");
-    setContactNo("");
-    setEmailId("");
-    setIndianContactNo("");
-    setDateOfBirth("");
-    setJoiningDate("");
-    setNationality("");
-    setDutyDate("");
-    setBasicAmount("");
-    setAccomodation("");
-    setAllowance("");
-    setActFlag("");
-    setAddress("");
+    setForm({
+      emp_id: "",
+      emp_name: "",
+      designation: "",
+      emp_group: "",
+      contact_no: "",
+      email_id: "",
+      ind_contact_no: "",
+      dob: "",
+      joining_date: "",
+      nationality: "",
+      duty_date: "",
+      basic_amt: "",
+      accommodation: "",
+      allowance: "",
+      act_flag: "",
+      address: ""
+    });
   };
 
 
@@ -142,8 +243,8 @@ function AddEmployee() {
                 <Form.Control
                   type="text"
                   name="emp_id"
-                  value={empID}
-                  onChange={(e) => setEmpID(e.target.value)}
+                  value={form.emp_id}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -152,14 +253,14 @@ function AddEmployee() {
                 <Form.Control
                   type="text"
                   name="emp_name"
-                  value={empName}
-                  onChange={(e) => setEmpName(e.target.value)}
+                  value={form.emp_name}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
               <Form.Group className="mb-6 col-xxl-3 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label className='fw-bold'>DESIGNATION</Form.Label>
-                <Form.Select type="text" value={designation} onChange={(e) => setDesignation(e.target.value)}>
+                <Form.Select type="text" name="designation" value={form.designation} onChange={handleChange}>
                   <option>NONE</option>
                   <option>CEO</option>
                   <option>DEVELOPER</option>
@@ -169,7 +270,7 @@ function AddEmployee() {
 
               <Form.Group className="mb-6 col-xxl-3 col-md-12 col-lg-5 col-xl-4">
                 <Form.Label className='fw-bold'>GROUP</Form.Label>
-                <Form.Select type="text" value={group} onChange={(e) => setGroup(e.target.value)}>
+                <Form.Select type="text" name="emp_group" value={form.emp_group} onChange={handleChange}>
                   <option>NONE</option>
                   <option>HR TEAM</option>
                   <option>IT TEAM</option>
@@ -181,9 +282,9 @@ function AddEmployee() {
                 <Form.Label className='fw-bold'>CONTACT NUMBER</Form.Label>
                 <Form.Control
                   type="number"
-                  name="employee_contact"
-                  value={contactNo}
-                  onChange={(e) => setContactNo(e.target.value)}
+                  name="contact_no"
+                  value={form.contact_no}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -192,8 +293,8 @@ function AddEmployee() {
                 <Form.Control
                   type="text"
                   name="email_id"
-                  value={emailId}
-                  onChange={(e) => setEmailId(e.target.value)}
+                  value={form.email_id}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -201,9 +302,9 @@ function AddEmployee() {
                 <Form.Label className="fw-bold">INDIAN CONTACT NUMBER</Form.Label>
                 <Form.Control
                   type="number"
-                  name="indian_employee_contact"
-                  value={indianContactNo}
-                  onChange={(e) => setIndianContactNo(e.target.value)}
+                  name="ind_contact_no"
+                  value={form.ind_contact_no}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -211,9 +312,9 @@ function AddEmployee() {
                 <Form.Label className='fw-bold'>DATE-OF-BIRTH</Form.Label>
                 <Form.Control
                   type="date"
-                  name="date_of_birth"
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  name="dob"
+                  value={form.dob}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -222,8 +323,8 @@ function AddEmployee() {
                 <Form.Control
                   type="date"
                   name="joining_date"
-                  value={joiningDate}
-                  onChange={(e) => setJoiningDate(e.target.value)}
+                  value={form.joining_date}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -232,8 +333,8 @@ function AddEmployee() {
                 <Form.Control
                   type="text"
                   name="nationality"
-                  value={nationality}
-                  onChange={(e) => setNationality(e.target.value)}
+                  value={form.nationality}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -241,9 +342,9 @@ function AddEmployee() {
                 <Form.Label className='fw-bold'>BASIC AMT</Form.Label>
                 <Form.Control
                   type="number"
-                  name="basic_amount"
-                  value={basicAmount}
-                  onChange={(e) => setBasicAmount(e.target.value)}
+                  name="basic_amt"
+                  value={form.basic_amt}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -252,8 +353,8 @@ function AddEmployee() {
                 <Form.Control
                   type="date"
                   name="duty_date"
-                  value={dutyDate}
-                  onChange={(e) => setDutyDate(e.target.value)}
+                  value={form.duty_date}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -261,9 +362,9 @@ function AddEmployee() {
                 <Form.Label className='fw-bold'>ACCOMODATION</Form.Label>
                 <Form.Control
                   type="number"
-                  name="accomodation"
-                  value={accomodation}
-                  onChange={(e) => setAccomodation(e.target.value)}
+                  name="accommodation"
+                  value={form.accommodation}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -272,8 +373,8 @@ function AddEmployee() {
                 <Form.Control
                   type="number"
                   name="allowance"
-                  value={allowance}
-                  onChange={(e) => setAllowance(e.target.value)}
+                  value={form.allowance}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -282,8 +383,8 @@ function AddEmployee() {
                 <Form.Control
                   type="number"
                   name="act_flag"
-                  value={actFlag}
-                  onChange={(e) => setActFlag(e.target.value)}
+                  value={form.act_flag}
+                  onChange={handleChange}
                 />
               </Form.Group>
 
@@ -291,21 +392,21 @@ function AddEmployee() {
                 <Form.Label className="fw-bold">ADDRESS</Form.Label>
                 <Form.Control
                   as="textarea"
-                  name="address"
                   className="w-100"
                   style={{ height: '100px' }} // Adjust the height as needed
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
                 />
               </Form.Group>
             </div>
 
             <div className="d-flex gap-3 pt-5">
               <Button variant="info text-white" >SEARCH</Button>
-              <Button variant="success">UPDATE</Button>
-              <Button variant="primary" type="submit">ADD NEW EMPLOYEE</Button>
+              {/* <Button variant="success">UPDATE</Button> */}
+              <Button variant="success" type="submit">{isEdit ? 'UPDATE EMPLOYEE' : 'ADD NEW EMPLOYEE'}</Button>
               <Button variant="warning text-white" onClick={clearForm}>CLEAR ALL</Button>
-              <Button variant="dark" >EXIT</Button>
+              <Button variant="dark" onClick={() => navigate(-1)}>EXIT</Button>
             </div>
 
           </div>
@@ -385,7 +486,33 @@ export default AddEmployee
 
 
 
+// const toastNotifySuccess = () => {
+//   toast.success('Successfully!', {
+//     position: "top-right",
+//     autoClose: 5000,
+//     hideProgressBar: false,
+//     closeOnClick: true,
+//     pauseOnHover: true,
+//     draggable: true,
+//     progress: undefined,
+//     theme: "light",
+//     // transition: Bounce,
+//   });
+// }
 
+// const toastNotifyError = () => {
+//   toast.error('Error!', {
+//     position: "top-right",
+//     autoClose: 5000,
+//     hideProgressBar: false,
+//     closeOnClick: true,
+//     pauseOnHover: true,
+//     draggable: true,
+//     progress: undefined,
+//     theme: "light",
+//     // transition: Bounce,
+//   });
+// }
 
 
 {/* <Form.Group className="mb- col-xxl-3 col-md-12 col-lg-4 col-xl-4">

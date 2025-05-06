@@ -5,7 +5,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getEmployees } from "../features/employeeSlice";
+import { deleteEmployee, getEmployees } from "../features/employeeSlice";
+import { toastError, toastSuccess } from "../utils/toastHelper";
+import { ToastContainer } from "react-toastify";
 
 function Employee() {
 
@@ -13,7 +15,7 @@ function Employee() {
   const dispatch = useDispatch();
 
   const { data: employeesData, loading, error } = useSelector((state) => state.employees);
-  console.log('employeesData', employeesData);
+  // console.log('employeesData', employeesData);
 
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +27,32 @@ function Employee() {
     status: "All",
     sort: "None"
   });
+
+
+  const handleUpdate = (item) => {
+    console.log('item', item);
+  }
+
+
+  const handleDelete = async (item) => {
+    // if (!window.confirm(`Are you sure you want to delete ${item.emp_name}?`)) return;
+
+    try {
+      const result = await dispatch(deleteEmployee(item));
+
+      if (deleteEmployee.fulfilled.match(result)) {
+        toastSuccess('Employee Deleted Successfully!');
+        console.log('Deleted item response:', result);
+        dispatch(getEmployees()); // 👈 Refresh the data
+      } else {
+        throw new Error(result.payload || "Delete failed");
+      }
+
+    } catch (error) {
+      console.error('Fetch error:', error.message);
+      toastError('Failed to delete employee!');
+    }
+  }
 
 
   const formatDate = (dateString) => {
@@ -157,7 +185,8 @@ function Employee() {
             <tbody>
               {employeesData.length > 0 ? (
                 employeesData.map((item, index) => (
-                  <tr key={item.employee_id}>
+                  // <tr key={item.employee_id}>
+                  <tr key={`${item.employee_id}-${index}`}>
                     <td>{index + 1}</td>
                     <td>{item.emp_id}</td>
                     <td>{item.emp_name}</td>
@@ -171,8 +200,11 @@ function Employee() {
                       <Button variant="success" size="sm">Active</Button>
                     </td>
                     <td>
-                      <Button variant="primary" size="sm">✏️ Edit</Button>{" "}
-                      <Button variant="danger" size="sm">🗑 Delete</Button>
+                      <Button variant="primary" size="sm"
+                        // onClick={() => navigate(`/update-employee/${item.employee_id}`)}
+                        onClick={()=>navigate(`/edit/${item.employee_id}`)}
+                      >✏️ Edit</Button>{" "}
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(item)}>🗑 Delete</Button>
                     </td>
                   </tr>
                 ))
@@ -185,9 +217,7 @@ function Employee() {
           </Table>
         )}
       </div>
-
-
-
+      <ToastContainer />
 
     </div>
   )
@@ -206,3 +236,51 @@ export default Employee
 //     console.error('Fetch error:', error.message);
 //   }
 // }
+
+
+// const handleDelete = async (item) => {
+//   if (!window.confirm(`Are you sure you want to delete ${item.emp_name}?`)) return;
+
+//   try {
+//     const response = await axios.delete(`http://192.168.0.2:15930/delete_employee/${item.employee_id}`);
+//     console.log('item', response.data);
+//     toastNotifySuccess();
+//   } catch (error) {
+//     console.error('Fetch error:', error.message);
+//   }
+// }
+
+
+
+
+// const toastNotifySuccess = () => {
+//   toast.success('Successfully!', {
+//     position: "top-right",
+//     autoClose: 5000,
+//     hideProgressBar: false,
+//     closeOnClick: true,
+//     pauseOnHover: true,
+//     draggable: true,
+//     progress: undefined,
+//     theme: "light",
+//     // transition: Bounce,
+//   });
+// }
+
+// const toastNotifyError = () => {
+//   toast.error('Error!', {
+//     position: "top-right",
+//     autoClose: 5000,
+//     hideProgressBar: false,
+//     closeOnClick: true,
+//     pauseOnHover: true,
+//     draggable: true,
+//     progress: undefined,
+//     theme: "light",
+//     // transition: Bounce,
+//   });
+// }
+
+
+// toastNotifySuccess();
+// toastNotifyError();

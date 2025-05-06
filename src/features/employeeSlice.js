@@ -1,32 +1,53 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createEmployee, fetchEmployees } from "../api/employeeApi";
+import { createEmployeeAPI, deleteEmployeeAPI, fetchEmployeesAPI, updateEmployeeAPI } from "../api/employeeApi";
+
 
 
 // Thunk to fetch employees
-export const getEmployees = createAsyncThunk(
-    'employees/getEmployees',
-    async (_, thunkAPI) => {
-        try {
-            const data = await fetchEmployees();
-            return data;
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error.reponse?.data || 'Fetch failed');
-        }
+export const getEmployees = createAsyncThunk('employees/getEmployees', async (_, thunkAPI) => {
+    try {
+        const data = await fetchEmployeesAPI();
+        return data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.reponse?.data || 'Fetch failed');
     }
+}
 );
 
 
-// POST new employee
-export const addNewEmployees = createAsyncThunk(
-    'employees/addNewEmployees',
-    async (employeeData, thunkAPI) => {
-        try {
-            const data = await createEmployee(employeeData);
-            return data;
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error.reponse?.data || 'Add failed');
-        }
+// POST add new employee
+export const addNewEmployees = createAsyncThunk('employees/addNewEmployees', async (employeeData, thunkAPI) => {
+    try {
+        const data = await createEmployeeAPI(employeeData);
+        return data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.reponse?.data || 'Add failed');
     }
+}
+);
+
+
+// DELETE single employee
+export const deleteEmployee = createAsyncThunk('employees/deleteEmployee', async (employee, thunkAPI) => {
+    try {
+        const data = await deleteEmployeeAPI(employee);
+        return data.employee_id;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data || 'Delete failed');
+    }
+}
+);
+
+
+//PUT updated single employee
+export const updateEmployee = createAsyncThunk('employees/updateEmployee', async (employee, thunkAPI) => {
+    try {
+        const data = await updateEmployeeAPI(employee);
+        return data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data || 'Updated failed');
+    }
+}
 );
 
 
@@ -37,6 +58,7 @@ const employeeSlice = createSlice({
         loading: false,
         error: null,
     },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             //GET employees
@@ -53,7 +75,7 @@ const employeeSlice = createSlice({
                 state.error = action.payload || action.error.message;
             })
 
-            //POST new employee
+            //POST add new employee
             .addCase(addNewEmployees.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -63,6 +85,36 @@ const employeeSlice = createSlice({
                 state.data.push(action.payload);
             })
             .addCase(addNewEmployees.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || action.error.message;
+            })
+
+            //DELETE single employee
+            .addCase(deleteEmployee.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteEmployee.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = state.data.filter((emp) => emp.employee_id !== action.payload);
+            })
+            .addCase(deleteEmployee.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || action.error.message;
+            })
+
+            //PUT updated single employee
+            .addCase(updateEmployee.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateEmployee.fulfilled, (state, action) => {
+                state.loading = false;
+                state.data = state.data.map(emp =>
+                    emp.employee_id === action.payload.employee_id ? action.payload : emp
+                );
+            })
+            .addCase(updateEmployee.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload || action.error.message;
             })
