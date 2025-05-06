@@ -17,13 +17,11 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'vendor-react';
-            if (id.includes('lodash')) return 'vendor-lodash';
-            return 'vendor';
+            return id.split('node_modules/')[1].split('/')[0]; // Creates separate chunks for each package
           }
         }
       }
     },
-    chunkSizeWarningLimit: 700
+    chunkSizeWarningLimit: 700 // Increase limit to avoid unnecessary warnings
   }
 });

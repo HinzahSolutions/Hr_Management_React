@@ -19,7 +19,6 @@ import AddEmployee from './AddEmployee';
 import Employee from "./Employee";
 import Settingpage from "./Settingpage"
 import WeeklyAttendance from "./WeeklyAttendance"
-import UpdateEmployee from "./UpdateEmployee"
 
 
 export {
@@ -44,5 +43,4 @@ export {
     Employee,
     Settingpage,
     WeeklyAttendance,
-    UpdateEmployee
 }
