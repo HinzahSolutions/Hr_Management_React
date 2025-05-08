@@ -16,6 +16,9 @@ export const createEmployeeAPI = async (employeeData) => {
 
 
 export const updateEmployeeAPI = async (employee) => {
+    if (!employee.employee_id) {
+        console.log("Missing employee_id in updateEmployeeAPI");
+    }
     const response = await axios.put(`${API_URL}/updatedEmployee/${employee.employee_id}`, employee);
     return response.data;
 };
@@ -26,3 +29,8 @@ export const deleteEmployeeAPI = async (employee) => {
     return response.data;
 };
 
+
+// export const fetchEmployeeByIdAPI = async (id) => {
+//     const response = await axios.get(`${API_URL}/employeelist/${id}`);    // Ensure this endpoint exists in your backend
+//     return response.data;
+// }

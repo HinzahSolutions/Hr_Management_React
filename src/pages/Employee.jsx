@@ -68,6 +68,8 @@ function Employee() {
 
 
 
+
+
   const employeeList = [
     { id: 1, empID: 2001, employeeName: "Jhon", designation: "IT Team", group: "CEO", nationality: "indian", email: "jhon@gmail.com", address: "chennai", joiningDate: "09-Nov-2024", contact: "1234567890" },
     { id: 2, empID: 2002, employeeName: "David", designation: "HR Team", group: "CEO", nationality: "indian", email: "david@gmail.com", address: "chennai", joiningDate: "19-May-2025", contact: "0987654321" },
@@ -177,7 +179,7 @@ function Employee() {
                 <th>Designation / Group</th>
                 <th>Joining Date</th>
                 <th>Nationality</th>
-                <th>Address</th>
+                {/* <th>Address</th> */}
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -195,14 +197,13 @@ function Employee() {
                     <td>{item.emp_group}<br />{item.designation}</td>
                     <td>{formatDate(item.joining_date)}</td>
                     <td>{item.nationality}</td>
-                    <td>{item.address}</td>
+                    {/* <td>{item.address}</td> */}
                     <td>
                       <Button variant="success" size="sm">Active</Button>
                     </td>
                     <td>
                       <Button variant="primary" size="sm"
-                        // onClick={() => navigate(`/update-employee/${item.employee_id}`)}
-                        onClick={()=>navigate(`/edit/${item.employee_id}`)}
+                        onClick={() => navigate(`/edit/${item.employee_id}`)}
                       >✏️ Edit</Button>{" "}
                       <Button variant="danger" size="sm" onClick={() => handleDelete(item)}>🗑 Delete</Button>
                     </td>

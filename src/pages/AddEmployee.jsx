@@ -1,11 +1,15 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { Alert, Button, Form } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
-import { addNewEmployees, updateEmployee } from '../features/employeeSlice';
+import { addNewEmployees, /*fetchEmployeeById,*/ updateEmployee } from '../features/employeeSlice';
 import { toastError, toastSuccess } from '../utils/toastHelper';
 import { useNavigate, useParams } from 'react-router-dom';
+
+
+// localStorage.setItem("updateEmployeeData", JSON.stringify([{id:1}]));
+
+// localStorage.removeItem("updateEmployeeData");
 
 function AddEmployee() {
 
@@ -16,95 +20,6 @@ function AddEmployee() {
   const isEdit = Boolean(id);
   const { data: employeesData, loading, error } = useSelector((state) => state.employees);
   // console.log('employeesData', employeesData);
-
-
-  // const [empID, setEmpID] = useState("");
-  // const [empName, setEmpName] = useState("");
-  // const [designation, setDesignation] = useState("");
-  // const [group, setGroup] = useState("");
-  // const [contactNo, setContactNo] = useState("");
-  // const [emailId, setEmailId] = useState("");
-  // const [indianContactNo, setIndianContactNo] = useState("");
-  // const [dateOfBirth, setDateOfBirth] = useState("");
-  // const [joiningDate, setJoiningDate] = useState("");
-  // const [nationality, setNationality] = useState("");
-  // const [basicAmount, setBasicAmount] = useState("");
-  // const [dutyDate, setDutyDate] = useState("");
-  // const [accomodation, setAccomodation] = useState("");
-  // const [allowance, setAllowance] = useState("");
-  // const [actFlag, setActFlag] = useState("");
-  // const [address, setAddress] = useState("");
-  // const [newEmployeeData, setNewEmployeeData] = useState([]);
-
-
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (
-  //     !empID || !empName || !designation || !group || !contactNo || !emailId ||
-  //     !indianContactNo || !dateOfBirth || !joiningDate || !nationality ||
-  //     !basicAmount || !dutyDate || !accomodation || !allowance || !actFlag || !address
-  //   ) {
-  //     // return alert('Error', 'All fields are required.');
-  //     return toastError('Failed to Create Employee!')
-  //   }
-
-  //   try {
-  //     const newEmployeeData = {
-  //       emp_id: empID,
-  //       emp_name: empName,
-  //       designation: designation,
-  //       emp_group: group,
-  //       contact_no: contactNo,
-  //       email_id: emailId,
-  //       ind_contact_no: indianContactNo,
-  //       dob: dateOfBirth,
-  //       joining_date: joiningDate,
-  //       nationality: nationality,
-  //       duty_date: dutyDate,
-  //       basic_amt: basicAmount,
-  //       accommodation: accomodation,
-  //       allowance: allowance,
-  //       act_flag: actFlag,
-  //       address: address
-  //     };
-
-  //     const resultAction = await dispatch(addNewEmployees(newEmployeeData));
-
-  //     if (addNewEmployees.fulfilled.match(resultAction)) {
-  //       toastSuccess('Employee Added Successfully!')
-  //       clearForm();
-  //     } else {
-  //       toastError('Failed to Create Employee!')
-  //       console.error("Add failed:", resultAction.payload || resultAction.error.message);
-  //     }
-
-  //     // You can now send this data to your backend or Redux store
-  //   } catch (error) {
-  //     console.error('Error adding new employee:', error.response ? error.response.data : error.message);
-  //   }
-  // };
-
-
-  // const clearForm = () => {
-  //   setEmpID("");
-  //   setEmpName("");
-  //   setDesignation("");
-  //   setGroup("");
-  //   setContactNo("");
-  //   setEmailId("");
-  //   setIndianContactNo("");
-  //   setDateOfBirth("");
-  //   setJoiningDate("");
-  //   setNationality("");
-  //   setDutyDate("");
-  //   setBasicAmount("");
-  //   setAccomodation("");
-  //   setAllowance("");
-  //   setActFlag("");
-  //   setAddress("");
-  // };
 
   const [form, setForm] = useState({
     emp_id: "",
@@ -129,6 +44,38 @@ function AddEmployee() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+
+  useEffect(() => {
+    if (isEdit) {
+      const employee = employeesData.find((emp) => String(emp.employee_id) === String(id));
+      console.log('employee', employee);
+      const formatDate = (dateStr) => dateStr ? dateStr.split('T')[0] : "";
+
+      if (employee) {
+        setForm({
+          emp_id: employee.emp_id || "",
+          emp_name: employee.emp_name || "",
+          designation: employee.designation || "",
+          emp_group: employee.emp_group || "",
+          contact_no: employee.contact_no || "",
+          email_id: employee.email_id || "",
+          ind_contact_no: employee.ind_contact_no || "",
+          dob: formatDate(employee.dob),
+          joining_date: formatDate(employee.joining_date),
+          nationality: employee.nationality || "",
+          duty_date: formatDate(employee.duty_date),
+          basic_amt: employee.basic_amt || "",
+          accommodation: employee.accommodation || "",
+          allowance: employee.allowance || "",
+          act_flag: employee.act_flag || "",
+          address: employee.address || ""
+        });
+      }
+    }
+  }, [id, isEdit, employeesData])
+
+
 
 
   const handleSubmit = (e) => {
@@ -163,46 +110,24 @@ function AddEmployee() {
       address: form.address
     };
 
+    const updatedEmployee = {
+      ...form,
+      employee_id: id  // <-- make this explicit
+    };
+
     if (isEdit) {
-      dispatch(updateEmployee({ id, updatedData: newEmployee }));
+      console.log("Form values on submit:", form);           // ✅ Add this
+      console.log("Updating employee with:", updatedEmployee); // ✅ Add this
+      dispatch(updateEmployee({ updatedData: updatedEmployee }));
       toast.success("Employee updated successfully!");
     } else {
       dispatch(addNewEmployees(newEmployee));
       toast.success("Employee added successfully!");
     }
 
-    // clearForm();
+    clearForm();
   }
 
-
-  useEffect(() => {
-    if (isEdit) {
-      const employee = employeesData.find((emp) => String(emp.employee_id) === String(id));
-      console.log('employee', employee);
-      const formatDate = (dateStr) => dateStr ? dateStr.split('T')[0] : "";
-
-      if (employee) {
-        setForm({
-          emp_id: employee.emp_id || "",
-          emp_name: employee.emp_name || "",
-          designation: employee.designation || "",
-          emp_group: employee.emp_group || "",
-          contact_no: employee.contact_no || "",
-          email_id: employee.email_id || "",
-          ind_contact_no: employee.ind_contact_no || "",
-          dob: formatDate(employee.dob),
-          joining_date: formatDate(employee.joining_date),
-          nationality: employee.nationality || "",
-          duty_date: formatDate(employee.duty_date),
-          basic_amt: employee.basic_amt || "",
-          accommodation: employee.accommodation || "",
-          allowance: employee.allowance || "",
-          act_flag: employee.act_flag || "",
-          address: employee.address || ""
-        });
-      }
-    }
-  }, [id, isEdit, employeesData])
 
   const clearForm = () => {
     setForm({
@@ -230,7 +155,7 @@ function AddEmployee() {
   return (
     <>
       <div className='text-center pt-5'>
-        <h2>Enter the Employee Data</h2>
+        <h2>{isEdit ? "Enter the Update Data" : "Enter the Employee Data"}</h2>
       </div>
       <div className="container-fluid p-3 mt-4" >
 
@@ -255,6 +180,7 @@ function AddEmployee() {
                   name="emp_name"
                   value={form.emp_name}
                   onChange={handleChange}
+                  autoComplete="off"
                 />
               </Form.Group>
 
@@ -295,6 +221,7 @@ function AddEmployee() {
                   name="email_id"
                   value={form.email_id}
                   onChange={handleChange}
+                  autoComplete="off"
                 />
               </Form.Group>
 
