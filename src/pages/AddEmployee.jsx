@@ -48,9 +48,14 @@ function AddEmployee() {
 
   useEffect(() => {
     if (isEdit) {
-      const employee = employeesData.find((emp) => String(emp.employee_id) === String(id));
+      let employee = employeesData.find((emp) => String(emp.employee_id) === String(id));
       console.log('employee', employee);
       const formatDate = (dateStr) => dateStr ? dateStr.split('T')[0] : "";
+
+      if (!employee) {
+        const localData = localStorage.getItem('editEmployee');
+        if (localData) employee = JSON.parse(localData);
+      }
 
       if (employee) {
         setForm({
@@ -75,6 +80,8 @@ function AddEmployee() {
     }
   }, [id, isEdit, employeesData])
 
+
+  
 
 
 

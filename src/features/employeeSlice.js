@@ -47,17 +47,6 @@ export const updateEmployee = createAsyncThunk('employees/updateEmployee', async
 });
 
 
-//GET employee Id
-// export const fetchEmployeeById = createAsyncThunk('employees/fetchEmployeeById', async (id) => {
-//     try {
-//         const data = await fetchEmployeeByIdAPI(id);
-//         return data;
-//     } catch (error) {
-//         // return thunkAPI.rejectWithValue(error.reponse?.data || 'Fetch Ids failed');
-//         return thunkAPI.rejectWithValue(error.response?.data || 'Some fallback error');
-//     }
-// });
-
 
 const employeeSlice = createSlice({
     name: 'employees',
@@ -122,27 +111,43 @@ const employeeSlice = createSlice({
                 state.data = state.data.map(emp =>
                     emp.employee_id === action.payload.employee_id ? action.payload : emp
                 );
-                // console.log(state.data);
+                console.log(state.data);
             })
             .addCase(updateEmployee.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload || action.error.message;
             })
 
-            // //GET employee Id
-            // .addCase(fetchEmployeeById.pending, (state) => {
-            //     state.loading = true;
-            //     state.error = null;
-            // })
-            // .addCase(fetchEmployeeById.fulfilled, (state, action) => {
-            //     state.loading = false;
-            //     state.selectedEmployee = action.payload;
-            // })
-            // .addCase(fetchEmployeeById.rejected, (state, action) => {
-            //     state.loading = false;
-            //     state.error = action.payload || action.error.message;
-            // })
     },
 });
 
 export default employeeSlice.reducer;
+
+
+
+// //GET employee Id
+// export const fetchEmployeeById = createAsyncThunk('employees/fetchEmployeeById', async (id) => {
+//     try {
+//         const data = await fetchEmployeeByIdAPI(id);
+//         return data;
+//     } catch (error) {
+//         // return thunkAPI.rejectWithValue(error.reponse?.data || 'Fetch Ids failed');
+//         return thunkAPI.rejectWithValue(error.response?.data || 'Some fallback error');
+//     }
+// });
+
+
+
+// //GET employee Id
+// .addCase(fetchEmployeeById.pending, (state) => {
+//     state.loading = true;
+//     state.error = null;
+// })
+// .addCase(fetchEmployeeById.fulfilled, (state, action) => {
+//     state.loading = false;
+//     state.selectedEmployee = action.payload;
+// })
+// .addCase(fetchEmployeeById.rejected, (state, action) => {
+//     state.loading = false;
+//     state.error = action.payload || action.error.message;
+// })

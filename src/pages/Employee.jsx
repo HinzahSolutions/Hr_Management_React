@@ -203,7 +203,10 @@ function Employee() {
                     </td>
                     <td>
                       <Button variant="primary" size="sm"
-                        onClick={() => navigate(`/edit/${item.employee_id}`)}
+                        onClick={() => {
+                          navigate(`/edit/${item.employee_id}`)
+                          localStorage.setItem('editEmployee', JSON.stringify(item))
+                        }}
                       >✏️ Edit</Button>{" "}
                       <Button variant="danger" size="sm" onClick={() => handleDelete(item)}>🗑 Delete</Button>
                     </td>
