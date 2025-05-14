@@ -59,10 +59,10 @@ import { Navbar, Nav, NavDropdown, Container } from "react-bootstrap";
 import { BsSpeedometer, BsPeople, BsCalendarCheck, BsCurrencyDollar, BsFileEarmarkText, BsPerson, BsBoxArrowRight } from "react-icons/bs";
 import { FaUserTie, FaUsers, FaUserClock, FaMoneyBillWave, FaGift, FaHamburger, FaHandHoldingUsd, FaCalendarCheck } from "react-icons/fa";
 import { TfiPanel } from "react-icons/tfi";
-import { Link, useLocation } from "react-router-dom"; // ✅ Import useLocation
+import { Link, useLocation } from "react-router-dom";
 
 const Navbarmain = () => {
-  const location = useLocation(); // ✅ Get current route
+  const location = useLocation(); 
 
   return (
     <Navbar bg="primary" variant="dark" expand="lg">
@@ -117,7 +117,7 @@ const Navbarmain = () => {
             </Nav.Link>
 
             <Nav.Link as={Link} to="/loanlist" className={location.pathname === "/loanlist" ? "active" : ""}>
-              <FaMoneyBillWave />
+              <FaMoneyBillWave />  Loan
             </Nav.Link>
 
             <NavDropdown title={<><BsBoxArrowRight /> Others</>} id="others-dropdown">
@@ -161,12 +161,20 @@ const Navbarmain = () => {
               <BsFileEarmarkText /> Reports
             </Nav.Link> */}
 
-            <Nav.Link as={Link} to="/signup" className={location.pathname === "/users" ? "active" : ""}>
+            {/* <Nav.Link as={Link} to="/signup" className={location.pathname === "/users" ? "active" : ""}>
               <BsPerson /> Users
-            </Nav.Link>
+            </Nav.Link> */}
             <Nav.Link as={Link} to="/adminsetting" className={location.pathname === "/users" ? "active" : ""}>
               <TfiPanel /> Admin Panel
             </Nav.Link>
+            <Nav.Link
+  onClick={() => {
+    localStorage.removeItem("isAuthenticated");
+    window.location.href = "/signup";
+  }}
+>
+  <BsBoxArrowRight /> Logout
+</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
