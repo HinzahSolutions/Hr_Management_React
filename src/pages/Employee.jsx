@@ -168,7 +168,7 @@ function Employee() {
           <Table striped bordered hover>
             <thead className="table-dark text-center">
               <tr>
-                <th>##</th>
+                <th>#</th>
                 <th>Emp ID</th>
                 <th>Employee Name</th>
                 <th>email</th>
