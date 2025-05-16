@@ -19,7 +19,7 @@ function AddEmployee() {
   console.log('id', id);
   const isEdit = Boolean(id);
   const { data: employeesData, loading, error } = useSelector((state) => state.employees);
-  // console.log('employeesData', employeesData);
+  console.log('employeesData', employeesData);
 
   const [form, setForm] = useState({
     emp_id: "",

@@ -29,10 +29,21 @@ function Employee() {
   });
 
 
-  const handleUpdate = (item) => {
-    console.log('item', item);
-  }
+  const filteredEmployeeList = employeesData.filter((item) => {
+    return (
+      (filters.designation === 'All' || item.designation?.toLowerCase() === filters.designation.toLowerCase()) &&
+      (filters.group === 'All' || item.emp_group?.toLowerCase() === filters.group.toLowerCase()) &&
+      item.emp_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  })
 
+
+  // Sorting logic
+  if (filters.sort === "A-Z") {
+    filteredEmployeeList.sort((a, b) => a.emp_name.localeCompare(b.emp_name));
+  } else if (filters.sort === "Z-A") {
+    filteredEmployeeList.sort((a, b) => b.emp_name.localeCompare(a.emp_name));
+  }
 
   const handleDelete = async (item) => {
     // if (!window.confirm(`Are you sure you want to delete ${item.emp_name}?`)) return;
@@ -70,6 +81,7 @@ function Employee() {
 
 
 
+
   const employeeList = [
     { id: 1, empID: 2001, employeeName: "Jhon", designation: "IT Team", group: "CEO", nationality: "indian", email: "jhon@gmail.com", address: "chennai", joiningDate: "09-Nov-2024", contact: "1234567890" },
     { id: 2, empID: 2002, employeeName: "David", designation: "HR Team", group: "CEO", nationality: "indian", email: "david@gmail.com", address: "chennai", joiningDate: "19-May-2025", contact: "0987654321" },
@@ -89,22 +101,6 @@ function Employee() {
     setFilters((prevFilters) => ({ ...prevFilters, [type]: value }));
   };
 
-
-  const filteredEmployeeList = employeeList.filter((item) => {
-    return (
-      (filters.designation === "All" || item.designation === filters.designation) &&
-      (filters.group === "All" || item.group === filters.group) &&
-      item.employeeName.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })
-
-
-  // Sorting logic
-  if (filters.sort === "A-Z") {
-    filteredEmployeeList.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
-  } else if (filters.sort === "Z-A") {
-    filteredEmployeeList.sort((a, b) => b.employeeName.localeCompare(a.employeeName));
-  }
 
 
   return (
@@ -127,14 +123,15 @@ function Employee() {
 
             <DropdownButton title={`Designation : ${filters.designation}`} onSelect={(e) => handleFilterChange("designation", e)}>
               <Dropdown.Item eventKey="All">All</Dropdown.Item>
-              <Dropdown.Item eventKey="IT Team">IT Team</Dropdown.Item>
-              <Dropdown.Item eventKey="HR Team">HR Team</Dropdown.Item>
+              <Dropdown.Item eventKey="CEO">CEO</Dropdown.Item>
+              <Dropdown.Item eventKey="Manager">MANAGER</Dropdown.Item>
+              <Dropdown.Item eventKey="EMPLOYEE">EMPLOYEE</Dropdown.Item>
             </DropdownButton>
 
             <DropdownButton title={`Group : ${filters.group}`} onSelect={(e) => handleFilterChange("group", e)}>
               <Dropdown.Item eventKey="All">All</Dropdown.Item>
-              <Dropdown.Item eventKey="CEO">CEO</Dropdown.Item>
-              <Dropdown.Item eventKey="Manager">Manager</Dropdown.Item>
+              <Dropdown.Item eventKey="IT Team">IT Team</Dropdown.Item>
+              <Dropdown.Item eventKey="HR Team">HR Team</Dropdown.Item>
             </DropdownButton>
 
             <DropdownButton title={`Sort : ${filters.sort}`} onSelect={(e) => handleFilterChange("sort", e)}>
@@ -185,8 +182,8 @@ function Employee() {
               </tr>
             </thead>
             <tbody>
-              {employeesData.length > 0 ? (
-                employeesData.map((item, index) => (
+              {filteredEmployeeList.length > 0 ? (
+                filteredEmployeeList.map((item, index) => (
                   // <tr key={item.employee_id}>
                   <tr key={`${item.employee_id}-${index}`}>
                     <td>{index + 1}</td>
@@ -194,7 +191,7 @@ function Employee() {
                     <td>{item.emp_name}</td>
                     <td>{item.email_id}</td>
                     <td>{item.contact_no}</td>
-                    <td>{item.emp_group}<br />{item.designation}</td>
+                    <td>{item.designation}<br />{item.emp_group}</td>
                     <td>{formatDate(item.joining_date)}</td>
                     <td>{item.nationality}</td>
                     {/* <td>{item.address}</td> */}
@@ -228,6 +225,25 @@ function Employee() {
 }
 
 export default Employee
+
+
+// const filteredEmployeeList = employeeList.filter((item) => {
+//   return (
+//     (filters.designation === "All" || item.designation === filters.designation) &&
+//     (filters.group === "All" || item.group === filters.group) &&
+//     item.employeeName.toLowerCase().includes(searchTerm.toLowerCase())
+//   )
+// })
+
+
+
+// // Sorting logic
+// if (filters.sort === "A-Z") {
+//   filteredEmployeeList.sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+// } else if (filters.sort === "Z-A") {
+//   filteredEmployeeList.sort((a, b) => b.employeeName.localeCompare(a.employeeName));
+// }
+
 
 // const [employeesData, setEmployeesData] = useState([]);
 
