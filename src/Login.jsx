@@ -97,7 +97,7 @@ export default function Login() {
             <svg className="w-8 h-8" viewBox="0 0 32 32" fill="currentColor">
               <path d="M16 2L2 12h4v16h8v-8h4v8h8V12h4L16 2z" />
             </svg>
-            <span className="text-lg font-medium">Horilla.</span>
+            <span className="text-lg font-medium">Hinzah solutions</span>
           </div>
         </div>
       </div>

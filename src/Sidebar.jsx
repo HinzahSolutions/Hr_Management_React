@@ -21,6 +21,7 @@ import {
   FaChevronRight,
 } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
+import logoimage from './assets/logo.png'
 
 const iconMap = {
   dashboard: <FaTachometerAlt />,
@@ -40,7 +41,7 @@ const iconMap = {
 
 export default function Sidebar({
   menuItems = [],
-  logo = 'Hinzah Solutions',
+  logo = 'HRMS',
   company = 'Hinzah Solutions',
   userName = 'Mona',
   isCollapsed: controlledCollapsed,
@@ -83,10 +84,11 @@ export default function Sidebar({
         style={{ overflow: 'visible' }} // Critical: Prevent clipping
       >
         {/* Header */}
-        <div className="relative p-4 border-b border-gray-800 flex-shrink-0">
+        <div className="relative p-4 border-b border-gray-800 ">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center font-bold text-lg">
-              H
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-bold text-lg">
+              <img className='w-[100%] h-[100%]' src=
+              {logoimage} />
             </div>
             {!isCollapsed && (
               <div className="overflow-hidden">

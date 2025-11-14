@@ -401,11 +401,12 @@ function AppContent() {
 
                     <Route path='/offboard/dashboard' element={<OffboardingDashboard/>} />
                     <Route path='/offboard/Offboarding' element={<Offboarding/>} />
-
                     <Route path='Onboarding/candidates' element={<CandidatesView/>} />
 
                     {/* Placeholder */}
                     <Route path="*" element={<Placeholder title="Page Not Found" />} />
+                    
+
                   </Routes>
                 </ProtectedRoute>
               }
