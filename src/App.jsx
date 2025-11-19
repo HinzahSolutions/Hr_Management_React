@@ -236,6 +236,8 @@ import OffboardingDashboard from './OffboardingDashboard';
 import Offboarding from './Offboarding';
 import Recruitments from './Recruitments';
 import CandidatesView from './CandidatesView';
+import Login1 from './Login1'
+import Login2 from './Login2'
 
 function AppContent() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -338,6 +340,9 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+         <Route path="/company1/login" element={<Login1 />} />
+          {/* <Route path="/company2/login" element={<Login />} /> */}
+           <Route path="/company2/login" element={<Login2 />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );

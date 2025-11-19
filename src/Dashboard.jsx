@@ -59,7 +59,7 @@ export default function Dashboard({ isCollapsed }) {
             <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
               <span className="text-white text-xs font-bold">HT</span>
             </div>
-            <span className="text-sm font-medium text-gray-700">Horilla Tour</span>
+            <span className="text-sm font-medium text-gray-700">HRMS           </span>
           </div>
         </div>
       </div>
