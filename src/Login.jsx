@@ -10,6 +10,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin');
+  const [comID,setComID] = useState("0001")
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +37,16 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Company ID</label>
+              <input
+                type="text"
+                value={comID}
+                onChange={(e) => setComID(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="admin"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
               <input
