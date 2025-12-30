@@ -252,17 +252,22 @@ export function AuthProvider({ children }) {
     return user?.company_code || user?.companyId;
   };
 
-  const hasPermission = (permission) => {
-    if (!user?.company_permissions) return false;
-    
-    const permissions = user.company_permissions;
-    if (Array.isArray(permissions)) {
-      return permissions.includes(permission);
-    } else if (typeof permissions === 'object') {
-      return permissions[permission] === true;
+const hasPermission = (moduleName, subItemName) => {
+  // Check permissions from API response
+  if (!user?.permissions?.[moduleName]) return false;
+  
+  const modulePermissions = user.permissions[moduleName];
+  
+  // Search through the nested structure
+  for (const [category, items] of Object.entries(modulePermissions)) {
+    if (items && items[subItemName]) {
+      return items[subItemName].view === true || items[subItemName]['/dev'] === true;
     }
-    return false;
-  };
+  }
+  
+  return false;
+};
+
 
   return (
     <AuthContext.Provider value={{
