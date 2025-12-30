@@ -1,1 +1,41 @@
 @import "tailwindcss";
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content.collapsed {
+    margin-left: 5rem !important;
+  }
+  
+  .main-content.expanded {
+    margin-left: 16rem !important;
+  }
+}
+
+/* Improve mobile touch targets */
+@media (max-width: 768px) {
+  button, 
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+@media (max-width: 768px) {
+  body, html {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+}

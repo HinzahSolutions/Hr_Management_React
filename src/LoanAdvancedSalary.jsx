@@ -417,9 +417,7 @@ export default function LoanAdvancedSalary() {
       )}
 
       {/* ====================== FAB ====================== */}
-      <button className="fixed bottom-6 right-6 w-14 h-14 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 flex items-center justify-center z-50">
-        <Plus className="h-6 w-6" />
-      </button>
+     
     </>
   );
 }

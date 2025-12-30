@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Search,
   Filter,
@@ -69,57 +69,69 @@ export default function MyLeaveRequests() {
     },
   ];
 
-  // Mock table data
-  const requests = [
-    {
-      id: 1,
-      icon: 'marriage',
-      type: 'marriage leave',
-      start: '26 November, 2025',
-      end: '26 November, 2025',
-      days: 1.0,
-      status: 'Rejected',
-      statusColor: 'bg-yellow-100 text-yellow-800',
-      comment: true,
-      confirm: 'Cancel',
-    },
-    {
-      id: 2,
-      icon: 'ML',
-      type: 'Maternity Leave',
-      start: '15 November, 2025',
-      end: '15 November, 2025',
-      days: 1.0,
-      status: 'Approved',
-      statusColor: 'bg-green-100 text-green-800',
-      comment: true,
-      confirm: 'Cancel',
-    },
-    {
-      id: 3,
-      icon: 'ML',
-      type: 'Maternity Leave',
-      start: '12 November, 2025',
-      end: '12 November, 2025',
-      days: 1.0,
-      status: 'Approved',
-      statusColor: 'bg-green-100 text-green-800',
-      comment: true,
-      confirm: 'Cancel',
-    },
-    {
-      id: 4,
-      icon: 'SL',
-      type: 'Sick Leave',
-      start: '26 December, 2025',
-      end: '26 December, 2025',
-      days: 1.0,
-      status: 'Cancelled',
-      statusColor: 'bg-gray-100 text-gray-800',
-      comment: true,
-      confirm: 'Cancel',
-    },
-  ];
+  // Requests for the current user, pulled from the shared "leaveRequests" storage.
+  const [requests, setRequests] = useState([]);
+
+  const STORAGE_KEY = 'leaveRequests';
+  const CURRENT_EMPLOYEE = 'Dev Prakash';
+
+  const loadMyRequests = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return [];
+      const all = JSON.parse(saved);
+      return all.filter((r) => r.employee === CURRENT_EMPLOYEE);
+    } catch {
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    setRequests(loadMyRequests());
+    const handleUpdated = () => {
+      setRequests(loadMyRequests());
+    };
+
+    window.addEventListener('leaveRequestsUpdated', handleUpdated);
+    return () => {
+      window.removeEventListener('leaveRequestsUpdated', handleUpdated);
+    };
+  }, []);
+
+  const getIcon = (type) => {
+    if (!type) return 'LT';
+    const t = type.toLowerCase();
+    if (t.includes('sick')) return 'SL';
+    if (t.includes('maternity')) return 'ML';
+    if (t.includes('casual')) return 'CL';
+    if (t.includes('marriage')) return 'marriage';
+    return 'LV';
+  };
+
+  const getStatusColor = (status) => {
+    const s = String(status || '').toLowerCase();
+    if (s === 'requested') return 'bg-yellow-100 text-yellow-800';
+    if (s === 'approved') return 'bg-green-100 text-green-800';
+    if (s === 'rejected') return 'bg-red-100 text-red-800';
+    if (s === 'cancelled') return 'bg-gray-100 text-gray-800';
+    return 'bg-gray-100 text-gray-800';
+  };
+
+  const handleCancel = (id) => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const all = JSON.parse(saved);
+      const nextAll = all.map((r) =>
+        r.id === id ? { ...r, status: 'Cancelled' } : r
+      );
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAll));
+      window.dispatchEvent(new Event('leaveRequestsUpdated'));
+      setRequests(loadMyRequests());
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <>
@@ -253,24 +265,28 @@ export default function MyLeaveRequests() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {requests.map((req) => (
-                <tr key={req.id} className="hover:bg-gray-50">
+              {requests.map((req) => {
+                const icon = getIcon(req.type);
+                const statusColor = getStatusColor(req.status);
+
+                return (
+                  <tr key={req.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <input type="checkbox" className="rounded border-gray-300" />
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <div className="flex items-center gap-2">
-                      {req.icon === 'marriage' ? (
+                      {icon === 'marriage' ? (
                         <div className="w-8 h-8 bg-gray-200 border-2 border-dashed rounded flex items-center justify-center">
                           <div className="text-xs">marriage</div>
                         </div>
                       ) : (
                         <div
                           className={`w-8 h-8 ${
-                            req.icon === 'ML' ? 'bg-red-600' : req.icon === 'SL' ? 'bg-purple-600' : ''
+                            icon === 'ML' ? 'bg-red-600' : icon === 'SL' ? 'bg-purple-600' : 'bg-gray-600'
                           } rounded-full flex items-center justify-center text-white text-xs font-bold`}
                         >
-                          {req.icon}
+                          {icon}
                         </div>
                       )}
                       <span className="font-medium">{req.type}</span>
@@ -281,21 +297,28 @@ export default function MyLeaveRequests() {
                   <td className="px-4 py-3 text-sm font-medium">{req.days}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${req.statusColor}`}
+                      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColor}`}
                     >
                       {req.status}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    {req.comment && <AlertCircle className="h-4 w-4 text-orange-500" />}
+                    {/* Simple rule: show comment icon for non-approved statuses */}
+                    {String(req.status || '').toLowerCase() !== 'approved' && (
+                      <AlertCircle className="h-4 w-4 text-orange-500" />
+                    )}
                   </td>
                   <td className="px-4 py-3">
-                    <button className="px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700">
-                      {req.confirm}
+                    <button
+                      onClick={() => handleCancel(req.id)}
+                      className="px-3 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-700"
+                    >
+                      Cancel
                     </button>
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>
