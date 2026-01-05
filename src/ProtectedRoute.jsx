@@ -30,6 +30,7 @@
 import { useAuth } from './AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function ProtectedRoute({ children, requireAuth = true }) {
   const { isAuthenticated, loading, logout } = useAuth();

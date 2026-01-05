@@ -38,4 +38,64 @@
     overflow-x: hidden;
     max-width: 100%;
   }
+}/* Fix for sidebar scroll */
+.h-screen {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar {
+  scrollbar-gutter: stable;
+}
+
+/* Light theme sidebar */
+.light-sidebar .custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.light-sidebar .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.light-sidebar .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme sidebar */
+.dark-sidebar .custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark-sidebar .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark-sidebar .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.light-sidebar .custom-scrollbar {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark-sidebar .custom-scrollbar {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.container {
+    overflow-x: auto; /* Allows horizontal scroll if needed */
+    max-width: 100%;
+}
+
+/* Or better: */
+.container {
+    overflow-x: hidden; /* Hide horizontal overflow */
+    width: 100%;
 }

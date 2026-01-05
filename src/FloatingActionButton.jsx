@@ -961,104 +961,7 @@ export default function FloatingActionButton() {
       </motion.button>
 
       {/* Left Side Panel - Quick Actions */}
-      <AnimatePresence>
-        {(showLeftPanel || open) && (
-          <motion.div
-            variants={leftPanelVariants}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            className="fixed bottom-24 left-8 z-40 w-80"
-          >
-            <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden">
-              {/* Quick Actions Section */}
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-amber-500" />
-                    Quick Actions
-                  </h3>
-                  <span className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
-                    {availableActions.length} actions available
-                  </span>
-                </div>
-                <div className="mb-4">
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-gray-600">Progress</span>
-                    <span className="font-medium text-gray-900">{Math.round(progressPercentage)}%</span>
-                  </div>
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full ${getButtonGradient()}`}
-                      initial={{ width: '0%' }}
-                      animate={{ width: `${progressPercentage}%` }}
-                      transition={{ duration: 1, delay: 0.7 }}
-                    />
-                  </div>
-                </div>
-
-                {/* Action Badges */}
-                {/* <div className="grid grid-cols-2 gap-3">
-                  {actions.map((action) => (
-                    <button
-                      key={action.label}
-                      onClick={() => handleActionClick(action)}
-                      className={`p-3 rounded-xl border transition-all duration-200 ${
-                        action.modal 
-                          ? 'bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:shadow-md hover:scale-[1.02] cursor-pointer' 
-                          : 'bg-gray-50 border-gray-100 opacity-60 cursor-not-allowed'
-                      }`}
-                      disabled={!action.modal}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-2 rounded-lg bg-gradient-to-br ${action.color}`}>
-                          <action.Icon className="h-4 w-4 text-white" />
-                        </div>
-                        <span className="text-xs font-medium text-gray-700 truncate">
-                          {action.label.split(' ')[0]}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">{action.badge}</span>
-                        <div className={`text-xs px-1.5 py-0.5 rounded ${
-                          action.modal ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                          {action.modal ? '✓' : '×'}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div> */}
-              </div>
-
-              {/* Weather Section */}
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 border-t border-gray-100">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <weatherData.icon className="h-5 w-5 text-blue-600" />
-                    <h3 className="font-bold text-gray-900">{weatherData.condition}</h3>
-                  </div>
-                  <div className="text-xs text-gray-500">{weatherData.time}</div>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{weatherData.temperature}</div>
-                    <div className="text-xs text-gray-600">Temp</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{weatherData.humidity}</div>
-                    <div className="text-xs text-gray-600">Humidity</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{weatherData.audioDuration}</div>
-                    <div className="text-xs text-gray-600">Duration</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    
 
       {/* Action Menu */}
       <div ref={menuRef} className="fixed bottom-32 right-8 z-40">
@@ -1137,7 +1040,7 @@ export default function FloatingActionButton() {
         transition={{ delay: 0.3 }}
         className="fixed bottom-20 left-8 z-30"
       >
-        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-2 border border-gray-200/50">
+        {/* <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-2 border border-gray-200/50">
           <button
             onClick={() => setShowLeftPanel(!showLeftPanel)}
             className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
@@ -1145,7 +1048,7 @@ export default function FloatingActionButton() {
           >
             {showLeftPanel ? <EyeOff className="h-4 w-4 text-gray-600" /> : <Eye className="h-4 w-4 text-gray-600" />}
           </button>
-        </div>
+        </div> */}
       </motion.div>
 
       {/* Modals */}

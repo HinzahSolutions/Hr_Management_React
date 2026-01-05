@@ -680,31 +680,448 @@
 //   return context;
 // };
 
+// 'use client';
+
+// import React, { createContext, useContext, useEffect, useState } from 'react';
+// import { THEMES as themeConstants, DEFAULT_THEME } from './colors/theme';
+
+// // Re-export THEMES for backward compatibility
+// export { THEMES, DEFAULT_THEME } from './colors/theme';
+
+// const ThemeContext = createContext();
+
+// export function ThemeProvider({ children }) {
+//   const THEMES = themeConstants;
+  
+//   // Try to get auth user, but handle if AuthContext is not available
+//   let authUser = null;
+//   try {
+//     // Dynamically import useAuth to avoid circular dependency issues
+//     const { useAuth } = require('./AuthContext');
+//     const { user } = useAuth();
+//     authUser = user;
+//   } catch (error) {
+//     // AuthContext not available yet, use localStorage directly
+//     console.debug('AuthContext not available, using localStorage for theme');
+//   }
+  
+//   const [currentTheme, setCurrentTheme] = useState(DEFAULT_THEME);
+//   const [isLoading, setIsLoading] = useState(false);
+
+//   // Function to load theme from user
+//   const loadUserTheme = (userData) => {
+//     if (!userData) {
+//       setCurrentTheme(DEFAULT_THEME);
+//       return DEFAULT_THEME;
+//     }
+
+//     let matchedTheme = null;
+
+//     // Case 1: Theme saved with .id (new format)
+//     if (userData.theme?.id && THEMES[userData.theme.id]) {
+//       matchedTheme = THEMES[userData.theme.id];
+//     }
+//     // Case 2: Theme saved as string (theme name)
+//     else if (typeof userData.theme === 'string' && THEMES[userData.theme]) {
+//       matchedTheme = THEMES[userData.theme];
+//     }
+//     // Case 3: Theme saved as object with .name
+//     else if (userData.theme?.name) {
+//       matchedTheme = Object.values(THEMES).find(t => t.name === userData.theme.name);
+//     }
+//     // Case 4: Check if user has companyTheme
+//     else if (userData.companyTheme) {
+//       matchedTheme = THEMES[userData.companyTheme] || DEFAULT_THEME;
+//     }
+//     // Case 5: Check if theme is directly in user data
+//     else if (userData.theme && THEMES[userData.theme]) {
+//       matchedTheme = THEMES[userData.theme];
+//     }
+
+//     const finalTheme = matchedTheme || DEFAULT_THEME;
+//     setCurrentTheme(finalTheme);
+//     return finalTheme;
+//   };
+
+//   // Initial load
+//   useEffect(() => {
+//     const loadTheme = () => {
+//       if (authUser) {
+//         // Load from auth context user
+//         loadUserTheme(authUser);
+//       } else {
+//         // Fallback to localStorage
+//         const storedUser = localStorage.getItem('currentUser');
+//         if (storedUser) {
+//           try {
+//             const parsed = JSON.parse(storedUser);
+//             loadUserTheme(parsed);
+//           } catch (e) {
+//             console.error('Theme load error:', e);
+//             setCurrentTheme(DEFAULT_THEME);
+//           }
+//         }
+//       }
+//     };
+
+//     loadTheme();
+//   }, [authUser]);
+
+//   // Refresh theme function - can be called externally
+//   const refreshTheme = async () => {
+//     setIsLoading(true);
+    
+//     try {
+//       // Get latest user data
+//       let userData = authUser;
+      
+//       if (!userData) {
+//         const storedUser = localStorage.getItem('currentUser');
+//         if (storedUser) {
+//           userData = JSON.parse(storedUser);
+//         }
+//       }
+      
+//       loadUserTheme(userData);
+      
+//       // Small delay to ensure smooth transition
+//       await new Promise(resolve => setTimeout(resolve, 100));
+//     } catch (error) {
+//       console.error('Error refreshing theme:', error);
+//       setCurrentTheme(DEFAULT_THEME);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const changeTheme = (themeId) => {
+//     if (THEMES[themeId]) {
+//       const newTheme = THEMES[themeId];
+//       setCurrentTheme(newTheme);
+
+//       // Update in localStorage
+//       const storedUser = localStorage.getItem('currentUser');
+//       if (storedUser) {
+//         try {
+//           const user = JSON.parse(storedUser);
+//           const updatedUser = {
+//             ...user,
+//             theme: newTheme
+//           };
+          
+//           localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          
+//           // Dispatch event to notify other components
+//           window.dispatchEvent(new CustomEvent('userThemeUpdated', { 
+//             detail: { theme: newTheme }
+//           }));
+//         } catch (e) {
+//           console.error('Error saving theme:', e);
+//         }
+//       }
+//     }
+//   };
+
+//   // Listen for theme updates from other tabs/windows
+//   useEffect(() => {
+//     const handleStorageChange = (e) => {
+//       if (e.key === 'currentUser' && e.newValue) {
+//         try {
+//           const updatedUser = JSON.parse(e.newValue);
+//           if (updatedUser.theme) {
+//             loadUserTheme(updatedUser);
+//           }
+//         } catch (error) {
+//           console.error('Failed to parse updated user theme:', error);
+//         }
+//       }
+//     };
+
+//     const handleCustomEvent = (e) => {
+//       if (e.detail?.theme) {
+//         setCurrentTheme(e.detail.theme);
+//       }
+//     };
+
+//     window.addEventListener('storage', handleStorageChange);
+//     window.addEventListener('userThemeUpdated', handleCustomEvent);
+
+//     return () => {
+//       window.removeEventListener('storage', handleStorageChange);
+//       window.removeEventListener('userThemeUpdated', handleCustomEvent);
+//     };
+//   }, []);
+
+//   const themeList = Object.values(THEMES);
+
+//   return (
+//     <ThemeContext.Provider value={{ 
+//       theme: currentTheme, 
+//       changeTheme, 
+//       refreshTheme,
+//       isLoading,
+//       themes: themeList,
+//       getThemeClasses: () => ({
+//         accent: currentTheme.accent || 'orange-600',
+//         accentHover: currentTheme.accentHover || 'orange-400',
+//         textColor: `text-${currentTheme.accent || 'orange-600'}`,
+//         buttonBg: `bg-${currentTheme.accent || 'orange-600'}`,
+//         buttonHover: `hover:bg-${currentTheme.accentHover || 'orange-700'}`,
+//         borderColor: `border-${currentTheme.accent || 'orange-600'}`,
+//         focusRing: `focus:ring-${currentTheme.accent?.replace('600', '500') || 'orange-500'}/50`,
+//       })
+//     }}>
+//       {children}
+//     </ThemeContext.Provider>
+//   );
+// }
+
+// export const useTheme = () => {
+//   const context = useContext(ThemeContext);
+  
+//   if (!context) {
+//     console.warn('useTheme must be used within a ThemeProvider. Using default theme.');
+    
+//     return {
+//       theme: DEFAULT_THEME,
+//       changeTheme: () => console.warn('ThemeProvider not available'),
+//       refreshTheme: async () => {},
+//       isLoading: false,
+//       themes: Object.values(THEMES),
+//       getThemeClasses: () => ({
+//         accent: DEFAULT_THEME.accent,
+//         accentHover: DEFAULT_THEME.accentHover,
+//         textColor: `text-${DEFAULT_THEME.accent}`,
+//         buttonBg: `bg-${DEFAULT_THEME.accent}`,
+//         buttonHover: `hover:bg-${DEFAULT_THEME.accentHover}`,
+//         borderColor: `border-${DEFAULT_THEME.accent}`,
+//         focusRing: `focus:ring-${DEFAULT_THEME.accent?.replace('600', '500') || 'orange-500'}/50`,
+//       })
+//     };
+//   }
+  
+//   return context;
+// };
+
+// 'use client';
+
+// import React, { createContext, useContext, useEffect, useState } from 'react';
+// import { THEMES, DEFAULT_THEME } from './colors/theme';
+
+// const ThemeContext = createContext();
+
+// export function ThemeProvider({ children }) {
+//   const [currentTheme, setCurrentTheme] = useState(DEFAULT_THEME);
+//   const [isLoading, setIsLoading] = useState(false);
+
+//   // Function to load theme from user
+//   const loadUserTheme = (userData) => {
+//     if (!userData) {
+//       setCurrentTheme(DEFAULT_THEME);
+//       return DEFAULT_THEME;
+//     }
+
+//     let matchedTheme = null;
+
+//     // Case 1: Theme saved with .id (new format)
+//     if (userData.theme?.id && THEMES[userData.theme.id]) {
+//       matchedTheme = THEMES[userData.theme.id];
+//     }
+//     // Case 2: Theme saved as string (theme name)
+//     else if (typeof userData.theme === 'string' && THEMES[userData.theme]) {
+//       matchedTheme = THEMES[userData.theme];
+//     }
+//     // Case 3: Theme saved as object with .name
+//     else if (userData.theme?.name) {
+//       matchedTheme = Object.values(THEMES).find(t => t.name === userData.theme.name);
+//     }
+//     // Case 4: Check if user has companyTheme
+//     else if (userData.companyTheme) {
+//       matchedTheme = THEMES[userData.companyTheme] || DEFAULT_THEME;
+//     }
+//     // Case 5: Check if theme is directly in user data
+//     else if (userData.theme && THEMES[userData.theme]) {
+//       matchedTheme = THEMES[userData.theme];
+//     }
+//     // Case 6: If theme is an object with properties, find matching theme
+//     else if (userData.theme && typeof userData.theme === 'object') {
+//       // Try to find by name
+//       if (userData.theme.name) {
+//         matchedTheme = Object.values(THEMES).find(t => t.name === userData.theme.name);
+//       }
+//     }
+
+//     const finalTheme = matchedTheme || DEFAULT_THEME;
+//     setCurrentTheme(finalTheme);
+//     return finalTheme;
+//   };
+
+//   // Initial load
+//   useEffect(() => {
+//     const loadTheme = () => {
+//       // Try to get auth user from localStorage
+//       const storedUser = localStorage.getItem('currentUser');
+//       if (storedUser) {
+//         try {
+//           const parsed = JSON.parse(storedUser);
+//           loadUserTheme(parsed);
+//         } catch (e) {
+//           console.error('Theme load error:', e);
+//           setCurrentTheme(DEFAULT_THEME);
+//         }
+//       } else {
+//         setCurrentTheme(DEFAULT_THEME);
+//       }
+//     };
+
+//     loadTheme();
+//   }, []);
+
+//   // Refresh theme function - can be called externally
+//   const refreshTheme = async () => {
+//     setIsLoading(true);
+    
+//     try {
+//       // Get latest user data from localStorage
+//       const storedUser = localStorage.getItem('currentUser');
+//       if (storedUser) {
+//         const userData = JSON.parse(storedUser);
+//         loadUserTheme(userData);
+//       } else {
+//         setCurrentTheme(DEFAULT_THEME);
+//       }
+      
+//       // Small delay to ensure smooth transition
+//       await new Promise(resolve => setTimeout(resolve, 100));
+//     } catch (error) {
+//       console.error('Error refreshing theme:', error);
+//       setCurrentTheme(DEFAULT_THEME);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const changeTheme = (themeId) => {
+//     if (THEMES[themeId]) {
+//       const newTheme = THEMES[themeId];
+//       setCurrentTheme(newTheme);
+
+//       // Update in localStorage
+//       const storedUser = localStorage.getItem('currentUser');
+//       if (storedUser) {
+//         try {
+//           const user = JSON.parse(storedUser);
+//           const updatedUser = {
+//             ...user,
+//             theme: newTheme
+//           };
+          
+//           localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+          
+//           // Dispatch event to notify other components
+//           window.dispatchEvent(new CustomEvent('userThemeUpdated', { 
+//             detail: { theme: newTheme }
+//           }));
+//         } catch (e) {
+//           console.error('Error saving theme:', e);
+//         }
+//       }
+//     }
+//   };
+
+//   // Listen for theme updates from other tabs/windows
+//   useEffect(() => {
+//     const handleStorageChange = (e) => {
+//       if (e.key === 'currentUser' && e.newValue) {
+//         try {
+//           const updatedUser = JSON.parse(e.newValue);
+//           if (updatedUser.theme) {
+//             loadUserTheme(updatedUser);
+//           }
+//         } catch (error) {
+//           console.error('Failed to parse updated user theme:', error);
+//         }
+//       }
+//     };
+
+//     const handleCustomEvent = (e) => {
+//       if (e.detail?.theme) {
+//         setCurrentTheme(e.detail.theme);
+//       }
+//     };
+
+//     window.addEventListener('storage', handleStorageChange);
+//     window.addEventListener('userThemeUpdated', handleCustomEvent);
+
+//     return () => {
+//       window.removeEventListener('storage', handleStorageChange);
+//       window.removeEventListener('userThemeUpdated', handleCustomEvent);
+//     };
+//   }, []);
+
+//   const themeList = Object.values(THEMES);
+
+//   return (
+//     <ThemeContext.Provider value={{ 
+//       theme: currentTheme, 
+//       changeTheme, 
+//       refreshTheme,
+//       isLoading,
+//       themes: themeList,
+//       getThemeClasses: () => ({
+//         accent: currentTheme.accent || 'orange-600',
+//         accentHover: currentTheme.accentHover || 'orange-400',
+//         textColor: `text-${currentTheme.accent || 'orange-600'}`,
+//         buttonBg: `bg-${currentTheme.accent || 'orange-600'}`,
+//         buttonHover: `hover:bg-${currentTheme.accentHover || 'orange-700'}`,
+//         borderColor: `border-${currentTheme.accent || 'orange-600'}`,
+//         focusRing: `focus:ring-${currentTheme.accent?.replace('600', '500') || 'orange-500'}/50`,
+//       })
+//     }}>
+//       {children}
+//     </ThemeContext.Provider>
+//   );
+// }
+
+// export const useTheme = () => {
+//   const context = useContext(ThemeContext);
+  
+//   if (!context) {
+//     console.warn('useTheme must be used within a ThemeProvider. Using default theme.');
+    
+//     return {
+//       theme: DEFAULT_THEME,
+//       changeTheme: () => console.warn('ThemeProvider not available'),
+//       refreshTheme: async () => {},
+//       isLoading: false,
+//       themes: Object.values(THEMES),
+//       getThemeClasses: () => ({
+//         accent: DEFAULT_THEME.accent,
+//         accentHover: DEFAULT_THEME.accentHover,
+//         textColor: `text-${DEFAULT_THEME.accent}`,
+//         buttonBg: `bg-${DEFAULT_THEME.accent}`,
+//         buttonHover: `hover:bg-${DEFAULT_THEME.accentHover}`,
+//         borderColor: `border-${DEFAULT_THEME.accent}`,
+//         focusRing: `focus:ring-${DEFAULT_THEME.accent?.replace('600', '500') || 'orange-500'}/50`,
+//       })
+//     };
+//   }
+  
+//   return context;
+// };
+
+// // Export THEMES and DEFAULT_THEME for direct use if needed
+// export { THEMES, DEFAULT_THEME };
+
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { THEMES as themeConstants, DEFAULT_THEME } from './colors/theme';
-
-// Re-export THEMES for backward compatibility
-export { THEMES, DEFAULT_THEME } from './colors/theme';
+import { THEMES, DEFAULT_THEME } from './colors/theme';
 
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const THEMES = themeConstants;
-  
-  // Try to get auth user, but handle if AuthContext is not available
-  let authUser = null;
-  try {
-    // Dynamically import useAuth to avoid circular dependency issues
-    const { useAuth } = require('./AuthContext');
-    const { user } = useAuth();
-    authUser = user;
-  } catch (error) {
-    // AuthContext not available yet, use localStorage directly
-    console.debug('AuthContext not available, using localStorage for theme');
-  }
-  
   const [currentTheme, setCurrentTheme] = useState(DEFAULT_THEME);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -737,6 +1154,13 @@ export function ThemeProvider({ children }) {
     else if (userData.theme && THEMES[userData.theme]) {
       matchedTheme = THEMES[userData.theme];
     }
+    // Case 6: If theme is an object with properties, find matching theme
+    else if (userData.theme && typeof userData.theme === 'object') {
+      // Try to find by name
+      if (userData.theme.name) {
+        matchedTheme = Object.values(THEMES).find(t => t.name === userData.theme.name);
+      }
+    }
 
     const finalTheme = matchedTheme || DEFAULT_THEME;
     setCurrentTheme(finalTheme);
@@ -746,43 +1170,37 @@ export function ThemeProvider({ children }) {
   // Initial load
   useEffect(() => {
     const loadTheme = () => {
-      if (authUser) {
-        // Load from auth context user
-        loadUserTheme(authUser);
-      } else {
-        // Fallback to localStorage
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-          try {
-            const parsed = JSON.parse(storedUser);
-            loadUserTheme(parsed);
-          } catch (e) {
-            console.error('Theme load error:', e);
-            setCurrentTheme(DEFAULT_THEME);
-          }
+      // Try to get auth user from localStorage
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser);
+          loadUserTheme(parsed);
+        } catch (e) {
+          console.error('Theme load error:', e);
+          setCurrentTheme(DEFAULT_THEME);
         }
+      } else {
+        setCurrentTheme(DEFAULT_THEME);
       }
     };
 
     loadTheme();
-  }, [authUser]);
+  }, []);
 
   // Refresh theme function - can be called externally
   const refreshTheme = async () => {
     setIsLoading(true);
     
     try {
-      // Get latest user data
-      let userData = authUser;
-      
-      if (!userData) {
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-          userData = JSON.parse(storedUser);
-        }
+      // Get latest user data from localStorage
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        loadUserTheme(userData);
+      } else {
+        setCurrentTheme(DEFAULT_THEME);
       }
-      
-      loadUserTheme(userData);
       
       // Small delay to ensure smooth transition
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -854,6 +1272,48 @@ export function ThemeProvider({ children }) {
 
   const themeList = Object.values(THEMES);
 
+  // Helper function to extract hover color from gradient or buttonHover
+  const getHoverColor = (theme) => {
+    if (!theme) return 'orange-700';
+    
+    // Extract hover color from buttonHover property
+    if (theme.buttonHover) {
+      // Try to extract color from gradient string like "hover:from-orange-700 hover:to-orange-800"
+      const match = theme.buttonHover.match(/from-([a-z]+-\d+)/);
+      if (match && match[1]) {
+        return match[1];
+      }
+      
+      // Try to extract from simpler string
+      const colorMatch = theme.buttonHover.match(/([a-z]+-\d+)/);
+      if (colorMatch && colorMatch[1]) {
+        return colorMatch[1];
+      }
+    }
+    
+    // Default fallback based on accent color
+    if (theme.accent) {
+      const [color, shade] = theme.accent.split('-');
+      const hoverShade = parseInt(shade) + 100;
+      return `${color}-${hoverShade}`;
+    }
+    
+    return 'orange-700';
+  };
+
+  // Helper function to extract accent color
+  const getAccentColor = (theme) => {
+    if (!theme) return 'orange-600';
+    
+    // Some themes might have accent in different format
+    if (theme.accent) {
+      return theme.accent;
+    }
+    
+    // Fallback to orange-600
+    return 'orange-600';
+  };
+
   return (
     <ThemeContext.Provider value={{ 
       theme: currentTheme, 
@@ -861,15 +1321,28 @@ export function ThemeProvider({ children }) {
       refreshTheme,
       isLoading,
       themes: themeList,
-      getThemeClasses: () => ({
-        accent: currentTheme.accent || 'orange-600',
-        accentHover: currentTheme.accentHover || 'orange-400',
-        textColor: `text-${currentTheme.accent || 'orange-600'}`,
-        buttonBg: `bg-${currentTheme.accent || 'orange-600'}`,
-        buttonHover: `hover:bg-${currentTheme.accentHover || 'orange-700'}`,
-        borderColor: `border-${currentTheme.accent || 'orange-600'}`,
-        focusRing: `focus:ring-${currentTheme.accent?.replace('600', '500') || 'orange-500'}/50`,
-      })
+      getThemeClasses: () => {
+        const accent = getAccentColor(currentTheme);
+        const accentHover = getHoverColor(currentTheme);
+        const accentBase = accent.split('-')[0]; // Extract color name without shade
+        
+        return {
+          accent: accent,
+          accentHover: accentHover,
+          accentBase: accentBase, // For use in gradients
+          textColor: `text-${accent}`,
+          buttonBg: `bg-${accent}`,
+          buttonHover: `hover:bg-${accentHover}`,
+          borderColor: `border-${accent}`,
+          focusRing: `focus:ring-${accentBase}-500/50`,
+          gradientFrom: `from-${accent}`,
+          gradientTo: `to-${accentHover}`,
+          ringColor: `ring-${accentBase}-500`,
+          hoverBg: `hover:bg-${accentBase}-500/10`,
+          lightBg: `bg-${accentBase}-50`,
+          darkBg: `bg-${accentBase}-900`,
+        };
+      }
     }}>
       {children}
     </ThemeContext.Provider>
@@ -882,6 +1355,11 @@ export const useTheme = () => {
   if (!context) {
     console.warn('useTheme must be used within a ThemeProvider. Using default theme.');
     
+    // Safe default theme classes
+    const safeAccent = 'orange-600';
+    const safeAccentHover = 'orange-700';
+    const safeAccentBase = 'orange';
+    
     return {
       theme: DEFAULT_THEME,
       changeTheme: () => console.warn('ThemeProvider not available'),
@@ -889,16 +1367,26 @@ export const useTheme = () => {
       isLoading: false,
       themes: Object.values(THEMES),
       getThemeClasses: () => ({
-        accent: DEFAULT_THEME.accent,
-        accentHover: DEFAULT_THEME.accentHover,
-        textColor: `text-${DEFAULT_THEME.accent}`,
-        buttonBg: `bg-${DEFAULT_THEME.accent}`,
-        buttonHover: `hover:bg-${DEFAULT_THEME.accentHover}`,
-        borderColor: `border-${DEFAULT_THEME.accent}`,
-        focusRing: `focus:ring-${DEFAULT_THEME.accent?.replace('600', '500') || 'orange-500'}/50`,
+        accent: safeAccent,
+        accentHover: safeAccentHover,
+        accentBase: safeAccentBase,
+        textColor: `text-${safeAccent}`,
+        buttonBg: `bg-${safeAccent}`,
+        buttonHover: `hover:bg-${safeAccentHover}`,
+        borderColor: `border-${safeAccent}`,
+        focusRing: `focus:ring-${safeAccentBase}-500/50`,
+        gradientFrom: `from-${safeAccent}`,
+        gradientTo: `to-${safeAccentHover}`,
+        ringColor: `ring-${safeAccentBase}-500`,
+        hoverBg: `hover:bg-${safeAccentBase}-500/10`,
+        lightBg: `bg-${safeAccentBase}-50`,
+        darkBg: `bg-${safeAccentBase}-900`,
       })
     };
   }
   
   return context;
 };
+
+// Export THEMES and DEFAULT_THEME for direct use if needed
+export { THEMES, DEFAULT_THEME };

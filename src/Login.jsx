@@ -284,7 +284,7 @@ const handleSubmit = async (e) => {
       }, 1200);
 
     } else {
-      toast.error(data.message || 'Login failed. Please try again.');
+      // toast.error(data.message || 'Login failed. Please try again.');
     }
 
   } catch (err) {
@@ -300,17 +300,17 @@ const handleSubmit = async (e) => {
   }
 };
 
-  const previewCompany = (() => {
-    if (!companyId) return null;
-    const saved = localStorage.getItem('companies');
-    if (!saved) return null;
-    try {
-      const companies = JSON.parse(saved);
-      return companies.find(c => c.companyId === companyId);
-    } catch {
-      return null;
-    }
-  })();
+  // const previewCompany = (() => {
+  //   if (!companyId) return null;
+  //   const saved = localStorage.getItem('companies');
+  //   if (!saved) return null;
+  //   try {
+  //     const companies = JSON.parse(saved);
+  //     return companies.find(c => c.companyId === companyId);
+  //   } catch {
+  //     return null;
+  //   }
+  // })();
 
   return (
     <>
@@ -321,8 +321,8 @@ const handleSubmit = async (e) => {
           {/* Login Card */}
           <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-extrabold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                HINZAH HRMS
+              <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                 HRMS
               </h1>
               <p className="text-gray-600 mt-3 text-lg">Sign in to your company</p>
             </div>
@@ -336,7 +336,7 @@ const handleSubmit = async (e) => {
                   required
                   value={companyId}
                   onChange={(e) => setCompanyId(e.target.value)}
-                  className="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition text-gray-800"
+                  className="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition text-gray-800"
                   placeholder="e.g. HINZAH2025"
                 />
               </div>
@@ -349,7 +349,7 @@ const handleSubmit = async (e) => {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition"
+                  className="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"
                   placeholder="e.g. admin"
                 />
               </div>
@@ -363,13 +363,13 @@ const handleSubmit = async (e) => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-5 py-4 pr-14 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition"
+                    className="w-full px-5 py-4 pr-14 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-4 text-gray-500 hover:text-orange-600 transition"
+                    className="absolute right-4 top-4 text-gray-500 hover:text-blue-600 transition"
                   >
                     {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
                   </button>
@@ -380,7 +380,7 @@ const handleSubmit = async (e) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-5 rounded-2xl font-bold text-lg shadow-xl hover:from-orange-600 hover:to-red-700 transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                className="w-full bg-gradient-to-r from-blue-300 to-blue-600 text-white py-5 rounded-2xl font-bold text-lg shadow-xl hover:from-blue-600 hover:to-blue-900 transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
               >
                 {isLoading ? (
                   <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
@@ -392,15 +392,15 @@ const handleSubmit = async (e) => {
             </form>
 
             {/* Demo Info */}
-            <div className="mt-6 p-4 bg-orange-50 rounded-2xl border border-orange-200">
+            {/* <div className="mt-6 p-4 bg-orange-50 rounded-2xl border border-orange-200">
               <p className="text-xs text-orange-800 font-medium text-center">
                 Demo: <strong>Company ID</strong> HINZAH2025 • <strong>Username</strong> admin • <strong>Password</strong> admin
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* Company Preview at Bottom */}
-          <div className="mt-10 text-center">
+          {/* <div className="mt-10 text-center">
             {previewCompany ? (
               <div className="flex flex-col items-center gap-4 animate-fadeIn">
                 {previewCompany.logo ? (
@@ -430,7 +430,7 @@ const handleSubmit = async (e) => {
                 <p className="text-sm">Multi-Company HRMS</p>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </>

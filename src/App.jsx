@@ -158,6 +158,7 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
   if (!isAuthenticated) {
     return (
       <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
          <Route path="/company1/login" element={<Login1 />} />
           {/* <Route path="/company2/login" element={<Login />} /> */}
@@ -182,8 +183,8 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
 
       <div
         className={`
-          flex-1 flex flex-col transition-all duration-300 p-2 
-          ${isCollapsed ? 'lg:ml-10' : 'lg:ml-64'}  
+          flex-1 flex flex-col transition-all duration-300 p-2  
+          ${isCollapsed ? 'lg:ml-10' : 'lg:ml-60'}  
         `}
       >
         <Navbar  onToggleSidebar={() => {
@@ -194,7 +195,7 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
     }
   }} onLogout={logout} />
 
-        <main className="flex-1 mt-11  md:p-6 container mx-auto">
+        <main className="flex-1 mt-11  md:p-6 container">
           <Routes>
           
             <Route path='/company' element={<Company/>} />
