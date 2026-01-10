@@ -1,4 +1,4 @@
-// // src/components/employee/Profile.jsx
+
 // 'use client';
 
 // import React, { useState, useEffect } from 'react';
@@ -7,36 +7,65 @@
 // import { fetchEmployees } from './store/slices/employeeSlice';
 // import {
 //   Calendar, User, MapPin, Globe, Briefcase, Clock, Users, DollarSign,
-//   Edit2, Plus, Phone, Mail, Building, FileText, ChevronDown, Badge,
-//   Sun, Moon, Smartphone, Monitor, MoreVertical, Menu, X,
-//   ArrowLeft, Search, Filter, Download, Eye, ChevronRight
+//   Edit2, Phone, Mail, Building, FileText, Badge, Smartphone, MoreVertical,
+//   Menu, X, ArrowLeft, Shield, Home
 // } from 'lucide-react';
 // import { useTheme } from './ThemeContext';
-
-// const tabs = [
-//   { id: 'about', label: 'About', icon: <User className="h-4 w-4" /> },
-//   { id: 'work', label: 'Work Type & Shift', icon: <Clock className="h-4 w-4" /> },
-//   { id: 'attendance', label: 'Attendance', icon: <Calendar className="h-4 w-4" /> },
-//   { id: 'leave', label: 'Leave', icon: <Sun className="h-4 w-4" /> },
-//   { id: 'payroll', label: 'Payroll', icon: <DollarSign className="h-4 w-4" /> },
-//   { id: 'allowance', label: 'Allowance & Deduction', icon: <Users className="h-4 w-4" /> },
-//   { id: 'penalty', label: 'Penalty Account', icon: <FileText className="h-4 w-4" /> },
-//   { id: 'performance', label: 'Performance', icon: <Monitor className="h-4 w-4" /> },
-//   { id: 'documents', label: 'Documents', icon: <Briefcase className="h-4 w-4" /> }
-// ];
-
-// const innerTabs = [
-//   { id: 'bonus', label: 'Bonus Points', icon: '🏆' },
-//   { id: 'interview', label: 'Scheduled Interview', icon: '📅' },
-//   { id: 'resignation', label: 'Resignation', icon: '📝' }
-// ];
+// import { motion, AnimatePresence } from 'framer-motion';
 
 // export default function Profile() {
-//   const { theme } = useTheme();
+//   const { getThemeClasses } = useTheme();
 //   const { id } = useParams();
 //   const navigate = useNavigate();
 //   const dispatch = useDispatch();
 //   const { employees, loading } = useSelector((state) => state.employees);
+
+//   // Get theme classes
+//   const themeClasses = getThemeClasses();
+
+//   // Find employee by ID
+//   const employee = employees.find(emp => emp.id === parseInt(id)) || {
+//     name: 'Unknown Employee',
+//     code: 'N/A',
+//     department: 'N/A',
+//     email: 'Not available',
+//     phone: 'Not available',
+//     workEmail: 'Not available',
+//     personalEmail: 'Not available',
+//     workPhone: 'Not available',
+//     personalPhone: 'Not available',
+//     status: 'offline',
+//     position: 'N/A',
+//     workType: 'N/A',
+//     joinDate: 'N/A',
+//     dob: 'N/A',
+//     address: 'Not available',
+//     emergencyContact: 'Not available',
+//     photo: null,
+//     gender: 'N/A',
+//     country: 'N/A',
+//     shift: 'N/A',
+//     company: 'N/A',
+//     manager: 'N/A',
+//     salary: 'N/A',
+//     badgeId: 'N/A',
+//     documents: []
+//   };
+
+//   // State for UI
+//   const [activeTab, setActiveTab] = useState('about');
+//   const [showMobileMenu, setShowMobileMenu] = useState(false);
+//   const [isMobile, setIsMobile] = useState(false);
+
+//   // Responsive detection
+//   useEffect(() => {
+//     const checkScreenSize = () => {
+//       setIsMobile(window.innerWidth < 768);
+//     };
+//     checkScreenSize();
+//     window.addEventListener('resize', checkScreenSize);
+//     return () => window.removeEventListener('resize', checkScreenSize);
+//   }, []);
 
 //   // Fetch employees if not already loaded
 //   useEffect(() => {
@@ -45,56 +74,9 @@
 //     }
 //   }, [dispatch, employees.length]);
 
-//   // Find employee by ID
-//   const employee = employees.find(emp => emp.id === parseInt(id)) || {
-//     name: 'Unknown Employee',
-//     code: 'N/A',
-//     department: 'N/A',
-//     email: '',
-//     phone: '',
-//     workEmail: '',
-//     personalEmail: '',
-//     workPhone: '',
-//     personalPhone: '',
-//     status: 'offline',
-//     position: '',
-//     workType: '',
-//     joinDate: '',
-//     dob: '',
-//     address: '',
-//     emergencyContact: '',
-//     photo: null,
-//     documents: []
-//   };
-
-//   // Get theme colors directly from theme context
-//   const themeConfig = theme || {
-//     accent: 'orange-600',
-//     textAccent: 'text-orange-600',
-//     borderColor: 'border-orange-600',
-//     button: 'from-orange-500 to-orange-600',
-//     buttonHover: 'hover:from-orange-600 hover:to-orange-700',
-//     lightBg: 'bg-orange-50',
-//     sidebarActive: 'bg-orange-200'
-//   };
-
-//   // Helper functions to get theme values
-//   const getAccentColor = () => theme?.accent || 'orange-600';
-//   const getBorderColor = () => theme?.borderColor || 'border-orange-600';
-//   const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-//   const getButtonGradient = () => theme?.button ? `bg-gradient-to-r ${theme.button}` : 'bg-gradient-to-r from-orange-500 to-orange-600';
-//   const getButtonHover = () => theme?.buttonHover || 'hover:from-orange-600 hover:to-orange-700';
-//   const getLightBg = () => theme?.lightBg || 'bg-orange-50';
-//   const getSidebarActive = () => theme?.sidebarActive || 'bg-orange-200';
-
-//   const [activeTab, setActiveTab] = useState('about');
-//   const [activeInnerTab, setActiveInnerTab] = useState('bonus');
-//   const [showMobileMenu, setShowMobileMenu] = useState(false);
-//   const [showContactDrawer, setShowContactDrawer] = useState(false);
-
 //   // Format date helper
 //   const formatDate = (dateString) => {
-//     if (!dateString) return 'N/A';
+//     if (!dateString || dateString === 'N/A') return 'N/A';
 //     try {
 //       const date = new Date(dateString);
 //       return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -105,440 +87,373 @@
 
 //   // Get initials for avatar
 //   const getInitials = (name) => {
-//     if (!name) return 'E';
+//     if (!name || name === 'Unknown Employee') return 'E';
 //     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 //   };
 
+//   // Loading state
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+//         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+//       </div>
+//     );
+//   }
+
 //   return (
-//     <div className="min-h-screen bg-white">
-//       {/* MOBILE HEADER */}
-//       <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-gray-200">
-//         <div className="px-4 py-3 flex items-center justify-between">
-//           <div className="flex items-center gap-3">
-//             <button 
-//               onClick={() => navigate('/employee')}
-//               className="p-2 hover:bg-gray-100 rounded-lg"
-//             >
-//               <ArrowLeft className="h-5 w-5 text-gray-600" />
-//             </button>
-//             <div className="flex items-center gap-2">
-//               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getButtonGradient()} flex items-center justify-center text-white font-bold text-lg`}>
-//                 {employee.photo ? (
-//                   <img src={employee.photo} alt={employee.name} className="w-full h-full rounded-xl object-cover" />
-//                 ) : (
-//                   getInitials(employee.name)
-//                 )}
-//               </div>
-//               <div>
-//                 <h1 className="font-bold text-gray-900 text-lg">{employee.name}</h1>
-//                 <p className="text-xs text-gray-500">{employee.code}</p>
-//               </div>
+//     <div className="min-h-screen bg-white flex flex-col lg:flex-row overflow-hidden">
+//       {/* SIDEBAR - Desktop */}
+//       <div className="hidden lg:flex flex-col w-64 border-r border-gray-200 bg-white">
+//         {/* Employee Info Card */}
+//         <div className="p-6 border-b border-gray-200">
+//           <div className="flex flex-col items-center">
+//             <div className={`w-20 h-20 rounded-full ${themeClasses.buttonBg} flex items-center justify-center text-white text-2xl font-bold mb-4`}>
+//               {getInitials(employee.name)}
 //             </div>
-//           </div>
-//           <div className="flex items-center gap-2">
-//             <button className="p-2 hover:bg-gray-100 rounded-lg">
-//               <Search className="h-5 w-5 text-gray-600" />
-//             </button>
-//             <button 
-//               onClick={() => setShowMobileMenu(!showMobileMenu)}
-//               className="p-2 hover:bg-gray-100 rounded-lg"
-//             >
-//               {showMobileMenu ? <X className="h-5 w-5 text-gray-600" /> : <Menu className="h-5 w-5 text-gray-600" />}
-//             </button>
+//             <h2 className="text-xl font-bold text-gray-900 text-center">{employee.name}</h2>
+//             <p className="text-sm text-gray-500 mt-1">{employee.code}</p>
+//             <div className="flex items-center gap-2 mt-3">
+//               <div className={`px-3 py-1 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-full text-xs font-medium`}>
+//                 {employee.department}
+//               </div>
+//               <div className={`w-2 h-2 rounded-full ${employee.status === 'online' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+//             </div>
 //           </div>
 //         </div>
 
-//         {/* Mobile Contact Info */}
-//         <div className={`px-4 py-3 ${getLightBg()}`}>
-//           <div className="flex items-center justify-between overflow-x-auto gap-4 scrollbar-hide">
-//             <ContactItemMobile 
-//               label="Work Email"
-//               value={(employee.workEmail || employee.email || 'N/A').substring(0, 12) + '...'}
-//               theme={themeConfig}
-//             />
-//             <ContactItemMobile 
-//               label="Personal Email"
-//               value={(employee.personalEmail || employee.email || 'N/A').substring(0, 12) + '...'}
-//               theme={themeConfig}
-//             />
-//             <ContactItemMobile 
-//               label="Work Phone"
-//               value={(employee.workPhone || employee.phone || 'N/A').substring(0, 9) + '...'}
-//               theme={themeConfig}
-//             />
-//             <ContactItemMobile 
-//               label="Personal Phone"
-//               value={(employee.personalPhone || employee.phone || 'N/A').substring(0, 9) + '...'}
-//               theme={themeConfig}
-//             />
-//           </div>
+//         {/* Navigation */}
+//         <div className="flex-1 overflow-y-auto p-4">
+//           <nav className="space-y-1">
+//             {['about', 'work', 'attendance', 'leave', 'payroll', 'allowance', 'penalty', 'performance', 'documents'].map((tab) => (
+//               <button
+//                 key={tab}
+//                 onClick={() => setActiveTab(tab)}
+//                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+//                   activeTab === tab
+//                     ? `${themeClasses.lightBg} ${themeClasses.textColor}`
+//                     : 'text-gray-600 hover:bg-gray-100'
+//                 }`}
+//               >
+//                 {getTabIcon(tab)}
+//                 <span className="font-medium capitalize">
+//                   {tab === 'allowance' ? 'Allowance & Deduction' : 
+//                    tab === 'penalty' ? 'Penalty Account' : tab}
+//                 </span>
+//               </button>
+//             ))}
+//           </nav>
+//         </div>
+
+//         {/* Quick Actions */}
+//         <div className="p-4 border-t border-gray-200">
+//           <button className={`w-full py-2.5 ${themeClasses.buttonBg} text-white rounded-lg font-medium text-sm`}>
+//             Edit Profile
+//           </button>
 //         </div>
 //       </div>
-
-//       {/* DESKTOP HEADER */}
-//       <div className="hidden lg:block bg-white shadow-sm border-b border-gray-200">
-//         <div className="px-8 py-6">
-//           <div className="flex items-center justify-between">
-//             <div className="flex items-center gap-4">
-//               <div className="relative">
-//                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${getButtonGradient()} flex items-center justify-center text-2xl font-black text-white overflow-hidden`}>
-//                   {employee.photo ? (
-//                     <img src={employee.photo} alt={employee.name} className="w-full h-full object-cover" />
-//                   ) : (
-//                     getInitials(employee.name)
-//                   )}
-//                 </div>
-//                 <div className={`absolute bottom-0 right-0 w-4 h-4 ${employee.status === 'online' ? 'bg-green-500' : 'bg-gray-400'} rounded-full border-2 border-white`} />
-//               </div>
-//               <div>
-//                 <div className="flex items-center gap-2">
-//                   <h1 className="text-2xl font-black text-gray-900">
-//                     {employee.name}
-//                   </h1>
-//                   <span className={`px-2 py-1 ${getLightBg()} ${getTextAccent()} rounded-full text-sm font-bold`}>
-//                     {employee.code}
-//                   </span>
-//                 </div>
-//                 <p className="text-gray-600">{employee.department || 'N/A'}</p>
-//               </div>
-//             </div>
-//             <div className="flex items-center gap-4">
-//               <button className={`px-4 py-2 ${getLightBg()} ${getTextAccent()} rounded-xl font-medium`}>
-//                 Edit Profile
-//               </button>
-//               <button className="p-2 hover:bg-gray-100 rounded-xl">
-//                 <MoreVertical className="h-5 w-5 text-gray-600" />
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* MOBILE TABS DRAWER */}
-//       {showMobileMenu && (
-//         <div className="lg:hidden fixed inset-x-0 top-[104px] z-40 bg-white border-b border-gray-200 shadow-lg">
-//           <div className="p-4">
-//             <div className="space-y-1">
-//               {tabs.map(tab => (
-//                 <button
-//                   key={tab.id}
-//                   onClick={() => {
-//                     setActiveTab(tab.id);
-//                     setShowMobileMenu(false);
-//                   }}
-//                   className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-left ${
-//                     activeTab === tab.id
-//                       ? `${getSidebarActive()} ${getTextAccent()} border-l-4 ${getBorderColor()}`
-//                       : 'text-gray-600 hover:bg-gray-100'
-//                   }`}
-//                 >
-//                   <span className={activeTab === tab.id ? getTextAccent() : 'text-gray-400'}>
-//                     {tab.icon}
-//                   </span>
-//                   <span className="font-medium">{tab.label}</span>
-//                 </button>
-//               ))}
-//             </div>
-//           </div>
-//         </div>
-//       )}
 
 //       {/* MAIN CONTENT AREA */}
-//       <div className="p-4 lg:p-8">
-//         {/* MOBILE CURRENT TAB HEADER */}
-//         <div className="lg:hidden mb-6">
-//           <div className="flex items-center justify-between">
-//             <h2 className="text-2xl font-black text-gray-900">
-//               {tabs.find(t => t.id === activeTab)?.label || 'Profile'}
-//             </h2>
-//             <div className="flex items-center gap-2">
-//               <button className="p-2 hover:bg-gray-100 rounded-xl">
-//                 <Filter className="h-5 w-5 text-gray-600" />
-//               </button>
-//               <button className="p-2 hover:bg-gray-100 rounded-xl">
-//                 <Download className="h-5 w-5 text-gray-600" />
+//       <div className="flex-1 flex flex-col overflow-hidden">
+//         {/* MOBILE HEADER */}
+//         {isMobile && (
+//           <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+//             <div className="flex items-center justify-between">
+//               <div className="flex items-center gap-3">
+//                 <button 
+//                   onClick={() => navigate('/employee')}
+//                   className="p-2 hover:bg-gray-100 rounded-lg"
+//                 >
+//                   <ArrowLeft className="h-5 w-5 text-gray-600" />
+//                 </button>
+//                 <div>
+//                   <h1 className="text-lg font-bold text-gray-900">Employee</h1>
+//                   <p className="text-xs text-gray-500">{employee.code}</p>
+//                 </div>
+//               </div>
+//               <button 
+//                 onClick={() => setShowMobileMenu(!showMobileMenu)}
+//                 className="p-2 hover:bg-gray-100 rounded-lg"
+//               >
+//                 {showMobileMenu ? <X className="h-5 w-5 text-gray-600" /> : <Menu className="h-5 w-5 text-gray-600" />}
 //               </button>
 //             </div>
 //           </div>
-//           {activeTab === 'work' && (
-//             <div className="mt-4 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-//               {innerTabs.map(tab => (
-//                 <button
-//                   key={tab.id}
-//                   onClick={() => setActiveInnerTab(tab.id)}
-//                   className={`flex-shrink-0 px-4 py-2 rounded-full font-medium ${
-//                     activeInnerTab === tab.id
-//                       ? `${getButtonGradient()} text-white`
-//                       : `${getLightBg()} ${getTextAccent()}`
-//                   }`}
-//                 >
-//                   <span className="mr-2">{tab.icon}</span>
-//                   {tab.label}
-//                 </button>
-//               ))}
-//             </div>
+//         )}
+
+//         {/* MOBILE MENU DRAWER */}
+//         <AnimatePresence>
+//           {showMobileMenu && isMobile && (
+//             <motion.div
+//               initial={{ x: '100%' }}
+//               animate={{ x: 0 }}
+//               exit={{ x: '100%' }}
+//               className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
+//               onClick={() => setShowMobileMenu(false)}
+//             >
+//               <motion.div
+//                 initial={{ x: '100%' }}
+//                 animate={{ x: 0 }}
+//                 exit={{ x: '100%' }}
+//                 className="absolute right-0 top-0 bottom-0 w-64 bg-white shadow-xl"
+//                 onClick={(e) => e.stopPropagation()}
+//               >
+//                 <div className="p-4 border-b border-gray-200">
+//                   <div className="flex items-center justify-between mb-4">
+//                     <h2 className="font-bold text-gray-900">Menu</h2>
+//                     <button onClick={() => setShowMobileMenu(false)}>
+//                       <X className="h-5 w-5 text-gray-500" />
+//                     </button>
+//                   </div>
+//                   <div className="flex items-center gap-3">
+//                     <div className={`w-12 h-12 rounded-full ${themeClasses.buttonBg} flex items-center justify-center text-white font-bold`}>
+//                       {getInitials(employee.name)}
+//                     </div>
+//                     <div>
+//                       <p className="font-medium text-gray-900">{employee.name}</p>
+//                       <p className="text-xs text-gray-500">{employee.code}</p>
+//                     </div>
+//                   </div>
+//                 </div>
+//                 <div className="p-4 overflow-y-auto h-[calc(100vh-180px)]">
+//                   <nav className="space-y-1">
+//                     {['about', 'work', 'attendance', 'leave', 'payroll', 'allowance', 'penalty', 'performance', 'documents'].map((tab) => (
+//                       <button
+//                         key={tab}
+//                         onClick={() => {
+//                           setActiveTab(tab);
+//                           setShowMobileMenu(false);
+//                         }}
+//                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+//                           activeTab === tab
+//                             ? `${themeClasses.lightBg} ${themeClasses.textColor}`
+//                             : 'text-gray-600 hover:bg-gray-100'
+//                         }`}
+//                       >
+//                         {getTabIcon(tab)}
+//                         <span className="font-medium capitalize">
+//                           {tab === 'allowance' ? 'Allowance & Deduction' : 
+//                            tab === 'penalty' ? 'Penalty Account' : tab}
+//                         </span>
+//                       </button>
+//                     ))}
+//                   </nav>
+//                 </div>
+//               </motion.div>
+//             </motion.div>
+//           )}
+//         </AnimatePresence>
+
+//         {/* CONTENT HEADER */}
+//         <div className="border-b border-gray-200 px-4 lg:px-6 py-4">
+//           <h2 className="text-xl lg:text-2xl font-bold text-gray-900 capitalize">
+//             {activeTab === 'allowance' ? 'Allowance & Deduction' : 
+//              activeTab === 'penalty' ? 'Penalty Account' : activeTab}
+//           </h2>
+//           {!isMobile && (
+//             <p className="text-gray-600 mt-1">Employee ID: {employee.code}</p>
 //           )}
 //         </div>
 
-//         {/* DESKTOP TABS */}
-//         <div className="hidden lg:block mb-8">
-//           <div className="flex items-center border-b border-gray-200">
-//             {tabs.map(tab => (
-//               <button
-//                 key={tab.id}
-//                 onClick={() => setActiveTab(tab.id)}
-//                 className={`px-6 py-4 font-medium border-b-2 ${
-//                   activeTab === tab.id
-//                     ? `${getBorderColor()} ${getTextAccent()}`
-//                     : 'border-transparent text-gray-500 hover:text-gray-700'
-//                 }`}
-//               >
-//                 {tab.label}
-//               </button>
-//             ))}
-//           </div>
-//         </div>
+//         {/* SCROLLABLE CONTENT AREA */}
+//         <div className="flex-1 overflow-y-auto">
+//           <div className="p-4 lg:p-6">
+//             {activeTab === 'about' ? (
+//               <div className="space-y-6">
+//                 {/* Personal Information */}
+//                 <InfoSection 
+//                   title="Personal Information" 
+//                   icon={<User className="h-5 w-5" />}
+//                   themeClasses={themeClasses}
+//                 >
+//                   <InfoItem label="Date of Birth" value={formatDate(employee.dob)} />
+//                   <InfoItem label="Gender" value={employee.gender} />
+//                   <InfoItem label="Address" value={employee.address} />
+//                   <InfoItem label="Country" value={employee.country} />
+//                   <InfoItem label="Phone" value={employee.phone} />
+//                   <InfoItem label="Email" value={employee.email} />
+//                 </InfoSection>
 
-//         {/* CONTENT */}
-//         {activeTab === 'about' && (
-//           <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
-//             <InfoCard title="Personal Information" theme={themeConfig}>
-//               <InfoRow icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={employee.dob ? formatDate(employee.dob) : 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<User className="h-5 w-5" />} label="Gender" value={employee.gender || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<MapPin className="h-5 w-5" />} label="Address" value={employee.address || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Globe className="h-5 w-5" />} label="Country" value={employee.country || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Phone className="h-5 w-5" />} label="Phone" value={employee.phone || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Mail className="h-5 w-5" />} label="Email" value={employee.email || 'N/A'} theme={themeConfig} />
-//             </InfoCard>
+//                 {/* Work Information */}
+//                 <InfoSection 
+//                   title="Work Information" 
+//                   icon={<Briefcase className="h-5 w-5" />}
+//                   themeClasses={themeClasses}
+//                 >
+//                   <InfoItem label="Department" value={employee.department} />
+//                   <InfoItem label="Job Position" value={employee.position} />
+//                   <InfoItem label="Shift" value={employee.shift} />
+//                   <InfoItem label="Work Type" value={employee.workType} />
+//                   <InfoItem label="Badge ID" value={employee.badgeId} />
+//                 </InfoSection>
 
-//             <InfoCard title="Work Information" theme={themeConfig}>
-//               <InfoRow icon={<Building className="h-5 w-5" />} label="Department" value={employee.department || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Briefcase className="h-5 w-5" />} label="Job Position" value={employee.position || employee.designation || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Clock className="h-5 w-5" />} label="Shift" value={employee.shift || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Smartphone className="h-5 w-5" />} label="Work Type" value={employee.workType ? employee.workType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Badge className="h-5 w-5" />} label="Badge ID" value={employee.badgeId || employee.docNum || 'N/A'} theme={themeConfig} />
-//             </InfoCard>
-
-//             <InfoCard title="Contract & Bank" theme={themeConfig}>
-//               <InfoRow icon={<DollarSign className="h-5 w-5" />} label="Salary" value={employee.salary || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Calendar className="h-5 w-5" />} label="Joining Date" value={employee.joinDate ? formatDate(employee.joinDate) : 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Building className="h-5 w-5" />} label="Company" value={employee.company || 'N/A'} theme={themeConfig} />
-//               <InfoRow icon={<Users className="h-5 w-5" />} label="Manager" value={employee.manager || employee.reportingManager || 'N/A'} theme={themeConfig} />
-//               {employee.emergencyContact && (
-//                 <InfoRow icon={<Phone className="h-5 w-5" />} label="Emergency Contact" value={employee.emergencyContact} theme={themeConfig} />
-//               )}
-//             </InfoCard>
-//           </div>
-//         )}
-
-//         {activeTab === 'work' && activeInnerTab === 'bonus' && (
-//           <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-6">
-//             <div className="flex items-center justify-between mb-6">
-//               <div>
-//                 <h3 className="text-lg font-bold text-gray-800">Current Shift</h3>
-//                 <p className={`text-3xl lg:text-4xl font-black ${getTextAccent()} mt-2`}>{employee.shift || 'Not Assigned'}</p>
-//                 <p className="text-sm text-gray-500 mt-2">Work Type: {employee.workType ? employee.workType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}</p>
+//                 {/* Contract & Bank */}
+//                 <InfoSection 
+//                   title="Contract & Bank" 
+//                   icon={<FileText className="h-5 w-5" />}
+//                   themeClasses={themeClasses}
+//                 >
+//                   <InfoItem label="Salary" value={employee.salary} />
+//                   <InfoItem label="Joining Date" value={formatDate(employee.joinDate)} />
+//                   <InfoItem label="Company" value={employee.company} />
+//                   <InfoItem label="Manager" value={employee.manager} />
+//                   <InfoItem label="Emergency Contact" value={employee.emergencyContact} />
+//                 </InfoSection>
 //               </div>
-//               <button className={`px-4 py-3 ${getButtonGradient()} ${getButtonHover()} text-white rounded-xl font-medium text-sm transition-all`}>
-//                 Reallocate Shift
-//               </button>
-//             </div>
-
-//             <div className="grid grid-cols-2 gap-4 mb-8">
-//               {['Work type request', 'Rotating work type', 'Shift request', 'Rotating Shift'].map((item, i) => (
-//                 <div key={i} className={`${getLightBg()} rounded-xl p-4 text-center hover:scale-[1.02] transition-transform`}>
-//                   <p className="text-sm font-medium text-gray-700 mb-3">{item}</p>
-//                   <div className={`w-12 h-12 mx-auto ${getButtonGradient()} rounded-xl flex items-center justify-center text-white text-2xl`}>
-//                     +
+//             ) : (
+//               <div className="bg-white rounded-lg border border-gray-200 p-6">
+//                 <div className="text-center py-12">
+//                   <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+//                     <FileText className="h-8 w-8 text-gray-400" />
 //                   </div>
+//                   <h3 className="text-lg font-bold text-gray-800 mb-2 capitalize">
+//                     {activeTab === 'allowance' ? 'Allowance & Deduction' : 
+//                      activeTab === 'penalty' ? 'Penalty Account' : activeTab}
+//                   </h3>
+//                   <p className="text-gray-500 max-w-md mx-auto">
+//                     This section is under development. Content will be available soon.
+//                   </p>
 //                 </div>
-//               ))}
-//             </div>
-//           </div>
-//         )}
-
-//         {/* ATTENDANCE TAB - EMPTY STATE */}
-//         {activeTab === 'attendance' && (
-//           <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-8">
-//             <div className="text-center py-8 lg:py-16">
-//               <div className="w-16 h-16 lg:w-24 lg:h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-//                 <FileText className="h-8 lg:h-12 w-8 lg:w-12 text-gray-400" />
 //               </div>
-//               <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">Attendance</h3>
-//               <p className="text-gray-500 text-sm lg:text-base">
-//                 No data available for this section yet. Content will appear here once it's been added.
-//               </p>
-//             </div>
+//             )}
 //           </div>
-//         )}
-
-//         {/* OTHER TABS - EMPTY STATE */}
-//         {activeTab !== 'about' && activeTab !== 'work' && activeTab !== 'attendance' && (
-//           <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-8">
-//             <div className="text-center py-8 lg:py-16">
-//               <div className="w-16 h-16 lg:w-24 lg:h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-//                 <FileText className="h-8 lg:h-12 w-8 lg:w-12 text-gray-400" />
-//               </div>
-//               <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
-//                 {tabs.find(t => t.id === activeTab)?.label || activeTab}
-//               </h3>
-//               <p className="text-gray-500 text-sm lg:text-base">
-//                 No data available for this section yet.
-//               </p>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* MOBILE BOTTOM NAV */}
-//       <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-40">
-//         <div className="flex items-center justify-around p-3">
-//           <button
-//             onClick={() => setActiveTab('about')}
-//             className={`flex flex-col items-center p-2 ${
-//               activeTab === 'about' ? getTextAccent() : 'text-gray-500'
-//             }`}
-//           >
-//             <User className="h-5 w-5" />
-//             <span className="text-xs mt-1">About</span>
-//           </button>
-//           <button
-//             onClick={() => setActiveTab('work')}
-//             className={`flex flex-col items-center p-2 ${
-//               activeTab === 'work' ? getTextAccent() : 'text-gray-500'
-//             }`}
-//           >
-//             <Clock className="h-5 w-5" />
-//             <span className="text-xs mt-1">Work</span>
-//           </button>
-//           <button
-//             onClick={() => setActiveTab('attendance')}
-//             className={`flex flex-col items-center p-2 ${
-//               activeTab === 'attendance' ? getTextAccent() : 'text-gray-500'
-//             }`}
-//           >
-//             <Calendar className="h-5 w-5" />
-//             <span className="text-xs mt-1">Attendance</span>
-//           </button>
-//           <button
-//             onClick={() => setShowContactDrawer(true)}
-//             className="flex flex-col items-center p-2 text-gray-500"
-//           >
-//             <Phone className="h-5 w-5" />
-//             <span className="text-xs mt-1">Contact</span>
-//           </button>
-//           <button
-//             onClick={() => setShowMobileMenu(true)}
-//             className="flex flex-col items-center p-2 text-gray-500"
-//           >
-//             <Menu className="h-5 w-5" />
-//             <span className="text-xs mt-1">More</span>
-//           </button>
 //         </div>
-//       </div>
 
-//       {/* CONTACT DRAWER */}
-//       {showContactDrawer && (
-//         <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50">
-//           <div className="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl p-6">
-//             <div className="flex items-center justify-between mb-6">
-//               <h3 className="text-xl font-bold text-gray-900">Contact Information</h3>
-//               <button onClick={() => setShowContactDrawer(false)}>
-//                 <X className="h-6 w-6 text-gray-500" />
+//         {/* MOBILE BOTTOM NAV */}
+//         {isMobile && (
+//           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 py-2">
+//             <div className="flex items-center justify-around">
+//               <NavButton
+//                 active={activeTab === 'about'}
+//                 onClick={() => setActiveTab('about')}
+//                 icon={<User className="h-5 w-5" />}
+//                 label="About"
+//                 themeClasses={themeClasses}
+//               />
+//               <NavButton
+//                 active={activeTab === 'work'}
+//                 onClick={() => setActiveTab('work')}
+//                 icon={<Briefcase className="h-5 w-5" />}
+//                 label="Work"
+//                 themeClasses={themeClasses}
+//               />
+//               <NavButton
+//                 active={activeTab === 'attendance'}
+//                 onClick={() => setActiveTab('attendance')}
+//                 icon={<Calendar className="h-5 w-5" />}
+//                 label="Attendance"
+//                 themeClasses={themeClasses}
+//               />
+//               <NavButton
+//                 active={activeTab === 'payroll'}
+//                 onClick={() => setActiveTab('payroll')}
+//                 icon={<DollarSign className="h-5 w-5" />}
+//                 label="Payroll"
+//                 themeClasses={themeClasses}
+//               />
+//               <button
+//                 onClick={() => setShowMobileMenu(true)}
+//                 className="flex flex-col items-center p-2"
+//               >
+//                 <MoreVertical className="h-5 w-5 text-gray-500" />
+//                 <span className="text-xs text-gray-500 mt-1">More</span>
 //               </button>
 //             </div>
-//             <div className="space-y-6">
-//               <ContactDetail label="Work Email" value={employee.workEmail || employee.email || 'N/A'} />
-//               <ContactDetail label="Personal Email" value={employee.personalEmail || employee.email || 'N/A'} />
-//               <ContactDetail label="Work Phone" value={employee.workPhone || employee.phone || 'N/A'} />
-//               <ContactDetail label="Personal Phone" value={employee.personalPhone || employee.phone || 'N/A'} />
-//             </div>
 //           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// // Mobile Contact Item Component
-// function ContactItemMobile({ label, value, theme }) {
-//   const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-  
-//   return (
-//     <div className="flex-shrink-0">
-//       <p className="text-xs text-gray-500">{label}</p>
-//       <p className={`text-sm font-bold ${getTextAccent()}`}>{value}</p>
-//     </div>
-//   );
-// }
-
-// // Mobile Contact Detail Component
-// function ContactDetail({ label, value }) {
-//   return (
-//     <div>
-//       <p className="text-sm text-gray-500 mb-1">{label}</p>
-//       <p className="text-lg font-bold text-gray-900">{value}</p>
-//     </div>
-//   );
-// }
-
-// // Info Card Component
-// function InfoCard({ title, children, theme }) {
-//   const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-//   const getLightBg = () => theme?.lightBg || 'bg-orange-50';
-  
-//   return (
-//     <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow">
-//       <div className="flex items-center justify-between mb-4">
-//         <h3 className={`font-bold ${getTextAccent()} text-lg`}>{title}</h3>
-//         <button className={`p-2 hover:${getLightBg()} rounded-xl transition-colors`}>
-//           <Edit2 className={`h-4 w-4 ${getTextAccent()}`} />
-//         </button>
+//         )}
 //       </div>
-//       <div className="space-y-4">
+//     </div>
+//   );
+// }
+
+// // Helper function for tab icons
+// function getTabIcon(tab) {
+//   const iconClass = "h-5 w-5";
+//   switch(tab) {
+//     case 'about': return <User className={iconClass} />;
+//     case 'work': return <Briefcase className={iconClass} />;
+//     case 'attendance': return <Calendar className={iconClass} />;
+//     case 'leave': return <Shield className={iconClass} />;
+//     case 'payroll': return <DollarSign className={iconClass} />;
+//     case 'allowance': return <Users className={iconClass} />;
+//     case 'penalty': return <FileText className={iconClass} />;
+//     case 'performance': return <Smartphone className={iconClass} />;
+//     case 'documents': return <FileText className={iconClass} />;
+//     default: return <User className={iconClass} />;
+//   }
+// }
+
+// // Info Section Component
+// function InfoSection({ title, icon, children, themeClasses }) {
+//   return (
+//     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+//       <div className={`px-4 py-3 ${themeClasses.lightBg} border-b border-gray-200`}>
+//         <div className="flex items-center gap-2">
+//           <div className={themeClasses.textColor}>
+//             {icon}
+//           </div>
+//           <h3 className="font-bold text-gray-900">{title}</h3>
+//         </div>
+//       </div>
+//       <div className="p-4">
 //         {children}
 //       </div>
 //     </div>
 //   );
 // }
 
-// // Info Row Component
-// function InfoRow({ icon, label, value, theme }) {
-//   const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-//   const getLightBg = () => theme?.lightBg || 'bg-orange-50';
-  
+// // Info Item Component
+// function InfoItem({ label, value }) {
 //   return (
-//     <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-//       <div className="flex items-center gap-3">
-//         <div className={`p-2 ${getLightBg()} rounded-xl`}>
-//           {icon}
-//         </div>
-//         <span className="text-sm text-gray-500">{label}</span>
-//       </div>
-//       <span className="font-medium text-gray-900">{value}</span>
+//     <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+//       <span className="text-sm text-gray-600">{label}</span>
+//       <span className="font-medium text-gray-900 text-sm">{value}</span>
 //     </div>
 //   );
 // }
 
-// // Contact Item Component (Desktop)
-// function ContactItem({ icon, label, value, theme }) {
-//   const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-  
+// // Mobile Navigation Button
+// function NavButton({ active, onClick, icon, label, themeClasses }) {
 //   return (
-//     <div className="flex items-center gap-3">
-//       <div className={getTextAccent()}>
+//     <button
+//       onClick={onClick}
+//       className={`flex flex-col items-center p-2 min-w-[64px] transition-colors ${
+//         active ? themeClasses.textColor : 'text-gray-500'
+//       }`}
+//     >
+//       <div className={`p-2 rounded-lg ${active ? themeClasses.lightBg : 'bg-transparent'}`}>
 //         {icon}
 //       </div>
-//       <div>
-//         <p className="text-sm text-gray-500">{label}</p>
-//         <p className="font-bold text-gray-900">{value}</p>
+//       <span className="text-xs mt-1 font-medium">{label}</span>
+//     </button>
+//   );
+// }
+
+// // Contact Detail Component
+// function ContactDetail({ label, value, action, icon, themeClasses }) {
+//   return (
+//     <div className="bg-gray-50 rounded-lg p-3">
+//       <div className="flex items-start gap-3">
+//         <div className={`p-2 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-lg`}>
+//           {icon}
+//         </div>
+//         <div className="flex-1">
+//           <p className="text-sm text-gray-500 mb-1">{label}</p>
+//           <p className="text-base font-medium text-gray-900 break-all">{value}</p>
+//         </div>
+//         {action && (
+//           <a
+//             href={action}
+//             className={`p-2 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-lg`}
+//           >
+//             {icon}
+//           </a>
+//         )}
 //       </div>
 //     </div>
 //   );
 // }
 
 
-// src/components/employee/Profile.jsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -547,36 +462,71 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployees } from './store/slices/employeeSlice';
 import {
   Calendar, User, MapPin, Globe, Briefcase, Clock, Users, DollarSign,
-  Edit2, Plus, Phone, Mail, Building, FileText, ChevronDown, Badge,
-  Sun, Moon, Smartphone, Monitor, MoreVertical, Menu, X,
-  ArrowLeft, Search, Filter, Download, Eye, ChevronRight
+  Edit2, Phone, Mail, Building, FileText, Badge, Smartphone, MoreVertical,
+  Menu, X, ArrowLeft, Shield, Home, Clock as ClockIcon, CheckCircle,
+  XCircle, AlertCircle, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
-
-const tabs = [
-  { id: 'about', label: 'About', icon: <User className="h-4 w-4" /> },
-  { id: 'work', label: 'Work Type & Shift', icon: <Clock className="h-4 w-4" /> },
-  { id: 'attendance', label: 'Attendance', icon: <Calendar className="h-4 w-4" /> },
-  { id: 'leave', label: 'Leave', icon: <Sun className="h-4 w-4" /> },
-  { id: 'payroll', label: 'Payroll', icon: <DollarSign className="h-4 w-4" /> },
-  { id: 'allowance', label: 'Allowance & Deduction', icon: <Users className="h-4 w-4" /> },
-  { id: 'penalty', label: 'Penalty Account', icon: <FileText className="h-4 w-4" /> },
-  { id: 'performance', label: 'Performance', icon: <Monitor className="h-4 w-4" /> },
-  { id: 'documents', label: 'Documents', icon: <Briefcase className="h-4 w-4" /> }
-];
-
-const innerTabs = [
-  { id: 'bonus', label: 'Bonus Points', icon: '🏆' },
-  { id: 'interview', label: 'Scheduled Interview', icon: '📅' },
-  { id: 'resignation', label: 'Resignation', icon: '📝' }
-];
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Profile() {
-  const { theme } = useTheme();
+  const { getThemeClasses } = useTheme();
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { employees, loading } = useSelector((state) => state.employees);
+
+  // Get theme classes
+  const themeClasses = getThemeClasses();
+
+  // Find employee by ID
+  const employee = employees.find(emp => emp.id === parseInt(id)) || {
+    name: 'Unknown Employee',
+    code: 'N/A',
+    department: 'N/A',
+    email: 'Not available',
+    phone: 'Not available',
+    workEmail: 'Not available',
+    personalEmail: 'Not available',
+    workPhone: 'Not available',
+    personalPhone: 'Not available',
+    status: 'offline',
+    position: 'N/A',
+    workType: 'N/A',
+    joinDate: 'N/A',
+    dob: 'N/A',
+    address: 'Not available',
+    emergencyContact: 'Not available',
+    photo: null,
+    gender: 'N/A',
+    country: 'N/A',
+    shift: 'N/A',
+    company: 'N/A',
+    manager: 'N/A',
+    salary: 'N/A',
+    badgeId: 'N/A',
+    documents: []
+  };
+
+  // State for UI and API data
+  const [activeTab, setActiveTab] = useState('about');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [attendanceData, setAttendanceData] = useState(null);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [attendanceError, setAttendanceError] = useState(null);
+  const [dateRange, setDateRange] = useState('today'); // 'today', 'week', 'month', 'custom'
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Responsive detection
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   // Fetch employees if not already loaded
   useEffect(() => {
@@ -585,56 +535,92 @@ export default function Profile() {
     }
   }, [dispatch, employees.length]);
 
-  // Find employee by ID
-  const employee = employees.find(emp => emp.id === parseInt(id)) || {
-    name: 'Unknown Employee',
-    code: 'N/A',
-    department: 'N/A',
-    email: '',
-    phone: '',
-    workEmail: '',
-    personalEmail: '',
-    workPhone: '',
-    personalPhone: '',
-    status: 'offline',
-    position: '',
-    workType: '',
-    joinDate: '',
-    dob: '',
-    address: '',
-    emergencyContact: '',
-    photo: null,
-    documents: []
+  // Fetch attendance data when attendance tab is active
+  useEffect(() => {
+    if (activeTab === 'attendance' && employee.code !== 'N/A') {
+      fetchAttendanceData();
+    }
+  }, [activeTab, employee.code, dateRange, selectedDate]);
+
+  // Function to fetch attendance data
+  const fetchAttendanceData = async () => {
+    setAttendanceLoading(true);
+    setAttendanceError(null);
+    
+    try {
+      // Construct the API URL based on employee code
+      // Note: In production, replace localhost with your actual API URL
+      const companyCode = employee.code.split('-')[0] || 'COMP0003';
+      const employeeCode = employee.code;
+       console.log("company code",companyCode)
+       console.log("employee code",employeeCode)
+      const response = await fetch(
+        `https://hr.hinzah.com/api/attendance/company/${companyCode}/employee/${employeeCode}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setAttendanceData(data);
+    } catch (error) {
+      console.error('Error fetching attendance data:', error);
+      setAttendanceError(error.message);
+      
+      // For demo purposes, create mock data if API fails
+      if (employee.code === 'COMP0003-EMP005') {
+        setAttendanceData({
+          status: true,
+          employee: {
+            employee_code: "COMP0003-EMP005",
+            employee_name: employee.name || "John Doe"
+          },
+          data: [
+            {
+              id: 16,
+              employee_code: "COMP0003-EMP005",
+              company_id: 4,
+              company_code: "COMP0003",
+              date: new Date().toISOString().split('T')[0], // Today's date
+              day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
+              check_in: "10:35:59",
+              check_out: "10:36:18",
+              out_date: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              permissions: '[{"from":"12:50","to":"13:00","reason":"Medical appointment"}]'
+            },
+            // Add more sample data for the week
+            ...Array.from({ length: 6 }, (_, i) => {
+              const date = new Date();
+              date.setDate(date.getDate() - (i + 1));
+              return {
+                id: 15 - i,
+                employee_code: "COMP0003-EMP005",
+                company_id: 4,
+                company_code: "COMP0003",
+                date: date.toISOString().split('T')[0],
+                day: date.toLocaleDateString('en-US', { weekday: 'long' }),
+                check_in: "09:" + (Math.floor(Math.random() * 30) + 10).toString().padStart(2, '0') + ":00",
+                check_out: "17:" + (Math.floor(Math.random() * 30) + 10).toString().padStart(2, '0') + ":00",
+                out_date: null,
+                created_at: date.toISOString(),
+                updated_at: date.toISOString(),
+                permissions: i === 2 ? '[{"from":"14:00","to":"14:30","reason":"Meeting"}]' : null
+              };
+            })
+          ]
+        });
+      }
+    } finally {
+      setAttendanceLoading(false);
+    }
   };
-
-  // Get theme colors directly from theme context
-  const themeConfig = theme || {
-    accent: 'orange-600',
-    textAccent: 'text-orange-600',
-    borderColor: 'border-orange-600',
-    button: 'from-orange-500 to-orange-600',
-    buttonHover: 'hover:from-orange-600 hover:to-orange-700',
-    lightBg: 'bg-orange-50',
-    sidebarActive: 'bg-orange-200'
-  };
-
-  // Helper functions to get theme values
-  const getAccentColor = () => theme?.accent || 'orange-600';
-  const getBorderColor = () => theme?.borderColor || 'border-orange-600';
-  const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-  const getButtonGradient = () => theme?.button ? `bg-gradient-to-r ${theme.button}` : 'bg-gradient-to-r from-orange-500 to-orange-600';
-  const getButtonHover = () => theme?.buttonHover || 'hover:from-orange-600 hover:to-orange-700';
-  const getLightBg = () => theme?.lightBg || 'bg-orange-50';
-  const getSidebarActive = () => theme?.sidebarActive || 'bg-orange-200';
-
-  const [activeTab, setActiveTab] = useState('about');
-  const [activeInnerTab, setActiveInnerTab] = useState('bonus');
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showContactDrawer, setShowContactDrawer] = useState(false);
 
   // Format date helper
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString || dateString === 'N/A') return 'N/A';
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -643,435 +629,691 @@ export default function Profile() {
     }
   };
 
+  // Format time helper
+  const formatTime = (timeString) => {
+    if (!timeString) return '--:--';
+    try {
+      return timeString.slice(0, 5); // Get HH:MM
+    } catch {
+      return timeString;
+    }
+  };
+
+  // Calculate total hours worked
+  const calculateWorkHours = (checkIn, checkOut) => {
+    if (!checkIn || !checkOut) return '0h 0m';
+    
+    try {
+      const [inHours, inMinutes] = checkIn.split(':').map(Number);
+      const [outHours, outMinutes] = checkOut.split(':').map(Number);
+      
+      let totalMinutes = (outHours * 60 + outMinutes) - (inHours * 60 + inMinutes);
+      
+      // If check_out is earlier than check_in (overnight shift)
+      if (totalMinutes < 0) {
+        totalMinutes += 24 * 60;
+      }
+      
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      
+      return `${hours}h ${minutes}m`;
+    } catch {
+      return '0h 0m';
+    }
+  };
+
+  // Get attendance status
+  const getAttendanceStatus = (checkIn, checkOut) => {
+    if (!checkIn) return 'absent';
+    if (!checkOut) return 'pending';
+    
+    const [inHours, inMinutes] = checkIn.split(':').map(Number);
+    const checkInTime = inHours * 60 + inMinutes;
+    
+    // Consider 9:30 AM as late threshold
+    if (checkInTime > 9 * 60 + 30) return 'late';
+    return 'present';
+  };
+
+  // Get status color and icon
+  const getStatusConfig = (status) => {
+    switch(status) {
+      case 'present':
+        return { 
+          color: 'text-green-600', 
+          bg: 'bg-green-50', 
+          icon: <CheckCircle className="h-4 w-4" />,
+          text: 'Present'
+        };
+      case 'late':
+        return { 
+          color: 'text-amber-600', 
+          bg: 'bg-amber-50', 
+          icon: <AlertCircle className="h-4 w-4" />,
+          text: 'Late'
+        };
+      case 'pending':
+        return { 
+          color: 'text-blue-600', 
+          bg: 'bg-blue-50', 
+          icon: <ClockIcon className="h-4 w-4" />,
+          text: 'Pending'
+        };
+      default:
+        return { 
+          color: 'text-red-600', 
+          bg: 'bg-red-50', 
+          icon: <XCircle className="h-4 w-4" />,
+          text: 'Absent'
+        };
+    }
+  };
+
   // Get initials for avatar
   const getInitials = (name) => {
-    if (!name) return 'E';
+    if (!name || name === 'Unknown Employee') return 'E';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* MOBILE HEADER */}
-      <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate('/employee')}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <ArrowLeft className="h-5 w-5 text-gray-600" />
-            </button>
-            <div className="flex items-center gap-2">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getButtonGradient()} flex items-center justify-center text-white font-bold text-lg`}>
-                {employee.photo ? (
-                  <img src={employee.photo} alt={employee.name} className="w-full h-full rounded-xl object-cover" />
-                ) : (
-                  getInitials(employee.name)
-                )}
-              </div>
-              <div>
-                <h1 className="font-bold text-gray-900 text-lg">{employee.name}</h1>
-                <p className="text-xs text-gray-500">{employee.code}</p>
-              </div>
+    <div className="min-h-screen bg-white flex flex-col lg:flex-row overflow-hidden">
+      {/* SIDEBAR - Desktop */}
+      <div className="hidden lg:flex flex-col w-64 border-r border-gray-200 bg-white">
+        {/* Employee Info Card */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex flex-col items-center">
+            <div className={`w-20 h-20 rounded-full ${themeClasses.buttonBg} flex items-center justify-center text-white text-2xl font-bold mb-4`}>
+              {getInitials(employee.name)}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-gray-100 rounded-lg">
-              <Search className="h-5 w-5 text-gray-600" />
-            </button>
-            <button 
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              {showMobileMenu ? <X className="h-5 w-5 text-gray-600" /> : <Menu className="h-5 w-5 text-gray-600" />}
-            </button>
+            <h2 className="text-xl font-bold text-gray-900 text-center">{employee.name}</h2>
+            <p className="text-sm text-gray-500 mt-1">{employee.code}</p>
+            <div className="flex items-center gap-2 mt-3">
+              <div className={`px-3 py-1 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-full text-xs font-medium`}>
+                {employee.department}
+              </div>
+              <div className={`w-2 h-2 rounded-full ${employee.status === 'online' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Contact Info */}
-        <div className={`px-4 py-3 ${getLightBg()}`}>
-          <div className="flex items-center justify-between overflow-x-auto gap-4 scrollbar-hide">
-            <ContactItemMobile 
-              label="Work Email"
-              value={(employee.workEmail || employee.email || 'N/A').substring(0, 12) + '...'}
-              theme={themeConfig}
-            />
-            <ContactItemMobile 
-              label="Personal Email"
-              value={(employee.personalEmail || employee.email || 'N/A').substring(0, 12) + '...'}
-              theme={themeConfig}
-            />
-            <ContactItemMobile 
-              label="Work Phone"
-              value={(employee.workPhone || employee.phone || 'N/A').substring(0, 9) + '...'}
-              theme={themeConfig}
-            />
-            <ContactItemMobile 
-              label="Personal Phone"
-              value={(employee.personalPhone || employee.phone || 'N/A').substring(0, 9) + '...'}
-              theme={themeConfig}
-            />
-          </div>
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto p-4">
+          <nav className="space-y-1">
+            {['about', 'work', 'attendance', 'leave', 'payroll', 'allowance', 'penalty', 'performance', 'documents'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  activeTab === tab
+                    ? `${themeClasses.lightBg} ${themeClasses.textColor}`
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {getTabIcon(tab)}
+                <span className="font-medium capitalize">
+                  {tab === 'allowance' ? 'Allowance & Deduction' : 
+                   tab === 'penalty' ? 'Penalty Account' : tab}
+                </span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="p-4 border-t border-gray-200">
+          <button className={`w-full py-2.5 ${themeClasses.buttonBg} text-white rounded-lg font-medium text-sm`}>
+            Edit Profile
+          </button>
         </div>
       </div>
-
-      {/* DESKTOP HEADER */}
-      <div className="hidden lg:block bg-white shadow-sm border-b border-gray-200">
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${getButtonGradient()} flex items-center justify-center text-2xl font-black text-white overflow-hidden`}>
-                  {employee.photo ? (
-                    <img src={employee.photo} alt={employee.name} className="w-full h-full object-cover" />
-                  ) : (
-                    getInitials(employee.name)
-                  )}
-                </div>
-                <div className={`absolute bottom-0 right-0 w-4 h-4 ${employee.status === 'online' ? 'bg-green-500' : 'bg-gray-400'} rounded-full border-2 border-white`} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-black text-gray-900">
-                    {employee.name}
-                  </h1>
-                  <span className={`px-2 py-1 ${getLightBg()} ${getTextAccent()} rounded-full text-sm font-bold`}>
-                    {employee.code}
-                  </span>
-                </div>
-                <p className="text-gray-600">{employee.department || 'N/A'}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className={`px-4 py-2 ${getLightBg()} ${getTextAccent()} rounded-xl font-medium`}>
-                Edit Profile
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-xl">
-                <MoreVertical className="h-5 w-5 text-gray-600" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* MOBILE TABS DRAWER */}
-      {showMobileMenu && (
-        <div className="lg:hidden fixed inset-x-0 top-[104px] z-40 bg-white border-b border-gray-200 shadow-lg">
-          <div className="p-4">
-            <div className="space-y-1">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    setShowMobileMenu(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-left ${
-                    activeTab === tab.id
-                      ? `${getSidebarActive()} ${getTextAccent()} border-l-4 ${getBorderColor()}`
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className={activeTab === tab.id ? getTextAccent() : 'text-gray-400'}>
-                    {tab.icon}
-                  </span>
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* MAIN CONTENT AREA */}
-      <div className="p-4 lg:p-8">
-        {/* MOBILE CURRENT TAB HEADER */}
-        <div className="lg:hidden mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black text-gray-900">
-              {tabs.find(t => t.id === activeTab)?.label || 'Profile'}
-            </h2>
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-xl">
-                <Filter className="h-5 w-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-xl">
-                <Download className="h-5 w-5 text-gray-600" />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* MOBILE HEADER */}
+        {isMobile && (
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => navigate('/employee')}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <ArrowLeft className="h-5 w-5 text-gray-600" />
+                </button>
+                <div>
+                  <h1 className="text-lg font-bold text-gray-900">Employee</h1>
+                  <p className="text-xs text-gray-500">{employee.code}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                {showMobileMenu ? <X className="h-5 w-5 text-gray-600" /> : <Menu className="h-5 w-5 text-gray-600" />}
               </button>
             </div>
           </div>
-          {activeTab === 'work' && (
-            <div className="mt-4 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-              {innerTabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveInnerTab(tab.id)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full font-medium ${
-                    activeInnerTab === tab.id
-                      ? `${getButtonGradient()} text-white`
-                      : `${getLightBg()} ${getTextAccent()}`
-                  }`}
-                >
-                  <span className="mr-2">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+        )}
+
+        {/* MOBILE MENU DRAWER */}
+        <AnimatePresence>
+          {showMobileMenu && isMobile && (
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                className="absolute right-0 top-0 bottom-0 w-64 bg-white shadow-xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-bold text-gray-900">Menu</h2>
+                    <button onClick={() => setShowMobileMenu(false)}>
+                      <X className="h-5 w-5 text-gray-500" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full ${themeClasses.buttonBg} flex items-center justify-center text-white font-bold`}>
+                      {getInitials(employee.name)}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{employee.name}</p>
+                      <p className="text-xs text-gray-500">{employee.code}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 overflow-y-auto h-[calc(100vh-180px)]">
+                  <nav className="space-y-1">
+                    {['about', 'work', 'attendance', 'leave', 'payroll', 'allowance', 'penalty', 'performance', 'documents'].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => {
+                          setActiveTab(tab);
+                          setShowMobileMenu(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                          activeTab === tab
+                            ? `${themeClasses.lightBg} ${themeClasses.textColor}`
+                            : 'text-gray-600 hover:bg-gray-100'
+                        }`}
+                      >
+                        {getTabIcon(tab)}
+                        <span className="font-medium capitalize">
+                          {tab === 'allowance' ? 'Allowance & Deduction' : 
+                           tab === 'penalty' ? 'Penalty Account' : tab}
+                        </span>
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* CONTENT HEADER */}
+        <div className="border-b border-gray-200 px-4 lg:px-6 py-4">
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900 capitalize">
+            {activeTab === 'allowance' ? 'Allowance & Deduction' : 
+             activeTab === 'penalty' ? 'Penalty Account' : activeTab}
+          </h2>
+          {!isMobile && (
+            <p className="text-gray-600 mt-1">Employee ID: {employee.code}</p>
           )}
         </div>
 
-        {/* DESKTOP TABS */}
-        <div className="hidden lg:block mb-8">
-          <div className="flex items-center border-b border-gray-200">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-4 font-medium border-b-2 ${
-                  activeTab === tab.id
-                    ? `${getBorderColor()} ${getTextAccent()}`
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* SCROLLABLE CONTENT AREA */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 lg:p-6">
+            {activeTab === 'about' ? (
+              <div className="space-y-6">
+                {/* Personal Information */}
+                <InfoSection 
+                  title="Personal Information" 
+                  icon={<User className="h-5 w-5" />}
+                  themeClasses={themeClasses}
+                >
+                  <InfoItem label="Date of Birth" value={formatDate(employee.dob)} />
+                  <InfoItem label="Gender" value={employee.gender} />
+                  <InfoItem label="Address" value={employee.address} />
+                  <InfoItem label="Country" value={employee.country} />
+                  <InfoItem label="Phone" value={employee.phone} />
+                  <InfoItem label="Email" value={employee.email} />
+                </InfoSection>
 
-        {/* CONTENT */}
-        {activeTab === 'about' && (
-          <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
-            <InfoCard title="Personal Information" theme={themeConfig}>
-              <InfoRow icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={employee.dob ? formatDate(employee.dob) : 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<User className="h-5 w-5" />} label="Gender" value={employee.gender || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<MapPin className="h-5 w-5" />} label="Address" value={employee.address || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Globe className="h-5 w-5" />} label="Country" value={employee.country || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Phone className="h-5 w-5" />} label="Phone" value={employee.phone || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Mail className="h-5 w-5" />} label="Email" value={employee.email || 'N/A'} theme={themeConfig} />
-            </InfoCard>
+                {/* Work Information */}
+                <InfoSection 
+                  title="Work Information" 
+                  icon={<Briefcase className="h-5 w-5" />}
+                  themeClasses={themeClasses}
+                >
+                  <InfoItem label="Department" value={employee.department} />
+                  <InfoItem label="Job Position" value={employee.position} />
+                  <InfoItem label="Shift" value={employee.shift} />
+                  <InfoItem label="Work Type" value={employee.workType} />
+                  <InfoItem label="Badge ID" value={employee.badgeId} />
+                </InfoSection>
 
-            <InfoCard title="Work Information" theme={themeConfig}>
-              <InfoRow icon={<Building className="h-5 w-5" />} label="Department" value={employee.department || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Briefcase className="h-5 w-5" />} label="Job Position" value={employee.position || employee.designation || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Clock className="h-5 w-5" />} label="Shift" value={employee.shift || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Smartphone className="h-5 w-5" />} label="Work Type" value={employee.workType ? employee.workType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Badge className="h-5 w-5" />} label="Badge ID" value={employee.badgeId || employee.docNum || 'N/A'} theme={themeConfig} />
-            </InfoCard>
-
-            <InfoCard title="Contract & Bank" theme={themeConfig}>
-              <InfoRow icon={<DollarSign className="h-5 w-5" />} label="Salary" value={employee.salary || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Calendar className="h-5 w-5" />} label="Joining Date" value={employee.joinDate ? formatDate(employee.joinDate) : 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Building className="h-5 w-5" />} label="Company" value={employee.company || 'N/A'} theme={themeConfig} />
-              <InfoRow icon={<Users className="h-5 w-5" />} label="Manager" value={employee.manager || employee.reportingManager || 'N/A'} theme={themeConfig} />
-              {employee.emergencyContact && (
-                <InfoRow icon={<Phone className="h-5 w-5" />} label="Emergency Contact" value={employee.emergencyContact} theme={themeConfig} />
-              )}
-            </InfoCard>
-          </div>
-        )}
-
-        {activeTab === 'work' && activeInnerTab === 'bonus' && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">Current Shift</h3>
-                <p className={`text-3xl lg:text-4xl font-black ${getTextAccent()} mt-2`}>{employee.shift || 'Not Assigned'}</p>
-                <p className="text-sm text-gray-500 mt-2">Work Type: {employee.workType ? employee.workType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'N/A'}</p>
+                {/* Contract & Bank */}
+                <InfoSection 
+                  title="Contract & Bank" 
+                  icon={<FileText className="h-5 w-5" />}
+                  themeClasses={themeClasses}
+                >
+                  <InfoItem label="Salary" value={employee.salary} />
+                  <InfoItem label="Joining Date" value={formatDate(employee.joinDate)} />
+                  <InfoItem label="Company" value={employee.company} />
+                  <InfoItem label="Manager" value={employee.manager} />
+                  <InfoItem label="Emergency Contact" value={employee.emergencyContact} />
+                </InfoSection>
               </div>
-              <button className={`px-4 py-3 ${getButtonGradient()} ${getButtonHover()} text-white rounded-xl font-medium text-sm transition-all`}>
-                Reallocate Shift
-              </button>
-            </div>
+            ) : activeTab === 'attendance' ? (
+              <div className="space-y-6">
+                {/* Attendance Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <SummaryCard
+                    title="Total Days"
+                    value={attendanceData?.data?.length || 0}
+                    subtitle="This month"
+                    icon={<Calendar className="h-5 w-5" />}
+                    color="blue"
+                  />
+                  <SummaryCard
+                    title="Present"
+                    value={attendanceData?.data?.filter(item => item.check_in).length || 0}
+                    subtitle="Days"
+                    icon={<CheckCircle className="h-5 w-5" />}
+                    color="green"
+                  />
+                  <SummaryCard
+                    title="Late Arrivals"
+                    value={attendanceData?.data?.filter(item => {
+                      const [hours] = item.check_in?.split(':') || [];
+                      return hours && parseInt(hours) >= 9 && parseInt(hours) <= 10;
+                    }).length || 0}
+                    subtitle="This month"
+                    icon={<AlertCircle className="h-5 w-5" />}
+                    color="amber"
+                  />
+                  <SummaryCard
+                    title="Avg. Hours"
+                    value={(() => {
+                      const records = attendanceData?.data?.filter(item => item.check_in && item.check_out) || [];
+                      if (records.length === 0) return '0h';
+                      const totalMinutes = records.reduce((sum, item) => {
+                        const [inH, inM] = item.check_in.split(':').map(Number);
+                        const [outH, outM] = item.check_out.split(':').map(Number);
+                        return sum + ((outH * 60 + outM) - (inH * 60 + inM));
+                      }, 0);
+                      const avgHours = Math.round(totalMinutes / records.length / 60);
+                      return `${avgHours}h`;
+                    })()}
+                    subtitle="Per day"
+                    icon={<ClockIcon className="h-5 w-5" />}
+                    color="purple"
+                  />
+                </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              {['Work type request', 'Rotating work type', 'Shift request', 'Rotating Shift'].map((item, i) => (
-                <div key={i} className={`${getLightBg()} rounded-xl p-4 text-center hover:scale-[1.02] transition-transform`}>
-                  <p className="text-sm font-medium text-gray-700 mb-3">{item}</p>
-                  <div className={`w-12 h-12 mx-auto ${getButtonGradient()} rounded-xl flex items-center justify-center text-white text-2xl`}>
-                    +
+                {/* Date Filter Controls */}
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    {['today', 'week', 'month', 'custom'].map((range) => (
+                      <button
+                        key={range}
+                        onClick={() => setDateRange(range)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                          dateRange === range
+                            ? `${themeClasses.buttonBg} text-white`
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {range}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Showing records for {dateRange === 'today' ? 'today' : `this ${dateRange}`}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* ATTENDANCE TAB - EMPTY STATE */}
-        {activeTab === 'attendance' && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-8">
-            <div className="text-center py-8 lg:py-16">
-              <div className="w-16 h-16 lg:w-24 lg:h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                <FileText className="h-8 lg:h-12 w-8 lg:w-12 text-gray-400" />
+                {/* Attendance Table */}
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className={`px-6 py-4 ${themeClasses.lightBg} border-b border-gray-200`}>
+                    <h3 className="font-bold text-gray-900">Attendance Records</h3>
+                  </div>
+                  
+                  {attendanceLoading ? (
+                    <div className="p-8 text-center">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <p className="mt-3 text-gray-500">Loading attendance data...</p>
+                    </div>
+                  ) : attendanceError ? (
+                    <div className="p-8 text-center">
+                      <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-3" />
+                      <p className="text-red-600 mb-2">Failed to load attendance data</p>
+                      <p className="text-gray-500 text-sm">{attendanceError}</p>
+                      <button 
+                        onClick={fetchAttendanceData}
+                        className={`mt-4 px-4 py-2 ${themeClasses.buttonBg} text-white rounded-lg font-medium text-sm`}
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  ) : !attendanceData?.data || attendanceData.data.length === 0 ? (
+                    <div className="p-8 text-center">
+                      <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-600">No attendance records found</p>
+                      <p className="text-gray-500 text-sm mt-1">Attendance data will appear here once recorded</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-gray-50 border-b border-gray-200">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
+                            <th className="px6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {attendanceData.data.map((record) => {
+                            const status = getAttendanceStatus(record.check_in, record.check_out);
+                            const statusConfig = getStatusConfig(status);
+                            const permissions = record.permissions ? JSON.parse(record.permissions) : null;
+                            
+                            return (
+                              <tr key={record.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">{formatDate(record.date)}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm text-gray-600">{record.day}</div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {formatTime(record.check_in) || '--:--'}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {formatTime(record.check_out) || '--:--'}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {record.check_in && record.check_out 
+                                      ? calculateWorkHours(record.check_in, record.check_out)
+                                      : '--'}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${statusConfig.bg} ${statusConfig.color}`}>
+                                    {statusConfig.icon}
+                                    {statusConfig.text}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="text-sm text-gray-600 max-w-xs">
+                                    {permissions ? (
+                                      <div className="space-y-1">
+                                        {permissions.map((perm, idx) => (
+                                          <div key={idx} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                                            {perm.from}-{perm.to}: {perm.reason}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : record.check_in && !record.check_out ? (
+                                      <span className="text-amber-600">Pending check out</span>
+                                    ) : !record.check_in && !record.check_out ? (
+                                      <span className="text-red-600">No check-in recorded</span>
+                                    ) : null}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Today's Status (if available) */}
+                {attendanceData?.data?.some(record => record.date === new Date().toISOString().split('T')[0]) && (
+                  <div className="bg-white rounded-lg border border-gray-200 p-6">
+                    <h3 className="font-bold text-gray-900 mb-4">Today's Attendance</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {(() => {
+                        const todayRecord = attendanceData.data.find(
+                          record => record.date === new Date().toISOString().split('T')[0]
+                        );
+                        const status = getAttendanceStatus(todayRecord?.check_in, todayRecord?.check_out);
+                        const statusConfig = getStatusConfig(status);
+                        
+                        return (
+                          <>
+                            <div className="space-y-2">
+                              <div className="text-sm text-gray-500">Check In</div>
+                              <div className="text-lg font-bold text-gray-900">
+                                {todayRecord?.check_in ? formatTime(todayRecord.check_in) : '--:--'}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="text-sm text-gray-500">Check Out</div>
+                              <div className="text-lg font-bold text-gray-900">
+                                {todayRecord?.check_out ? formatTime(todayRecord.check_out) : '--:--'}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="text-sm text-gray-500">Status</div>
+                              <div className={`inline-flex items-center gap-2 ${statusConfig.color}`}>
+                                {statusConfig.icon}
+                                <span className="text-lg font-bold">{statusConfig.text}</span>
+                              </div>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
-              <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">Attendance</h3>
-              <p className="text-gray-500 text-sm lg:text-base">
-                No data available for this section yet. Content will appear here once it's been added.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* OTHER TABS - EMPTY STATE */}
-        {activeTab !== 'about' && activeTab !== 'work' && activeTab !== 'attendance' && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-8">
-            <div className="text-center py-8 lg:py-16">
-              <div className="w-16 h-16 lg:w-24 lg:h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                <FileText className="h-8 lg:h-12 w-8 lg:w-12 text-gray-400" />
+            ) : (
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                    <FileText className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2 capitalize">
+                    {activeTab === 'allowance' ? 'Allowance & Deduction' : 
+                     activeTab === 'penalty' ? 'Penalty Account' : activeTab}
+                  </h3>
+                  <p className="text-gray-500 max-w-md mx-auto">
+                    This section is under development. Content will be available soon.
+                  </p>
+                </div>
               </div>
-              <h3 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
-                {tabs.find(t => t.id === activeTab)?.label || activeTab}
-              </h3>
-              <p className="text-gray-500 text-sm lg:text-base">
-                No data available for this section yet.
-              </p>
-            </div>
+            )}
           </div>
-        )}
-      </div>
-
-      {/* MOBILE BOTTOM NAV */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-40">
-        <div className="flex items-center justify-around p-3">
-          <button
-            onClick={() => setActiveTab('about')}
-            className={`flex flex-col items-center p-2 ${
-              activeTab === 'about' ? getTextAccent() : 'text-gray-500'
-            }`}
-          >
-            <User className="h-5 w-5" />
-            <span className="text-xs mt-1">About</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('work')}
-            className={`flex flex-col items-center p-2 ${
-              activeTab === 'work' ? getTextAccent() : 'text-gray-500'
-            }`}
-          >
-            <Clock className="h-5 w-5" />
-            <span className="text-xs mt-1">Work</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('attendance')}
-            className={`flex flex-col items-center p-2 ${
-              activeTab === 'attendance' ? getTextAccent() : 'text-gray-500'
-            }`}
-          >
-            <Calendar className="h-5 w-5" />
-            <span className="text-xs mt-1">Attendance</span>
-          </button>
-          <button
-            onClick={() => setShowContactDrawer(true)}
-            className="flex flex-col items-center p-2 text-gray-500"
-          >
-            <Phone className="h-5 w-5" />
-            <span className="text-xs mt-1">Contact</span>
-          </button>
-          <button
-            onClick={() => setShowMobileMenu(true)}
-            className="flex flex-col items-center p-2 text-gray-500"
-          >
-            <Menu className="h-5 w-5" />
-            <span className="text-xs mt-1">More</span>
-          </button>
         </div>
-      </div>
 
-      {/* CONTACT DRAWER */}
-      {showContactDrawer && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50">
-          <div className="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Contact Information</h3>
-              <button onClick={() => setShowContactDrawer(false)}>
-                <X className="h-6 w-6 text-gray-500" />
+        {/* MOBILE BOTTOM NAV */}
+        {isMobile && (
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 py-2">
+            <div className="flex items-center justify-around">
+              <NavButton
+                active={activeTab === 'about'}
+                onClick={() => setActiveTab('about')}
+                icon={<User className="h-5 w-5" />}
+                label="About"
+                themeClasses={themeClasses}
+              />
+              <NavButton
+                active={activeTab === 'work'}
+                onClick={() => setActiveTab('work')}
+                icon={<Briefcase className="h-5 w-5" />}
+                label="Work"
+                themeClasses={themeClasses}
+              />
+              <NavButton
+                active={activeTab === 'attendance'}
+                onClick={() => setActiveTab('attendance')}
+                icon={<Calendar className="h-5 w-5" />}
+                label="Attendance"
+                themeClasses={themeClasses}
+              />
+              <NavButton
+                active={activeTab === 'payroll'}
+                onClick={() => setActiveTab('payroll')}
+                icon={<DollarSign className="h-5 w-5" />}
+                label="Payroll"
+                themeClasses={themeClasses}
+              />
+              <button
+                onClick={() => setShowMobileMenu(true)}
+                className="flex flex-col items-center p-2"
+              >
+                <MoreVertical className="h-5 w-5 text-gray-500" />
+                <span className="text-xs text-gray-500 mt-1">More</span>
               </button>
             </div>
-            <div className="space-y-6">
-              <ContactDetail label="Work Email" value={employee.workEmail || employee.email || 'N/A'} />
-              <ContactDetail label="Personal Email" value={employee.personalEmail || employee.email || 'N/A'} />
-              <ContactDetail label="Work Phone" value={employee.workPhone || employee.phone || 'N/A'} />
-              <ContactDetail label="Personal Phone" value={employee.personalPhone || employee.phone || 'N/A'} />
-            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Mobile Contact Item Component
-function ContactItemMobile({ label, value, theme }) {
-  const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-  
-  return (
-    <div className="flex-shrink-0">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className={`text-sm font-bold ${getTextAccent()}`}>{value}</p>
-    </div>
-  );
-}
-
-// Mobile Contact Detail Component
-function ContactDetail({ label, value }) {
-  return (
-    <div>
-      <p className="text-sm text-gray-500 mb-1">{label}</p>
-      <p className="text-lg font-bold text-gray-900">{value}</p>
-    </div>
-  );
-}
-
-// Info Card Component
-function InfoCard({ title, children, theme }) {
-  const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-  const getLightBg = () => theme?.lightBg || 'bg-orange-50';
-  
-  return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className={`font-bold ${getTextAccent()} text-lg`}>{title}</h3>
-        <button className={`p-2 hover:${getLightBg()} rounded-xl transition-colors`}>
-          <Edit2 className={`h-4 w-4 ${getTextAccent()}`} />
-        </button>
+        )}
       </div>
-      <div className="space-y-4">
+    </div>
+  );
+}
+
+// Helper function for tab icons
+function getTabIcon(tab) {
+  const iconClass = "h-5 w-5";
+  switch(tab) {
+    case 'about': return <User className={iconClass} />;
+    case 'work': return <Briefcase className={iconClass} />;
+    case 'attendance': return <Calendar className={iconClass} />;
+    case 'leave': return <Shield className={iconClass} />;
+    case 'payroll': return <DollarSign className={iconClass} />;
+    case 'allowance': return <Users className={iconClass} />;
+    case 'penalty': return <FileText className={iconClass} />;
+    case 'performance': return <Smartphone className={iconClass} />;
+    case 'documents': return <FileText className={iconClass} />;
+    default: return <User className={iconClass} />;
+  }
+}
+
+// Info Section Component
+function InfoSection({ title, icon, children, themeClasses }) {
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className={`px-4 py-3 ${themeClasses.lightBg} border-b border-gray-200`}>
+        <div className="flex items-center gap-2">
+          <div className={themeClasses.textColor}>
+            {icon}
+          </div>
+          <h3 className="font-bold text-gray-900">{title}</h3>
+        </div>
+      </div>
+      <div className="p-4">
         {children}
       </div>
     </div>
   );
 }
 
-// Info Row Component
-function InfoRow({ icon, label, value, theme }) {
-  const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-  const getLightBg = () => theme?.lightBg || 'bg-orange-50';
-  
+// Info Item Component
+function InfoItem({ label, value }) {
   return (
-    <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-      <div className="flex items-center gap-3">
-        <div className={`p-2 ${getLightBg()} rounded-xl`}>
-          {icon}
-        </div>
-        <span className="text-sm text-gray-500">{label}</span>
-      </div>
-      <span className="font-medium text-gray-900">{value}</span>
+    <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+      <span className="text-sm text-gray-600">{label}</span>
+      <span className="font-medium text-gray-900 text-sm">{value}</span>
     </div>
   );
 }
 
-// Contact Item Component (Desktop)
-function ContactItem({ icon, label, value, theme }) {
-  const getTextAccent = () => theme?.accent ? `text-${theme.accent}` : 'text-orange-600';
-  
+// Mobile Navigation Button
+function NavButton({ active, onClick, icon, label, themeClasses }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className={getTextAccent()}>
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center p-2 min-w-[64px] transition-colors ${
+        active ? themeClasses.textColor : 'text-gray-500'
+      }`}
+    >
+      <div className={`p-2 rounded-lg ${active ? themeClasses.lightBg : 'bg-transparent'}`}>
         {icon}
       </div>
-      <div>
-        <p className="text-sm text-gray-500">{label}</p>
-        <p className="font-bold text-gray-900">{value}</p>
+      <span className="text-xs mt-1 font-medium">{label}</span>
+    </button>
+  );
+}
+
+// Contact Detail Component
+function ContactDetail({ label, value, action, icon, themeClasses }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-3">
+      <div className="flex items-start gap-3">
+        <div className={`p-2 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-lg`}>
+          {icon}
+        </div>
+        <div className="flex-1">
+          <p className="text-sm text-gray-500 mb-1">{label}</p>
+          <p className="text-base font-medium text-gray-900 break-all">{value}</p>
+        </div>
+        {action && (
+          <a
+            href={action}
+            className={`p-2 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-lg`}
+          >
+            {icon}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Summary Card Component
+function SummaryCard({ title, value, subtitle, icon, color }) {
+  const colorClasses = {
+    blue: 'bg-blue-50 text-blue-600',
+    green: 'bg-green-50 text-green-600',
+    amber: 'bg-amber-50 text-amber-600',
+    purple: 'bg-purple-50 text-purple-600',
+    red: 'bg-red-50 text-red-600'
+  };
+  
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-gray-500 mb-1">{title}</p>
+          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-xs text-gray-400 mt-1">{subtitle}</p>
+        </div>
+        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+          {icon}
+        </div>
       </div>
     </div>
   );

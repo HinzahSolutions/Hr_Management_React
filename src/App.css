@@ -39,15 +39,6 @@
     max-width: 100%;
   }
 }/* Fix for sidebar scroll */
-.h-screen {
-  height: 100vh;
-  height: 100dvh;
-}
-
-/* Custom scrollbar */
-.custom-scrollbar {
-  scrollbar-gutter: stable;
-}
 
 /* Light theme sidebar */
 .light-sidebar .custom-scrollbar::-webkit-scrollbar-track {

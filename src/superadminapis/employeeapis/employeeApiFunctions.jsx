@@ -450,7 +450,7 @@ getAllEmployees: async (params = {}) => {
   },
 
   // Create new employee
-  createEmployee: async (employeeData) => {
+ createEmployee: async (employeeData) => {
       
        let currentUser = null;
     try {
@@ -484,7 +484,7 @@ getAllEmployees: async (params = {}) => {
         bank_name: employeeData.bank_name || employeeData.bankName || '',
         account_number: employeeData.account_number || employeeData.accountNumber || '',
         phone: employeeData.phone || '',
-        company_code:currentUser.company_code
+        // company_code:currentUser.company_code
       };
 
       console.log('Sending payload to API:', payload);
@@ -514,6 +514,8 @@ getAllEmployees: async (params = {}) => {
       throw new Error(errorMessage);
     }
   },
+     
+
 
   // Update employee
   updateEmployee: async (id, employeeData) => {

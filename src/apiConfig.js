@@ -1,6 +1,6 @@
 // Vite uses import.meta.env
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://192.168.0.3:8000',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://hr.hinzah.com',
   TIMEOUT: parseInt(import.meta.env.VITE_API_TIMEOUT || '10000'),
   ENVIRONMENT: import.meta.env.VITE_APP_ENVIRONMENT || 'development',
   
