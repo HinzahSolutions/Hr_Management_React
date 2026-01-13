@@ -65,9 +65,9 @@ export const MODULES = [
 
 export const SUB_PERMISSIONS = {
   Base: [
-    { code: 'CO', name: 'Company',           color: 'bg-blue-600',     route: '/company' },
-    { code: 'DE', name: 'Permission Assign', color: 'bg-purple-500',   route: '/company/permission-assign' },
-     {code:'AP', name:'Admin Profile',color:'bg-green-500', route:'/company/admin'}
+    { code: 'CO', name: 'Company',           color: 'bg-blue-600',     route: 'base/company' },
+    { code: 'DE', name: 'Permission Assign', color: 'bg-purple-500',   route: '/base/company/permission-assign' },
+     {code:'AP', name:'Admin Profile',color:'bg-green-500', route:'/base/company/admin'}
   ],
   Recruitment: [
     { code: 'RE', name: 'Recruitment',           color: 'bg-green-500', route: 'recruitment/recruitment' },

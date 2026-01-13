@@ -30,7 +30,7 @@ export default function Login() {
         <div className="bg-white rounded-3xl shadow-lg p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-gray-900"> Company 1 Sign In</h1>
-             <h1  className='text-1xl font-bold text-gray-900 pt-2' >Company Id : 001</h1>
+             <h1  className='text-1xl font-bold text-gray-900 pt-2'  >Company Id : 001</h1>
             <p className="text-sm text-gray-600 mt-1">
               Please login to access the dashboard.
             </p>

@@ -18,6 +18,92 @@ export default function Login() {
   const navigate = useNavigate();
 
 
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   setIsLoading(true);
+
+//   // Clear old data
+//   localStorage.removeItem('currentUser');
+//   localStorage.removeItem('authToken');
+//   localStorage.removeItem('tokenExpiry');
+
+//   try {
+//     // API call to login endpoint
+//     const response = await fetch('https://hr.hinzah.com/api/company/login', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         company_code: companyId.trim(),
+//         username: username.trim(),
+//         password: password
+//       }),
+//     });
+
+//     const data = await response.json();
+//     console.log('Login Response:', data);
+
+//     if (!response.ok || !data.status) {
+//       toast.error(data.message || `Login failed (Status: ${response.status})`);
+//       setIsLoading(false);
+//       return;
+//     }
+
+//     // Check if login was successful
+//     if (data.status === true && data.company) {
+//       // Use the login function with transformed data
+//       login(data.company, data.token);
+      
+//       toast.success(
+//         <div className="flex items-center gap-3">
+//           <CheckCircle className="w-8 h-8 text-white" />
+//           <div>
+//             <p className="font-bold text-lg">Welcome to {data.company.company_name}!</p>
+//             <p className="text-sm opacity-90">
+//               {data.company.username} • {data.company.company_code}
+//             </p>
+//           </div>
+//         </div>,
+//         {
+//           duration: 4000,
+//           style: {
+//             background: '#10b981',
+//             color: 'white',
+//             padding: '16px',
+//             borderRadius: '16px',
+//             fontSize: '16px',
+//           },
+//         }
+//       );
+
+//       // Redirect to saved path or dashboard
+//       const redirectPath = sessionStorage.getItem('redirectPath') || '/dashboard';
+//       sessionStorage.removeItem('redirectPath');
+      
+//       setTimeout(() => {
+//         navigate(redirectPath, { replace: true });
+//       }, 1200);
+
+//     } else {
+//       // toast.error(data.message || 'Login failed. Please try again.');
+//     }
+
+//   } catch (err) {
+//     console.error('Login error:', err);
+    
+//     if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+//       toast.error('Network error. Please check your internet connection.');
+//     } else {
+//       toast.error('Login failed. Please try again.');
+//     }
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
+  
+
+  // In your Login.js, update the handleSubmit function:
 const handleSubmit = async (e) => {
   e.preventDefault();
   setIsLoading(true);
@@ -26,9 +112,9 @@ const handleSubmit = async (e) => {
   localStorage.removeItem('currentUser');
   localStorage.removeItem('authToken');
   localStorage.removeItem('tokenExpiry');
+  localStorage.removeItem('permissions');
 
   try {
-    // API call to login endpoint
     const response = await fetch('https://hr.hinzah.com/api/company/login', {
       method: 'POST',
       headers: {
@@ -50,10 +136,14 @@ const handleSubmit = async (e) => {
       return;
     }
 
-    // Check if login was successful
     if (data.status === true && data.company) {
-      // Use the login function with transformed data
-      login(data.company, data.token);
+      // Use the login function
+      const loginSuccess = await login(data.company, data.token);
+      
+      if (!loginSuccess) {
+        setIsLoading(false);
+        return;
+      }
       
       toast.success(
         <div className="flex items-center gap-3">
@@ -66,7 +156,7 @@ const handleSubmit = async (e) => {
           </div>
         </div>,
         {
-          duration: 4000,
+          duration: 3000,
           style: {
             background: '#10b981',
             color: 'white',
@@ -77,16 +167,17 @@ const handleSubmit = async (e) => {
         }
       );
 
-      // Redirect to saved path or dashboard
-      const redirectPath = sessionStorage.getItem('redirectPath') || '/dashboard';
-      sessionStorage.removeItem('redirectPath');
-      
+      // IMPORTANT: Wait a moment for the auth state to update
       setTimeout(() => {
+        const redirectPath = sessionStorage.getItem('redirectPath') || '/dashboard';
+        sessionStorage.removeItem('redirectPath');
+        console.log('Redirecting to:', redirectPath);
         navigate(redirectPath, { replace: true });
-      }, 1200);
+      }, 1000);
 
     } else {
-      // toast.error(data.message || 'Login failed. Please try again.');
+      toast.error(data.message || 'Login failed. Please try again.');
+      setIsLoading(false);
     }
 
   } catch (err) {
@@ -97,11 +188,9 @@ const handleSubmit = async (e) => {
     } else {
       toast.error('Login failed. Please try again.');
     }
-  } finally {
     setIsLoading(false);
   }
 };
-
 
   return (
     <>

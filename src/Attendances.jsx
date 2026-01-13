@@ -1699,15 +1699,16 @@ export default function Attendances() {
         throw new Error('No company code found. Please login again.');
       }
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/attendance/company/${currentUser.company_code}/date/${CURRENT_DATE}`,
-        {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          }
-        }
-      );
+    const response = await fetch(
+  `${API_BASE_URL}/api/attendance/company/${currentUser.company_code}/date/${CURRENT_DATE}`,
+  {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Add this
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    }
+  }
+);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

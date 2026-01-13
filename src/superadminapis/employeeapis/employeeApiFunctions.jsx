@@ -450,71 +450,104 @@ getAllEmployees: async (params = {}) => {
   },
 
   // Create new employee
- createEmployee: async (employeeData) => {
-      
-       let currentUser = null;
-    try {
-      const userData = localStorage.getItem('currentUser');
-      if (userData) {
-        currentUser = JSON.parse(userData);
-      }
-    } catch (error) {
-      console.error('Error parsing currentUser from localStorage:', error);
+createEmployee: async (employeeData) => {
+  let currentUser = null;
+  try {
+    const userData = localStorage.getItem('currentUser');
+    if (userData) {
+      currentUser = JSON.parse(userData);
+    }
+  } catch (error) {
+    console.error('Error parsing currentUser from localStorage:', error);
+  }
+
+  try {
+    console.log('Creating employee:', employeeData);
+    console.log('Current User:', currentUser); // Debug log
+    
+    // Make sure currentUser has company_code
+    if (!currentUser || !currentUser.company_code) {
+      throw new Error('Company code not found. Please login again.');
     }
 
-    try {
-      console.log('Creating employee:', employeeData);
-      
-      // Prepare the payload matching your API screenshot
-      const payload = {
-        candidate_name: employeeData.candidate_name || employeeData.name,
-        email: employeeData.email,
-        job_position: employeeData.job_position || employeeData.position,
-        password: employeeData.password || '',
-        gender: employeeData.gender || '',
-        department: employeeData.department,
-        salary: employeeData.salary?.toString() || '0',
-        joining_date: employeeData.joining_date || employeeData.joinDate || new Date().toISOString().split('T')[0],
-        address: employeeData.address || '',
-        country: employeeData.country || '',
-        state: employeeData.state || '',
-        city: employeeData.city || '',
-        employee_type: employeeData.employee_type || employeeData.workType || '',
-        work_location: employeeData.work_location || employeeData.workLocation || '',
-        bank_name: employeeData.bank_name || employeeData.bankName || '',
-        account_number: employeeData.account_number || employeeData.accountNumber || '',
-        phone: employeeData.phone || '',
-        // company_code:currentUser.company_code
-      };
+    // Prepare the payload - FIXED VERSION
+    const payload = {
+      candidate_name: employeeData.candidate_name || employeeData.name || '',
+      email: employeeData.email || '',
+      job_position: employeeData.job_position || employeeData.position || '',
+      password: employeeData.password || 'defaultPassword123', // Make sure password is not empty
+      gender: employeeData.gender || 'male', // Default value
+      department: employeeData.department || '',
+      salary: employeeData.salary?.toString() || '0',
+      joining_date: employeeData.joining_date || employeeData.joinDate || new Date().toISOString().split('T')[0],
+      address: employeeData.address || '',
+      country: employeeData.country || '',
+      state: employeeData.state || '',
+      city: employeeData.city || '',
+      employee_type: employeeData.employee_type || employeeData.workType || 'full_time',
+      work_location: employeeData.work_location || employeeData.workLocation || 'office',
+      bank_name: employeeData.bank_name || employeeData.bankName || '',
+      account_number: employeeData.account_number || employeeData.accountNumber || '',
+      phone: employeeData.phone || '',
+      company_code: currentUser.company_code // MAKE SURE THIS IS INCLUDED
+    };
 
-      console.log('Sending payload to API:', payload);
+    // VALIDATE REQUIRED FIELDS
+    const requiredFields = ['candidate_name', 'email', 'job_position', 'department', 'phone', 'company_code'];
+    const missingFields = requiredFields.filter(field => !payload[field] || payload[field].trim() === '');
+    
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    }
+
+    console.log('Sending payload to API:', JSON.stringify(payload, null, 2));
+    
+    const response = await api.post('/api/company/employees/direct-create', payload);
+    console.log('Employee created successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating employee:', error);
+    
+    // Check for 422 specifically
+    if (error.response?.status === 422) {
+      console.error('422 Validation Errors:', error.response.data);
       
-      const response = await api.post('/api/company/employees/direct-create', payload);
-      console.log('Employee created successfully:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating employee:', error);
+      // Extract validation errors from response
+      const validationErrors = error.response.data.errors || error.response.data.message;
+      let errorMessage = 'Validation Failed: ';
       
-      // Provide more specific error messages
-      let errorMessage = 'Failed to create employee';
-      
-      if (error.code === 'ERR_NETWORK') {
-        errorMessage = `Cannot connect to server at ${API_BASE_URL}. Please make sure:
-        1. The backend server is running
-        2. You're on the same network (192.168.0.3)
-        3. Port 8000 is not blocked by firewall`;
-      } else if (error.response?.status === 400) {
-        errorMessage = 'Invalid data. Please check all required fields.';
-      } else if (error.response?.status === 401) {
-        errorMessage = 'Unauthorized. Please login again.';
-      } else if (error.response?.data) {
-        errorMessage = error.response.data.message || error.response.data.error || errorMessage;
+      if (typeof validationErrors === 'object') {
+        // Format object errors
+        errorMessage += Object.entries(validationErrors)
+          .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+          .join('; ');
+      } else if (validationErrors) {
+        errorMessage += validationErrors;
+      } else {
+        errorMessage = 'Server validation failed. Please check all input fields.';
       }
       
       throw new Error(errorMessage);
     }
-  },
-     
+    
+    // Other error handling remains...
+    let errorMessage = 'Failed to create employee';
+    
+    if (error.code === 'ERR_NETWORK') {
+      errorMessage = `Cannot connect to server`;
+    } else if (error.response?.status === 400) {
+      errorMessage = 'Invalid data. Please check all required fields.';
+    } else if (error.response?.status === 401) {
+      errorMessage = 'Unauthorized. Please login again.';
+    } else if (error.response?.data) {
+      errorMessage = error.response.data.message || error.response.data.error || errorMessage;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    throw new Error(errorMessage);
+  }
+},
 
 
   // Update employee

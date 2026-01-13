@@ -543,80 +543,76 @@ export default function Profile() {
   }, [activeTab, employee.code, dateRange, selectedDate]);
 
   // Function to fetch attendance data
-  const fetchAttendanceData = async () => {
-    setAttendanceLoading(true);
-    setAttendanceError(null);
+const fetchAttendanceData = async () => {
+  setAttendanceLoading(true);
+  setAttendanceError(null);
+  
+  try {
+    // Get token from localStorage
+    const token = localStorage.getItem('authToken');
     
-    try {
-      // Construct the API URL based on employee code
-      // Note: In production, replace localhost with your actual API URL
-      const companyCode = employee.code.split('-')[0] || 'COMP0003';
-      const employeeCode = employee.code;
-       console.log("company code",companyCode)
-       console.log("employee code",employeeCode)
-      const response = await fetch(
-        `https://hr.hinzah.com/api/attendance/company/${companyCode}/employee/${employeeCode}`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setAttendanceData(data);
-    } catch (error) {
-      console.error('Error fetching attendance data:', error);
-      setAttendanceError(error.message);
-      
-      // For demo purposes, create mock data if API fails
-      if (employee.code === 'COMP0003-EMP005') {
-        setAttendanceData({
-          status: true,
-          employee: {
-            employee_code: "COMP0003-EMP005",
-            employee_name: employee.name || "John Doe"
-          },
-          data: [
-            {
-              id: 16,
-              employee_code: "COMP0003-EMP005",
-              company_id: 4,
-              company_code: "COMP0003",
-              date: new Date().toISOString().split('T')[0], // Today's date
-              day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
-              check_in: "10:35:59",
-              check_out: "10:36:18",
-              out_date: null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              permissions: '[{"from":"12:50","to":"13:00","reason":"Medical appointment"}]'
-            },
-            // Add more sample data for the week
-            ...Array.from({ length: 6 }, (_, i) => {
-              const date = new Date();
-              date.setDate(date.getDate() - (i + 1));
-              return {
-                id: 15 - i,
-                employee_code: "COMP0003-EMP005",
-                company_id: 4,
-                company_code: "COMP0003",
-                date: date.toISOString().split('T')[0],
-                day: date.toLocaleDateString('en-US', { weekday: 'long' }),
-                check_in: "09:" + (Math.floor(Math.random() * 30) + 10).toString().padStart(2, '0') + ":00",
-                check_out: "17:" + (Math.floor(Math.random() * 30) + 10).toString().padStart(2, '0') + ":00",
-                out_date: null,
-                created_at: date.toISOString(),
-                updated_at: date.toISOString(),
-                permissions: i === 2 ? '[{"from":"14:00","to":"14:30","reason":"Meeting"}]' : null
-              };
-            })
-          ]
-        });
-      }
-    } finally {
-      setAttendanceLoading(false);
+    if (!token) {
+      throw new Error('No authentication token found. Please login again.');
     }
-  };
+    
+    // Construct the API URL based on employee code
+    const companyCode = employee.code.split('-')[0];
+    const employeeCode = employee.code;
+    
+    if (!companyCode || !employeeCode) {
+      throw new Error('Invalid employee code format');
+    }
+
+    console.log("Fetching attendance data for:", { companyCode, employeeCode });
+
+    const response = await fetch(
+      `https://hr.hinzah.com/api/attendance/company/${companyCode}/employee/${employeeCode}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log('API Response status:', response.status);
+
+    if (response.status === 401) {
+      throw new Error('Authentication expired. Please login again.');
+    }
+
+    if (response.status === 403) {
+      throw new Error('You do not have permission to access this data.');
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(`Failed to fetch data. Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Attendance API response data:', data);
+
+    if (data.status === false) {
+      throw new Error(data.message || 'API returned false status');
+    }
+
+    if (!data.data) {
+      throw new Error('No attendance data found');
+    }
+
+    setAttendanceData(data);
+  } catch (error) {
+    console.error('Error fetching attendance data:', error);
+    setAttendanceError(error.message);
+    
+    // Clear any previous data on error
+    setAttendanceData(null);
+  } finally {
+    setAttendanceLoading(false);
+  }
+};
 
   // Format date helper
   const formatDate = (dateString) => {

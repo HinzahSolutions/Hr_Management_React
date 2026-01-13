@@ -73,7 +73,7 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
       link: '/employee',
       submenu: [
         { label: 'Profile', link: '/employee/profile' },
-        { label: 'Employees', link: '/employee' },
+        { label: 'Employees', link: '/employee/employee' },
         { label: 'Document Requests', link: '/employee/documents' },
         { label: 'Shift Requests', link: '/employee/shift' },
         { label: 'Work Type Requests', link: '/employee/worktype' },
@@ -136,11 +136,11 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
       { label: 'Offboarding', link: '/offboard/Offboarding' },]
      },
      {
-      label:'Company' ,icon:'FaHouzz' , link:'/company',
+      label:'Base' ,icon:'FaHouzz' , link:'/base',
       submenu: [
-         { label: 'Add Company',link: '/company' },
-    { label: 'Permission Assign',link: '/company/permission-assign' },
-    {label:'Admin Page', link:'/company/admin'}
+         { label: 'Add Company',link: '/base/company' },
+    { label: 'Permission Assign',link: '/base/company/permission-assign' },
+    {label:'Admin Page', link:'/base/company/admin'}
   ]
      }
   
@@ -208,49 +208,49 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
                 <ProtectedRoute>
                   <Routes>
                       <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path='recruitment/dash' element={<RecruitmentDashboard/>} />   
-                    <Route path='recruitment/recruitment' element={<Recruitments/>} />  
+        <Route path="/dashboard" element={  <ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path='recruitment/dash' element={  <ProtectedRoute><RecruitmentDashboard/></ProtectedRoute>} />   
+                    <Route path='recruitment/recruitment' element={  <ProtectedRoute><Recruitments/></ProtectedRoute>} />  
 
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/employee" element={<Employee />} />
-                    <Route path="/employee/profile/:id" element={<Profile />} />
-                    <Route path="/employee/shift" element={<ShiftRequests />} />
-                    <Route path="/employee/documents" element={<DocumentRequests />} />
-                    <Route path="/employee/worktype" element={<WorkTypeRequests />} />
-                    <Route path="/employee/rotating-shift" element={<RotatingShiftAssign />} />
+                    <Route path="/dashboard" element={  <ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/employee" element={  <ProtectedRoute><Employee /></ProtectedRoute>} />
+                    <Route path="/employee/profile/:id" element={  <ProtectedRoute><Profile /></ProtectedRoute>} />
+                    <Route path="/employee/shift" element={  <ProtectedRoute><ShiftRequests /></ProtectedRoute>} />
+                    <Route path="/employee/documents" element={  <ProtectedRoute><DocumentRequests /></ProtectedRoute>} />
+                    <Route path="/employee/worktype" element={  <ProtectedRoute><WorkTypeRequests /></ProtectedRoute>} />
+                    <Route path="/employee/rotating-shift" element={  <ProtectedRoute><RotatingShiftAssign /></ProtectedRoute>} />
 
-                    <Route path="/attendance/dashboard" element={<AttendanceDashboard />} />
-                    <Route path="/attendance/devices" element={<BiometricDevices />} />
-                    <Route path="/attendance/list" element={<Attendances />} />
-                    <Route path="/attendance/my" element={<MyAttendances />} />
-                    <Route path="/attendance/work-records" element={<WorkRecords />} />
+                    <Route path="/attendance/dashboard" element={  <ProtectedRoute><AttendanceDashboard /></ProtectedRoute>} />
+                    <Route path="/attendance/devices" element={  <ProtectedRoute><BiometricDevices /></ProtectedRoute>} />
+                    <Route path="/attendance/list" element={  <ProtectedRoute><Attendances /></ProtectedRoute>} />
+                    <Route path="/attendance/my" element={  <ProtectedRoute><MyAttendances /></ProtectedRoute>} />
+                    <Route path="/attendance/work-records" element={  <ProtectedRoute><WorkRecords /></ProtectedRoute>} />
 
-                    <Route path="/leave/dashboard" element={<LeaveDashboard />} />
-                    <Route path="/leave/my-requests" element={<MyLeaveRequests />} />
-                    <Route path="/leave/requests" element={<LeaveRequests />} />
-                    <Route path="/leave/assigned" element={<AllAssignedLeaves />} />
-                    <Route path="/leave/types" element={<LeaveTypes />} />
+                    <Route path="/leave/dashboard" element={  <ProtectedRoute><LeaveDashboard /></ProtectedRoute>} />
+                    <Route path="/leave/my-requests" element={  <ProtectedRoute><MyLeaveRequests /></ProtectedRoute>} />
+                    <Route path="/leave/requests" element={  <ProtectedRoute><LeaveRequests /></ProtectedRoute>} />
+                    <Route path="/leave/assigned" element={  <ProtectedRoute><AllAssignedLeaves /></ProtectedRoute>} />
+                    <Route path="/leave/types" element={  <ProtectedRoute><LeaveTypes /></ProtectedRoute>} />
 
-                    <Route path="/payroll/dashboard" element={<PayrollDashboard />} />
-                    <Route path="/payroll/contract" element={<Contracts />} />
-                    <Route path="/payroll/allowances" element={<Allowances />} />
-                    <Route path="/payroll/payslips" element={<Payslip />} />
-                    <Route path="/payroll/loan" element={<LoanAdvancedSalary />} />
-
-
-
-                    <Route path='/offboard/dashboard' element={<OffboardingDashboard/>} />
-                    <Route path='/offboard/Offboarding' element={<Offboarding/>} />
-                    <Route path='Onboarding/candidates' element={<CandidatesView/>} />
+                    <Route path="/payroll/dashboard" element={  <ProtectedRoute><PayrollDashboard /></ProtectedRoute>} />
+                    <Route path="/payroll/contract" element={  <ProtectedRoute><Contracts /></ProtectedRoute>} />
+                    <Route path="/payroll/allowances" element={  <ProtectedRoute><Allowances /></ProtectedRoute>} />
+                    <Route path="/payroll/payslips" element={  <ProtectedRoute><Payslip /></ProtectedRoute>} />
+                    <Route path="/payroll/loan" element={  <ProtectedRoute><LoanAdvancedSalary /></ProtectedRoute>} />
 
 
-                    <Route path='/company' element={<Company/>} />
-                     <Route path='/company/permission-assign' element={<PermissionAssign />}  />
-                     <Route path='/company/admin' element={<AdminPage/>} />
+
+                    <Route path='/offboard/dashboard' element={  <ProtectedRoute><OffboardingDashboard/></ProtectedRoute>} />
+                    <Route path='/offboard/Offboarding' element={  <ProtectedRoute><Offboarding/></ProtectedRoute>} />
+                    <Route path='Onboarding/candidates' element={  <ProtectedRoute><CandidatesView/></ProtectedRoute>} />
 
 
-                      <Route path='admin/setting' element={<Settings/>} />
+                    <Route path='/base/company' element={  <ProtectedRoute><Company/></ProtectedRoute>} />
+                     <Route path='/base/company/permission-assign' element={  <ProtectedRoute><PermissionAssign /></ProtectedRoute>}  />
+                     <Route path='base/company/admin' element={  <ProtectedRoute><AdminPage/></ProtectedRoute>} />
+
+
+                      <Route path='admin/setting' element={  <ProtectedRoute><Settings/></ProtectedRoute>} />
                      
 
                    
