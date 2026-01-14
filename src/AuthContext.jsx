@@ -517,6 +517,26 @@ const hasPermission = (moduleName, subItemName = null, action = 'view') => {
 const canAccessRoute = (path) => {
   if (!isAuthenticated) {
     return false;
+  }   
+
+   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  if (currentUser.isAdmin) {
+    // Admin users can only access Base-related routes
+    const adminAllowedPaths = [
+      '/base/company',
+      '/base/company/permission-assign',
+      '/base/company/admin',
+      '/dashboard',
+      '/' // Optional: allow dashboard
+    ];
+    
+    // Check exact match or starts with base/company
+    const isAllowed = path.startsWith('/base/company') || 
+                     adminAllowedPaths.includes(path) ||
+                     path === '/dashboard';
+    
+    console.log(`Admin route check for ${path}: ${isAllowed}`);
+    return isAllowed;
   }
 
   // If no permissions loaded, allow access to dashboard only

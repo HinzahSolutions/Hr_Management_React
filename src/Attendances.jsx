@@ -1826,59 +1826,59 @@ export default function Attendances() {
 
   // Fallback mock data (used if API fails)
   const useFallbackData = () => {
-    const fallbackToValidate = [
-      {
-        id: 1,
-        employee: 'Vandita Sharma (PEP00)',
-        batch: 'None',
-        date: '11 November, 2025',
-        day: 'Tuesday',
-        checkIn: '08:30',
-        checkOut: '17:30',
-        confirmation: '11 Nov',
-        department: 'HR',
-        status: 'pending',
-        statusText: 'Absent',
-        attendanceType: 'absent',
-        avatarColor: 'bg-gradient-to-br from-pink-500 to-pink-600'
-      },
-    ];
+    // const fallbackToValidate = [
+    //   {
+    //     id: 1,
+    //     employee: 'Vandita Sharma (PEP00)',
+    //     batch: 'None',
+    //     date: '11 November, 2025',
+    //     day: 'Tuesday',
+    //     checkIn: '08:30',
+    //     checkOut: '17:30',
+    //     confirmation: '11 Nov',
+    //     department: 'HR',
+    //     status: 'pending',
+    //     statusText: 'Absent',
+    //     attendanceType: 'absent',
+    //     avatarColor: 'bg-gradient-to-br from-pink-500 to-pink-600'
+    //   },
+    // ];
 
-    const fallbackOt = [
-      {
-        id: 4,
-        employee: 'Vandita Sharma (PEP00)',
-        batch: 'None',
-        date: '08 November, 2025',
-        day: 'Saturday',
-        checkIn: '08:40',
-        checkOut: '19:30',
-        confirmation: '08 Nov',
-        department: 'HR',
-        status: 'overtime',
-        statusText: 'Overtime',
-        attendanceType: 'overtime',
-        avatarColor: 'bg-gradient-to-br from-pink-500 to-pink-600'
-      },
-    ];
+    // const fallbackOt = [
+    //   {
+    //     id: 4,
+    //     employee: 'Vandita Sharma (PEP00)',
+    //     batch: 'None',
+    //     date: '08 November, 2025',
+    //     day: 'Saturday',
+    //     checkIn: '08:40',
+    //     checkOut: '19:30',
+    //     confirmation: '08 Nov',
+    //     department: 'HR',
+    //     status: 'overtime',
+    //     statusText: 'Overtime',
+    //     attendanceType: 'overtime',
+    //     avatarColor: 'bg-gradient-to-br from-pink-500 to-pink-600'
+    //   },
+    // ];
 
-    const fallbackValidated = [
-      {
-        id: 13,
-        employee: 'ARJIT Chaudhary (arjit9800-)',
-        batch: 'None',
-        date: '10 November, 2025',
-        day: 'Monday',
-        checkIn: '08:30',
-        checkOut: '17:30',
-        confirmation: '10 Nov',
-        department: 'Engineering',
-        status: 'validated',
-        statusText: 'Validated',
-        attendanceType: 'present',
-        avatarColor: 'bg-gradient-to-br from-blue-500 to-blue-600'
-      },
-    ];
+    // const fallbackValidated = [
+    //   {
+    //     id: 13,
+    //     employee: 'ARJIT Chaudhary (arjit9800-)',
+    //     batch: 'None',
+    //     date: '10 November, 2025',
+    //     day: 'Monday',
+    //     checkIn: '08:30',
+    //     checkOut: '17:30',
+    //     confirmation: '10 Nov',
+    //     department: 'Engineering',
+    //     status: 'validated',
+    //     statusText: 'Validated',
+    //     attendanceType: 'present',
+    //     avatarColor: 'bg-gradient-to-br from-blue-500 to-blue-600'
+    //   },
+    // ];
 
     setAttendanceData({
       toValidate: fallbackToValidate,

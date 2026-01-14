@@ -55,6 +55,9 @@ function AppContent() {
   const { isAuthenticated, logout } = useAuth();
   // const [isCollapsed, setIsCollapsed] = useState(false); // desktop width
 const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+
+
 
    const menuData = [
     { label: 'Dashboard', icon: 'dashboard', link: '/dashboard', active: true },
@@ -160,8 +163,9 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
-         <Route path="/company1/login" element={<Login1 />} />
+         <Route path="/admin/login" element={<Login1 />} />
           {/* <Route path="/company2/login" element={<Login />} /> */}
+             <Route path='/base/company' element={ <Company/>} />
            <Route path="/SuperAdmin/login" element={<Login2 />} />
         {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
       </Routes>
@@ -201,7 +205,9 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
             <Route path='/company' element={<Company/>} />
                      <Route path='/company/permission-assign' element={<PermissionAssign />}  />
                      <Route path='/company/admin' element={<AdminPage/>} />
-          
+              <Route path="/" element={<Navigate to="/dashboards" replace />} />
+        <Route path="/dashboards" element={  <Dashboard />} />  
+
             <Route
               path="/*"
               element={

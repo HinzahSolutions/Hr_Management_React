@@ -393,6 +393,8 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
       return [
         { label: 'Dashboard', icon: Home, link: '/dashboard', color: getTextAccent() },
         { label: 'Settings', icon: Settings, link: '/settings', color: getSecondaryTextColor() },
+       { label: 'Company', icon: Settings, link: 'base/company', color: getSecondaryTextColor()
+ }
       ];
     }
     
@@ -400,6 +402,8 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
       { label: 'Dashboard', icon: Home, link: '/dashboard', color: getTextAccent() },
       ...dynamicMenu,
       { label: 'Settings', icon: Settings, link: '/settings', color: getSecondaryTextColor() },
+
+       
     ];
     
     return data;

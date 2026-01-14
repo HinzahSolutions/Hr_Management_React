@@ -739,7 +739,20 @@ const Navbar = ({
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
               {userName.charAt(0).toUpperCase()}
             </div>
-            <span className="hidden md:block font-medium">{userName}</span>
+            <span className="hidden md:block font-medium">  <p className="text-sm font-semibold text-gray-900">
+        {(() => {
+          try {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+              const user = JSON.parse(userData);
+              return user.username || user.name || 'User';
+            }
+          } catch (error) {
+            console.error('Error parsing user data:', error);
+          }
+          return 'User';
+        })()}
+      </p></span>
             <svg className={`h-4 w-4 transition-transform ${profileOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
@@ -749,7 +762,20 @@ const Navbar = ({
           {profileOpen && (
             <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-gray-200 bg-white shadow-xl py-3 z-50">
               <div className="px-4 py-3 border-b border-gray-100">
-                <p className="text-sm font-semibold text-gray-900">{userName}</p>
+                 <p className="text-sm font-semibold text-gray-900">
+        {(() => {
+          try {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+              const user = JSON.parse(userData);
+              return user.username || user.name || 'User';
+            }
+          } catch (error) {
+            console.error('Error parsing user data:', error);
+          }
+          return 'User';
+        })()}
+      </p>
                 <p className="text-xs text-gray-500">{user?.email || 'user@company.com'}</p>
               </div>
 

@@ -201,7 +201,7 @@ export default function WorkRecords() {
   const totalRecords = employees.length * daysInMonth.length;
 
   return (
-    <div className=" flex-1 min-h-screen bg-gradient-to-br from-gray-50/50 via-white to-blue-50/30 p-4 lg:p-6">
+    <div className=" flex-1 min-h-screen lg:max-w-7xl bg-gradient-to-br from-gray-50/50 via-white to-blue-50/30 p-4 ">
       {/* HEADER */}
       <div className="mb-6 lg:mb-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
