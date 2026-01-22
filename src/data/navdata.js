@@ -17,7 +17,7 @@ export const MODULES = [
     name: 'Base', 
     color: 'bg-gray-600', 
     icon: FaHome,
-    basePath: '/dashboard' 
+    basePath: '/base' 
   },
   { 
     name: 'Recruitment', 

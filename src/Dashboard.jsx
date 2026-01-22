@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -45,6 +45,11 @@ import { useTheme } from './ThemeContext';
 
 export default function Dashboard() {
   const { theme } = useTheme();
+
+    useEffect(() => {
+    
+    }, [1]);
+  
   
   // Theme helper functions
   const getAccentColor = () => theme?.accent || 'orange-600';

@@ -1,268 +1,181 @@
-// // src/pages/Login.jsx
-// 'use client';
-
-// import React, { useState } from 'react';
-// import { Lock, Eye, EyeOff } from 'lucide-react';
-// import { useAuth } from './AuthContext';
-// import { useNavigate } from 'react-router-dom';
-
-// export default function Login() {
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [username, setUsername] = useState('admin');
-//   const [password, setPassword] = useState('admin');
-//   const [error, setError] = useState('');
-//   const { login } = useAuth();
-//   const navigate = useNavigate();
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     setError('');
-//     if (login(username, password)) {
-//       navigate('/dashboard');
-//     } else {
-//       setError('Invalid username or password');
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-//       <div className="max-w-md w-full">
-//         <div className="bg-white rounded-3xl shadow-lg p-8">
-//           <div className="text-center mb-8">
-//             <h1 className="text-2xl font-bold text-gray-900">Super Admin Sign In</h1>
-//             <p className="text-sm text-gray-600 mt-1">
-//               Please login to access the dashboard.
-//             </p>
-//           </div>
-
-//           <form onSubmit={handleSubmit} className="space-y-6">
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-//               <input
-//                 type="text"
-//                 value={username}
-//                 onChange={(e) => setUsername(e.target.value)}
-//                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-//                 placeholder="admin"
-//               />
-//             </div>
-
-//             <div>
-//               <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-//               <div className="relative">
-//                 <input
-//                   type={showPassword ? 'text' : 'password'}
-//                   value={password}
-//                   onChange={(e) => setPassword(e.target.value)}
-//                   className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-//                   placeholder="••••"
-//                 />
-//                 <button
-//                   type="button"
-//                   onClick={() => setShowPassword(!showPassword)}
-//                   className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700"
-//                 >
-//                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-//                 </button>
-//               </div>
-//             </div>
-
-//             {error && <p className="text-sm text-red-600">{error}</p>}
-
-//             <button
-//               type="submit"
-//               className="w-full bg-red-600 text-white py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-red-700"
-//             >
-//               <Lock className="h-4 w-4" />
-//               Secure Sign-in
-//             </button>
-//           </form>
-
-//           <div className="mt-6 text-center text-xs text-gray-600">
-//             <p>
-//               <strong>Note:</strong> Use <code className="bg-gray-100 px-1 rounded">admin</code> /{' '}
-//               <code className="bg-gray-100 px-1 rounded">admin</code>
-//             </p>
-//           </div>
-
-//           <div className="mt-4 text-center">
-//             <a href="#" className="text-xs text-red-600 hover:text-red-700">
-//               Forgot password?
-//             </a>
-//           </div>
-//         </div>
-
-//         <div className="mt-8 text-center text-gray-400">
-//           <div className="flex items-center justify-center gap-2">
-//             <svg className="w-8 h-8" viewBox="0 0 32 32" fill="currentColor">
-//               <path d="M16 2L2 12h4v16h8v-8h4v8h8V12h4L16 2z" />
-//             </svg>
-//             <span className="text-lg font-medium">Hinzah solutions</span>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 'use client';
 
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff } from 'lucide-react';
-
+import { Lock, Eye, EyeOff, Building, User, Key, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
+export default function Login2() {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('');
+  const [companyCode, setCompanyCode] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
  
   const navigate = useNavigate();
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setError('');
-    
-  //   if (!username.trim() || !password.trim()) {
-  //     setError('Please enter both username and password');
-  //     return;
-  //   }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-  //   setIsLoading(true);
-    
-  //   try {
-  //     const result = await fectch ("http://192.168.0.5:8000/api/superadmin/login");
+    // Validation - Based on your API screenshot
+    if (!companyCode.trim() || !name.trim() || !password.trim()) {
+      setError('Please enter company name, company code, and password');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Login API call - Updated to match your screenshot
+      const loginResponse = await fetch(
+        'https://hr.hinzah.com/api/employer/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name,
+            company_code: companyCode,
+            password: password,
+          }),
+        }
+      );
+
+      const loginResult = await loginResponse.json();
+      console.log('Login Response:', loginResult);
+
+      if (!loginResponse.ok) {
+        throw new Error(loginResult.message || 'Invalid credentials');
+      }
+
+      // Check if login was successful
+      if (!loginResult.status) {
+        throw new Error(loginResult.message || 'Login failed');
+      }
+
+      // ✅ Extract token & data from response
+      const { token, data } = loginResult;
+
+      // ✅ Store securely
+      localStorage.setItem('token', token);
+      localStorage.setItem('employerData', JSON.stringify(data));
       
-  //     if (result.success) {
-  //       navigate('/dashboard');
-  //         try {
-  //     const result = await fectch ("http://192.168.0.5:8000/api/admin/home");
-  //           console.log(result.data)
-  //         }
-  //         catch(err){
-  //            console.error('Login error:', err);
-  //         }
-  //     } else {
-  //       setError(result.error || 'Invalid credentials');
-  //     }
-  //   } catch (err) {
-  //     setError('An error occurred. Please try again.');
-  //     console.error('Login error:', err);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-    const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
+      // Store individual items for easy access
+      localStorage.setItem('employer_id', data.employer_id);
+      localStorage.setItem('company_code', data.company_code);
+      localStorage.setItem('company_name', data.name);
 
-  if (!username.trim() || !password.trim()) {
-    setError('Please enter both username and password');
-    return;
-  }
+      console.log('Stored employer data:', data);
 
-  setIsLoading(true);
+      // Optional: Fetch additional dashboard data
+      try {
+        const dashboardResponse = await fetch(
+          'http://127.0.0.1:8000/api/employer/dashboard', // Adjust this endpoint as needed
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+            },
+          }
+        );
 
-  try {
-    // 1️⃣ LOGIN API (POST)
-    const loginResponse = await fetch(
-      'http://192.168.0.5:8000/api/admin/login',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
+        if (dashboardResponse.ok) {
+          const dashboardData = await dashboardResponse.json();
+          console.log('Dashboard Data:', dashboardData);
+          localStorage.setItem('dashboardData', JSON.stringify(dashboardData));
+        }
+      } catch (dashboardError) {
+        console.log('Dashboard fetch skipped or failed:', dashboardError);
+        // Continue to navigation even if dashboard fetch fails
       }
-    );
 
-    const loginResult = await loginResponse.json();
+      // ✅ Navigate to dashboard
+      navigate('/employer/dashboard');
 
-    if (!loginResponse.ok) {
-      throw new Error(loginResult.message || 'Invalid credentials');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
     }
-
-    // ✅ Extract token & user
-    const { token, user } = loginResult;
-
-    // ✅ Store securely (better than localStorage = httpOnly cookie, but for now)
-    localStorage.setItem('token', token);
-    localStorage.setItem('currentUser', JSON.stringify(user));
-
-    // 2️⃣ SECOND API (GET) — ADMIN HOME
-    const homeResponse = await fetch(
-      'http://192.168.0.5:8000/api/admin/home',
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const homeResult = await homeResponse.json();
-
-    if (!homeResponse.ok) {
-      throw new Error('Failed to load dashboard');
-    }
-
-    console.log('Dashboard Data:', homeResult);
-
-    // 3️⃣ NAVIGATE
-    navigate('/dashboard');
-
-  } catch (err) {
-    console.error('Login error:', err);
-    setError(err.message || 'Something went wrong');
-  } finally {
-    setIsLoading(false);
-  }
-};
- 
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-3xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Super Admin Sign In</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Please login to access the dashboard.
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-green-50 rounded-full">
+                <Smartphone className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Employer Portal</h1>
+            <p className="text-sm text-gray-600 mt-2">
+              Sign in to manage your account
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Company Name Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username
+                <div className="flex items-center gap-2">
+                  <Building className="h-4 w-4" />
+                  Company Name
+                </div>
               </label>
               <input
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Enter your username"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                placeholder="Enter company name"
                 disabled={isLoading}
                 required
               />
+              {/* <p className="text-xs text-gray-500 mt-1">e.g., Hinzac Technologies</p> */}
             </div>
 
+            {/* Company Code Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Company Code
+                </div>
+              </label>
+              <input
+                type="text"
+                value={companyCode}
+                onChange={(e) => setCompanyCode(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                placeholder="Enter company code"
+                disabled={isLoading}
+                required
+              />
+              {/* <p className="text-xs text-gray-500 mt-1">e.g., COMP0005</p> */}
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="flex items-center gap-2">
+                  <Key className="h-4 w-4" />
+                  Password
+                </div>
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   placeholder="Enter your password"
                   disabled={isLoading}
                   required
@@ -270,8 +183,9 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-3.5 text-gray-500 hover:text-gray-700 transition-colors"
                   disabled={isLoading}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -280,18 +194,56 @@ export default function Login() {
                   )}
                 </button>
               </div>
+              {/* <p className="text-xs text-gray-500 mt-1">Default: 123456</p> */}
             </div>
 
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="remember"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
+                  Remember me
+                </label>
+              </div>
+              <a
+                href="#"
+                className="text-sm text-green-600 hover:text-green-700 hover:underline transition-colors"
+              >
+                Forgot password?
+              </a>
+            </div>
+
+            {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3 animate-pulse">
+                <div className="flex items-center">
+                  <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {error}
+                </div>
               </div>
             )}
 
+            {/* Success Message Demo - Remove in production */}
+            {/* <div className="bg-green-50 border border-green-200 text-green-700 text-xs rounded-lg p-3">
+              <div className="font-medium mb-1">API Test Data:</div>
+              <div className="grid grid-cols-2 gap-1">
+                <div>Company: <span className="font-mono">Hinzac Technologies</span></div>
+                <div>Code: <span className="font-mono">COMP0005</span></div>
+                <div>Password: <span className="font-mono">123456</span></div>
+              </div>
+            </div> */}
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-red-600 text-white py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:from-green-700 hover:to-green-800 disabled:from-green-300 disabled:to-green-400 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg"
             >
               {isLoading ? (
                 <>
@@ -304,204 +256,35 @@ export default function Login() {
               ) : (
                 <>
                   <Lock className="h-4 w-4" />
-                  Secure Sign-in
+                  Sign In as Employer
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-4 text-center">
-            <a href="#" className="text-xs text-red-600 hover:text-red-700 hover:underline">
-              Forgot password?
-            </a>
+          {/* Divider */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-xs text-center text-gray-500">
+              Need help? Contact support@hinzah.com
+            </p>
           </div>
         </div>
 
-        <div className="mt-8 text-center text-gray-400">
-          <div className="flex items-center justify-center gap-2">
-            <svg className="w-8 h-8" viewBox="0 0 32 32" fill="currentColor">
-              <path d="M16 2L2 12h4v16h8v-8h4v8h8V12h4L16 2z" />
-            </svg>
-            <span className="text-lg font-medium">Hinzah solutions</span>
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <svg className="w-6 h-6 text-green-600" viewBox="0 0 32 32" fill="currentColor">
+                <path d="M16 2L2 12h4v16h8v-8h4v8h8V12h4L16 2z" />
+              </svg>
+            </div>
+            <span className="text-lg font-semibold text-gray-800">Hinzah Solutions</span>
           </div>
+          <p className="text-xs text-gray-400">
+            Employer Portal v1.0 • © 2024 All rights reserved
+          </p>
         </div>
       </div>
     </div>
   );
 }
-
-
-// 'use client';
-
-// import React, { useState } from 'react';
-// import { Lock, Eye, EyeOff } from 'lucide-react';
-// import { useNavigate } from 'react-router-dom';
-// import { useAuth } from './AuthContext';
-// import toast, { Toaster } from 'react-hot-toast';
-
-// export default function SuperAdminLogin() {
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [username, setUsername] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [isLoading, setIsLoading] = useState(false);
-
-//   const { login } = useAuth();
-//   const navigate = useNavigate();
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setIsLoading(true);
-
-//     try {
-//       // Super Admin API endpoint
-//       const response = await fetch("http://192.168.0.4:8000/api/company/login", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ username, password }),
-//       });
-
-//       if (!response.ok) {
-//         console.error("❌ Server Error:", response.status, response.statusText);
-//         toast.error("Server error: " + response.statusText);
-//         return;
-//       }
-
-//       const result = await response.json();
-
-//       console.log("🔥 Super Admin Login Response:", result);
-//        setTimeout(() => {
-//         navigate('/dashboard');
-//       }, 1200);
-
-//       if (!result.status) {
-//         console.error("❌ Backend Message:", result.message);
-//         toast.error(result.message || "Invalid username or password");
-//         return;
-//       }
-
-//       // Add user_type to identify superadmin
-//       const superAdminData = {
-//         ...result.data,
-//         user_type: 'superadmin'
-//       };
-
-//       // Save token and user data
-//       localStorage.setItem("authToken", result.token);
-//       localStorage.setItem("currentUser", JSON.stringify(superAdminData));
-
-//       login(superAdminData);
-
-//       toast.success("Super Admin Login successful!");
-//       setTimeout(() => navigate("/dashboard"), 1200);
-
-//     } catch (err) {
-//       console.error("🚨 FETCH ERROR (Network/CORS/URL):", err.message);
-//       toast.error("Network error — check API URL or connection");
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   return (
-//     <>
-//       <Toaster position="top-center" />
-
-//       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-purple-50 flex items-center justify-center px-4">
-//         <div className="max-w-md w-full">
-
-//           <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-//             <div className="text-center mb-8">
-//               <h1 className="text-4xl font-extrabold bg-gradient-to-r from-red-600 to-purple-600 bg-clip-text text-transparent">
-//                 HINZAH HRMS
-//               </h1>
-//               <p className="text-gray-600 mt-3 text-lg">Super Admin Login</p>
-//               <p className="text-sm text-gray-500 mt-1">
-//                 Full system access & management
-//               </p>
-//             </div>
-
-//             <form onSubmit={handleSubmit} className="space-y-6">
-
-//               {/* Username */}
-//               <div>
-//                 <label className="block text-sm font-bold text-gray-700 mb-2">
-//                   Super Admin Username
-//                 </label>
-//                 <input
-//                   type="text"
-//                   required
-//                   value={username}
-//                   onChange={(e) => setUsername(e.target.value)}
-//                   className="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-red-500/20 focus:border-red-500 outline-none transition"
-//                   placeholder="e.g. superadmin"
-//                 />
-//               </div>
-
-//               {/* Password */}
-//               <div>
-//                 <label className="block text-sm font-bold text-gray-700 mb-2">
-//                   Master Password
-//                 </label>
-//                 <div className="relative">
-//                   <input
-//                     type={showPassword ? 'text' : 'password'}
-//                     required
-//                     value={password}
-//                     onChange={(e) => setPassword(e.target.value)}
-//                     className="w-full px-5 py-4 pr-14 border border-gray-300 rounded-2xl focus:ring-4 focus:ring-red-500/20 focus:border-red-500 outline-none transition"
-//                     placeholder="Enter master password"
-//                   />
-//                   <button
-//                     type="button"
-//                     onClick={() => setShowPassword(!showPassword)}
-//                     className="absolute right-4 top-4 text-gray-500 hover:text-red-600 transition"
-//                   >
-//                     {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-//                   </button>
-//                 </div>
-//               </div>
-
-//               {/* Submit */}
-//               <button
-//                 type="submit"
-//                 disabled={isLoading}
-//                 className="w-full bg-gradient-to-r from-red-600 to-purple-600 text-white py-5 rounded-2xl font-bold text-lg shadow-xl hover:from-red-700 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-//               >
-//                 {isLoading ? (
-//                   <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-//                 ) : (
-//                   <Lock className="w-6 h-6" />
-//                 )}
-//                 {isLoading ? 'Signing in...' : 'Super Admin Sign In'}
-//               </button>
-
-//             </form>
-
-//             {/* Switch to Admin Login */}
-//             <div className="mt-6 text-center">
-//               <p className="text-sm text-gray-600">
-//                 Regular admin?{' '}
-//                 <a 
-//                   href="/admin/login" 
-//                   className="text-red-600 font-semibold hover:text-red-700 hover:underline"
-//                 >
-//                   Go to Admin Login
-//                 </a>
-//               </p>
-//             </div>
-
-//             {/* Demo Credentials (Optional) */}
-//             <div className="mt-6 p-4 bg-red-50 rounded-2xl border border-red-200">
-//               <p className="text-xs text-red-800 font-medium text-center">
-//                 Super Admin credentials have higher privileges
-//               </p>
-//             </div>
-//           </div>
-
-//         </div>
-//       </div>
-//     </>
-//   );
-// }

@@ -8,8 +8,8 @@ import toast, { Toaster } from 'react-hot-toast';
 
 export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('password');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
@@ -107,10 +107,10 @@ export default function AdminLogin() {
         // IMPORTANT: Wait a moment for the auth state to update
           // IMPORTANT: Wait a moment for the auth state to update
       setTimeout(() => {
-        const redirectPath = sessionStorage.getItem('redirectPath') || '/dashboards';
+        const redirectPath = sessionStorage.getItem('redirectPath') || '/dashboard';
         sessionStorage.removeItem('redirectPath');
         console.log('Redirecting to:', redirectPath);
-        navigate(redirectPath, { replace: true });
+        navigate('/dashboard', { replace: true });
       }, 1000);
 
       } else {

@@ -166,7 +166,7 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
          <Route path="/admin/login" element={<Login1 />} />
           {/* <Route path="/company2/login" element={<Login />} /> */}
              <Route path='/base/company' element={ <Company/>} />
-           <Route path="/SuperAdmin/login" element={<Login2 />} />
+           <Route path="/employer/login" element={<Login2 />} />
         {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
       </Routes>
     );
@@ -202,11 +202,11 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
         <main className="flex-1 mt-11  md:p-6 container">
           <Routes>
           
-            <Route path='/company' element={<Company/>} />
+            {/* <Route path='/company' element={<Company/>} />
                      <Route path='/company/permission-assign' element={<PermissionAssign />}  />
                      <Route path='/company/admin' element={<AdminPage/>} />
-              <Route path="/" element={<Navigate to="/dashboards" replace />} />
-        <Route path="/dashboards" element={  <Dashboard />} />  
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={  <Dashboard />} />   */}
 
             <Route
               path="/*"
