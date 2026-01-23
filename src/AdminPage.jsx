@@ -3669,8 +3669,6 @@
 
 
 
-
-
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
@@ -3709,6 +3707,7 @@ import {
   Star,
   Award,
   TrendingUp,
+  ShieldCheck,
   TrendingDown,
   Check,
   AlertTriangle,
@@ -3725,7 +3724,7 @@ import {
   Moon
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
-
+import { MODULES, SUB_PERMISSIONS } from './data/navdata';
 // API Configuration
 const API_BASE_URL_SERVER = import.meta.env.VITE_API_BASE_URL_SERVER || "https://hr.hinzah.com";
 const EMPLOYERS_API = `${API_BASE_URL_SERVER}/api/employer`;
@@ -3782,6 +3781,38 @@ const apiService = {
     }
   },
 
+  async createEmployerPermissions(employerId, permissions) {
+   
+     console.log("employers id or code",employerId)
+      const permissionsPayload = {
+      company_code: employerId,
+      permissions:permissions
+    };
+     
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const response = await fetch("https://hr.hinzah.com/api/company/permissions", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(permissionsPayload)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.warn('Permissions API failed:', errorData);
+        return { success: false, error: errorData };
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating permissions:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
   async updateEmployer(id, employerData) {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
@@ -3825,6 +3856,27 @@ const apiService = {
       console.error('Error deleting employer:', error);
       throw error;
     }
+  },
+
+  async getEmployerPermissions(employerId) {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE_URL_SERVER}/api/employer/${employerId}/permissions`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching employer permissions:', error);
+      throw error;
+    }
   }
 };
 
@@ -3832,7 +3884,7 @@ function AdminPage() {
   const { theme, getThemeClasses } = useTheme();
   const themeClasses = getThemeClasses();
   const [darkMode, setDarkMode] = useState(false);
-  
+  const [openModule, setOpenModule] = useState(null);
   // States
   const [employers, setEmployers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -3867,7 +3919,47 @@ function AdminPage() {
       city: '',
       country: 'India',
     }
+  }); 
+  
+  const generateDefaultPermissions = (role = 'employee') => {
+    const perms = {};
+    MODULES.forEach(mod => {
+      perms[mod.name] = {};
+      (SUB_PERMISSIONS[mod.name] || []).forEach(sub => {
+        perms[mod.name][sub.name] = {
+          view: role === 'superadmin', // true for superadmin, false for others
+          create: false,
+          edit: false,
+          delete: false,
+        };
+      });
+    });
+    return perms;
+  };
+  
+  const [formData, setFormData] = useState({
+    permissions: generateDefaultPermissions('employee'),
   });
+
+  const togglePermission = (moduleName, permissionName, type) => {
+    setFormData(prev => ({
+      ...prev,
+      permissions: {
+        ...prev.permissions,
+        [moduleName]: {
+          ...prev.permissions[moduleName],
+          [permissionName]: {
+            ...prev.permissions[moduleName][permissionName],
+            [type]: !prev.permissions[moduleName][permissionName][type],
+          },
+        },
+      },
+    }));
+  };  
+
+  const getPerm = (moduleName, permissionName, type) => {
+    return formData.permissions?.[moduleName]?.[permissionName]?.[type] ?? false;
+  };
 
   // Filter and search states
   const [searchTerm, setSearchTerm] = useState('');
@@ -3945,45 +4037,7 @@ function AdminPage() {
     }
   };
 
-  // Filtered employers
-  const filteredEmployers = employers.filter(employer => {
-    const matchesSearch = 
-      (employer.employer_code && employer.employer_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (employer.name && employer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (employer.email && employer.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (employer.phone && employer.phone.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesStatus = statusFilter === 'all' || employer.status === statusFilter;
-    const matchesIndustry = industryFilter === 'all' || 
-      (employer.custom_data?.industry && employer.custom_data.industry.toLowerCase().includes(industryFilter.toLowerCase()));
-    
-    return matchesSearch && matchesStatus && matchesIndustry;
-  }).sort((a, b) => {
-    if (sortBy === 'name') {
-      return sortOrder === 'asc' 
-        ? (a.name || '').localeCompare(b.name || '')
-        : (b.name || '').localeCompare(a.name || '');
-    } else if (sortBy === 'status') {
-      return sortOrder === 'asc'
-        ? (a.status || '').localeCompare(b.status || '')
-        : (b.status || '').localeCompare(a.status || '');
-    } else if (sortBy === 'employees') {
-      const empA = a.custom_data?.employees || 0;
-      const empB = b.custom_data?.employees || 0;
-      return sortOrder === 'asc' ? empA - empB : empB - empA;
-    } else {
-      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-    }
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredEmployers.length / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const paginatedEmployers = filteredEmployers.slice(startIndex, startIndex + itemsPerPage);
-
-  // Handle Create Employer
+  // Handle Create Employer with automatic permission creation
   const handleCreateEmployer = async () => {
     try {
       setError(null);
@@ -4017,9 +4071,34 @@ function AdminPage() {
         belong_to_company_code: companyId
       };
 
+      // Step 1: Create the employer
+      console.log('Creating employer with data:', payload);
       const response = await apiService.createEmployer(payload);
       const newEmployerData = response.data || response;
       
+      console.log('Employer created successfully:', newEmployerData);
+      
+      // Step 2: Automatically create permissions for this employer
+      if (newEmployerData.id) {
+        console.log('Creating permissions for employer ID:', newEmployerData.id);
+        console.log('Permissions to set:', formData.permissions);
+        
+        const permissionsResult = await apiService.createEmployerPermissions(
+          newEmployerData.company_code, 
+          formData.permissions
+        );
+        
+        if (permissionsResult.success === false) {
+          console.warn('Permissions creation failed, but employer was created:', permissionsResult.error);
+          // Don't throw error, just log warning
+        } else {
+          console.log('Permissions created successfully:', permissionsResult);
+        }
+      } else {
+        console.warn('No employer ID returned, skipping permission creation');
+      }
+      
+      // Add employer to state
       setEmployers(prev => [...prev, {
         id: newEmployerData.id,
         employer_code: newEmployerData.employer_code,
@@ -4033,12 +4112,18 @@ function AdminPage() {
         employees: []
       }]);
       
-      setSuccess('Employer created successfully!');
+      setSuccess('Employer created successfully with permissions!');
       setOpenCreateModal(false);
       resetNewEmployerForm();
       
+      // Reset permissions to default
+      setFormData({
+        permissions: generateDefaultPermissions('employee'),
+      });
+      
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
+      console.error('Error in handleCreateEmployer:', err);
       setError(err.message || 'Failed to create employer');
     }
   };
@@ -4146,12 +4231,27 @@ function AdminPage() {
     setOpenViewModal(true);
   };
 
-  const handleOpenEdit = (employer) => {
+  const handleOpenEdit = async (employer) => {
     setSelectedEmployer({ ...employer });
     setNewEmployer({
       password: '',
       confirmPassword: ''
     });
+    
+    // Load existing permissions for this employer
+    try {
+      const permissionsData = await apiService.getEmployerPermissions(employer.id);
+      if (permissionsData.permissions) {
+        setFormData(prev => ({
+          ...prev,
+          permissions: permissionsData.permissions
+        }));
+      }
+    } catch (error) {
+      console.warn('Failed to load permissions, using defaults:', error);
+      // Keep current permissions if loading fails
+    }
+    
     setOpenEditModal(true);
   };
 
@@ -4159,6 +4259,44 @@ function AdminPage() {
     setSelectedEmployer(employer);
     setOpenDeleteModal(true);
   };
+
+  // Filtered employers
+  const filteredEmployers = employers.filter(employer => {
+    const matchesSearch = 
+      (employer.employer_code && employer.employer_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (employer.name && employer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (employer.email && employer.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (employer.phone && employer.phone.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = statusFilter === 'all' || employer.status === statusFilter;
+    const matchesIndustry = industryFilter === 'all' || 
+      (employer.custom_data?.industry && employer.custom_data.industry.toLowerCase().includes(industryFilter.toLowerCase()));
+    
+    return matchesSearch && matchesStatus && matchesIndustry;
+  }).sort((a, b) => {
+    if (sortBy === 'name') {
+      return sortOrder === 'asc' 
+        ? (a.name || '').localeCompare(b.name || '')
+        : (b.name || '').localeCompare(a.name || '');
+    } else if (sortBy === 'status') {
+      return sortOrder === 'asc'
+        ? (a.status || '').localeCompare(b.status || '')
+        : (b.status || '').localeCompare(a.status || '');
+    } else if (sortBy === 'employees') {
+      const empA = a.custom_data?.employees || 0;
+      const empB = b.custom_data?.employees || 0;
+      return sortOrder === 'asc' ? empA - empB : empB - empA;
+    } else {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+    }
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredEmployers.length / itemsPerPage);
+  const startIndex = (page - 1) * itemsPerPage;
+  const paginatedEmployers = filteredEmployers.slice(startIndex, startIndex + itemsPerPage);
 
   // Format date
   const formatDate = (dateString) => {
@@ -4855,391 +4993,585 @@ function AdminPage() {
       </main>
 
       {/* Modals */}
-      {/* Create Employer Modal */}
-         {openCreateModal && (
-        <AnimatePresence>
-          <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-white dark:bg-gray-800 w-full max-w-4xl max-h-screen sm:max-h-[90vh] sm:rounded-2xl shadow-2xl sm:border sm:border-gray-200 dark:sm:border-gray-700 flex flex-col h-screen sm:h-auto"
+      {/* Create Employer Modal with Permissions */}
+   {openCreateModal && (
+  <AnimatePresence>
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="bg-white dark:bg-gray-800 w-full max-w-6xl max-h-screen sm:max-h-[90vh] sm:rounded-2xl shadow-2xl sm:border sm:border-gray-200 dark:sm:border-gray-700 flex flex-col h-screen sm:h-auto"
+        >
+          <div className="px-6 pt-5 pb-4 sm:px-8 sm:pt-6 sm:pb-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <UserPlus className="inline-block h-7 w-7 mr-2" />
+                  Create New Employer
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
+                  Manage employer details and permissions
+                </p>
+              </div>
+              <button
+                onClick={() => setOpenCreateModal(false)}
+                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               >
-                <div className="px-6 pt-5 pb-4 sm:px-8 sm:pt-6 sm:pb-6">
-                  <div className="flex items-center justify-between mb-6">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            {/* Employer Form Section - Two Columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Left Column: Employer Input Fields */}
+              <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-4">
+                <div className="space-y-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <UserCog className="h-5 w-5" />
+                    Basic Information
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Employer Code *
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.employer_code}
+                        onChange={(e) => updateNewEmployer('employer_code', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="EMP001"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Company Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.name}
+                        onChange={(e) => updateNewEmployer('name', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="Tech Solutions Inc."
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Status
+                      </label>
+                      <select
+                        value={newEmployer.status}
+                        onChange={(e) => updateNewEmployer('status', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="verified">Verified</option>
+                      </select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Slug
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.slug}
+                        onChange={(e) => updateNewEmployer('slug', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="tech-solutions"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Security Section */}
+                <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    Security
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Password *
+                      </label>
+                      <input
+                        type="password"
+                        value={newEmployer.password}
+                        onChange={(e) => updateNewEmployer('password', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Confirm Password *
+                      </label>
+                      <input
+                        type="password"
+                        value={newEmployer.confirmPassword}
+                        onChange={(e) => updateNewEmployer('confirmPassword', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="••••••••"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Contact Information
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={newEmployer.email}
+                        onChange={(e) => updateNewEmployer('email', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="company@example.com"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        value={newEmployer.phone}
+                        onChange={(e) => updateNewEmployer('phone', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="+1234567890"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Company Details */}
+                <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Company Details
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Industry
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.custom_data.industry}
+                        onChange={(e) => updateNewEmployer('custom_data.industry', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="Technology"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Employees
+                      </label>
+                      <input
+                        type="number"
+                        value={newEmployer.custom_data.employees}
+                        onChange={(e) => updateNewEmployer('custom_data.employees', parseInt(e.target.value) || 0)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="50"
+                        min="0"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.custom_data.location}
+                        onChange={(e) => updateNewEmployer('custom_data.location', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="City, Country"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Founded Year
+                      </label>
+                      <input
+                        type="number"
+                        value={newEmployer.custom_data.founded_year}
+                        onChange={(e) => updateNewEmployer('custom_data.founded_year', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="2020"
+                        min="1900"
+                        max="2024"
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.custom_data.address}
+                        onChange={(e) => updateNewEmployer('custom_data.address', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="Street Address"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.custom_data.city}
+                        onChange={(e) => updateNewEmployer('custom_data.city', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="City"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Country
+                      </label>
+                      <input
+                        type="text"
+                        value={newEmployer.custom_data.country}
+                        onChange={(e) => updateNewEmployer('custom_data.country', e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="Country"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coordinates */}
+                <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Coordinates
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Latitude
+                      </label>
+                      <input
+                        type="number"
+                        step="0.000001"
+                        value={newEmployer.latitude}
+                        onChange={(e) => updateNewEmployer('latitude', parseFloat(e.target.value) || 0.0)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="0.0"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Longitude
+                      </label>
+                      <input
+                        type="number"
+                        step="0.000001"
+                        value={newEmployer.longitude}
+                        onChange={(e) => updateNewEmployer('longitude', parseFloat(e.target.value) || 0.0)}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="0.0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Employer Preview/Details Display */}
+              <div className="lg:border-l lg:border-gray-200 dark:lg:border-gray-700 lg:pl-8">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Employer Preview
+                </h4>
+                
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700 space-y-6">
+                  {/* Company Header */}
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
+                      <Building className="h-8 w-8 text-white" />
+                    </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                        <UserPlus className="inline-block h-6 w-6 mr-2" />
-                        Create New Employer
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 mt-1">
-                        Fill in the employer details below
+                      <h5 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {newEmployer.name || "Company Name"}
+                      </h5>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {newEmployer.employer_code || "EMP001"}
                       </p>
                     </div>
-                    <button
-                      onClick={() => setOpenCreateModal(false)}
-                      className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
                   </div>
-                  
-                  <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Basic Information */}
-                      <div className="space-y-4">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                          <UserCog className="h-5 w-5" />
-                          Basic Information
-                        </h4>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Employer Code *
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.employer_code}
-                            onChange={(e) => updateNewEmployer('employer_code', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="e.g., EMP001"
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Company Name *
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.name}
-                            onChange={(e) => updateNewEmployer('name', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="e.g., Tech Solutions Inc."
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Slug
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.slug}
-                            onChange={(e) => updateNewEmployer('slug', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="e.g., tech-solutions"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Status
-                          </label>
-                          <select
-                            value={newEmployer.status}
-                            onChange={(e) => updateNewEmployer('status', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="verified">Verified</option>
-                          </select>
-                        </div>
-                      </div>
 
-                      {/* Security */}
-                      <div className="space-y-4">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                          <Lock className="h-5 w-5" />
-                          Security
-                        </h4>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Password *
-                          </label>
-                          <input
-                            type="password"
-                            value={newEmployer.password}
-                            onChange={(e) => updateNewEmployer('password', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="Enter password"
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Confirm Password *
-                          </label>
-                          <input
-                            type="password"
-                            value={newEmployer.confirmPassword}
-                            onChange={(e) => updateNewEmployer('confirmPassword', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="Confirm password"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
+                  {/* Status Badge */}
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Status</p>
+                    <span className={`px-3 py-1.5 inline-flex text-sm font-semibold rounded-full ${getStatusColor(newEmployer.status)}`}>
+                      {newEmployer.status.charAt(0).toUpperCase() + newEmployer.status.slice(1)}
+                    </span>
+                  </div>
 
-                    {/* Contact Information */}
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-                        <Mail className="h-5 w-5" />
-                        Contact Information
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Email
-                          </label>
-                          <input
-                            type="email"
-                            value={newEmployer.email}
-                            onChange={(e) => updateNewEmployer('email', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="company@example.com"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Phone
-                          </label>
-                          <input
-                            type="tel"
-                            value={newEmployer.phone}
-                            onChange={(e) => updateNewEmployer('phone', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="+1234567890"
-                          />
-                        </div>
+                  {/* Contact Info */}
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Contact Information</p>
+                      <div className="space-y-2">
+                        {newEmployer.email && (
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-900 dark:text-white">{newEmployer.email}</span>
+                          </div>
+                        )}
+                        {newEmployer.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-900 dark:text-white">{newEmployer.phone}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Company Details */}
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-                        <Briefcase className="h-5 w-5" />
-                        Company Details
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Industry
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.custom_data.industry}
-                            onChange={(e) => updateNewEmployer('custom_data.industry', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="e.g., Technology"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Number of Employees
-                          </label>
-                          <input
-                            type="number"
-                            value={newEmployer.custom_data.employees}
-                            onChange={(e) => updateNewEmployer('custom_data.employees', parseInt(e.target.value) || 0)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="0"
-                            min="0"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Website
-                          </label>
-                          <input
-                            type="url"
-                            value={newEmployer.custom_data.website}
-                            onChange={(e) => updateNewEmployer('custom_data.website', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="https://example.com"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Founded Year
-                          </label>
-                          <input
-                            type="number"
-                            value={newEmployer.custom_data.founded_year}
-                            onChange={(e) => updateNewEmployer('custom_data.founded_year', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="2020"
-                            min="1900"
-                            max="2024"
-                          />
-                        </div>
-                        
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Description
-                          </label>
-                          <textarea
-                            value={newEmployer.custom_data.description}
-                            onChange={(e) => updateNewEmployer('custom_data.description', e.target.value)}
-                            rows="3"
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-                            placeholder="Company description..."
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Address Information */}
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-                        <MapPin className="h-5 w-5" />
-                        Address Information
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Address
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.custom_data.address}
-                            onChange={(e) => updateNewEmployer('custom_data.address', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="Street address"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            City
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.custom_data.city}
-                            onChange={(e) => updateNewEmployer('custom_data.city', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="City"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            State
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.custom_data.state}
-                            onChange={(e) => updateNewEmployer('custom_data.state', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="State"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Country
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.custom_data.country}
-                            onChange={(e) => updateNewEmployer('custom_data.country', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="Country"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Postal Code
-                          </label>
-                          <input
-                            type="text"
-                            value={newEmployer.custom_data.postal_code}
-                            onChange={(e) => updateNewEmployer('custom_data.postal_code', e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="12345"
-                          />
-                        </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Company Details</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        {newEmployer.custom_data.industry && (
+                          <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Industry</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {newEmployer.custom_data.industry}
+                            </p>
+                          </div>
+                        )}
+                        {newEmployer.custom_data.employees > 0 && (
+                          <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Employees</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {newEmployer.custom_data.employees}
+                            </p>
+                          </div>
+                        )}
+                        {newEmployer.custom_data.location && (
+                          <div className="col-span-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Location</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {newEmployer.custom_data.location}
+                            </p>
+                          </div>
+                        )}
+                        {newEmployer.custom_data.address && (
+                          <div className="col-span-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Address</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {newEmployer.custom_data.address}
+                            </p>
+                            <div className="flex gap-2 mt-1">
+                              {newEmployer.custom_data.city && (
+                                <span className="text-xs text-gray-600 dark:text-gray-400">{newEmployer.custom_data.city},</span>
+                              )}
+                              {newEmployer.custom_data.country && (
+                                <span className="text-xs text-gray-600 dark:text-gray-400">{newEmployer.custom_data.country}</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Coordinates */}
-                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-                        <Globe className="h-5 w-5" />
-                        Coordinates
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Latitude
-                          </label>
-                          <input
-                            type="number"
-                            step="0.000001"
-                            value={newEmployer.latitude}
-                            onChange={(e) => updateNewEmployer('latitude', parseFloat(e.target.value) || 0.0)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="0.0"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Longitude
-                          </label>
-                          <input
-                            type="number"
-                            step="0.000001"
-                            value={newEmployer.longitude}
-                            onChange={(e) => updateNewEmployer('longitude', parseFloat(e.target.value) || 0.0)}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            placeholder="0.0"
-                          />
+                    {(newEmployer.latitude !== 0.0 || newEmployer.longitude !== 0.0) && (
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Coordinates</p>
+                        <div className="flex gap-4">
+                          <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Latitude</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {newEmployer.latitude}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Longitude</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {newEmployer.longitude}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
-                
-                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end space-x-3">
+              </div>
+            </div>
+
+            {/* Permissions Section - Full Width Below */}
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <ShieldCheck className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    Module Permissions
+                  </h4>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    Set access permissions for each module
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setOpenCreateModal(false)}
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    onClick={() => setFormData({ permissions: generateDefaultPermissions('employee') })}
+                    className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors border border-gray-300 dark:border-gray-600"
                   >
-                    Cancel
+                    Reset to Employee
                   </button>
                   <button
-                    onClick={handleCreateEmployer}
-                    className={`px-4 py-2 ${themeClasses.buttonBg} hover:${themeClasses.buttonHover} text-white font-medium rounded-lg text-sm transition-colors shadow-md hover:shadow-lg`}
+                    onClick={() => setFormData({ permissions: generateDefaultPermissions('superadmin') })}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all shadow-md"
                   >
-                    Create Employer
+                    Set All Permissions
                   </button>
                 </div>
-              </motion.div>
+              </div>
+
+              {/* Permissions Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {MODULES.map(mod => {
+                  const modulePermissions = SUB_PERMISSIONS[mod.name] || [];
+                  const enabledCount = modulePermissions.reduce((count, perm) => {
+                    const permData = formData.permissions[mod.name]?.[perm.name] || {};
+                    return count + (Object.values(permData).filter(Boolean).length);
+                  }, 0);
+                  const totalCount = modulePermissions.length * 4; // 4 permissions per sub-permission
+                  
+                  return (
+                    <div key={mod.name} className="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-white dark:bg-gray-700 rounded-lg">
+                            <mod.icon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                          </div>
+                          <div>
+                            <h5 className="font-semibold text-gray-900 dark:text-white">{mod.name}</h5>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {modulePermissions.length} permissions
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setOpenModule(openModule === mod.name ? null : mod.name)}
+                          className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                        >
+                          {openModule === mod.name ? (
+                            <ChevronUp className="h-5 w-5" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
+                      
+                      {/* Enabled/Disabled Status */}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {enabledCount === 0 ? 'Disabled' : 'Enabled'}
+                        </span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {enabledCount}/{totalCount}
+                        </span>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full mb-4">
+                        <div 
+                          className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-300"
+                          style={{ width: `${(enabledCount / totalCount) * 100}%` }}
+                        />
+                      </div>
+                      
+                      {/* Expandable Permissions */}
+                      {openModule === mod.name && (
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                          <div className="space-y-4">
+                            {modulePermissions.map(perm => (
+                              <div key={perm.name} className="bg-white dark:bg-gray-700/50 rounded-lg p-4">
+                                <h6 className="font-medium text-gray-900 dark:text-white mb-3">{perm.name}</h6>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  {['view', 'create', 'edit', 'delete'].map(type => {
+                                    const checked = getPerm(mod.name, perm.name, type);
+                                    return (
+                                      <label key={type} className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={checked}
+                                          onChange={() => togglePermission(mod.name, perm.name, type)}
+                                          className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0"
+                                        />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{type}</span>
+                                      </label>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </AnimatePresence>
-      )}
-
-      {/* View Employer Modal - Similar improvements */}
-      {/* Edit Employer Modal - Similar improvements */}
-      {/* Delete Confirmation Modal - Similar improvements */}
-
-               {/* View Employer Modal */}
+          
+          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end space-x-3">
+            <button
+              onClick={() => setOpenCreateModal(false)}
+              className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreateEmployer}
+              className={`px-6 py-2.5 ${themeClasses.buttonBg} hover:${themeClasses.buttonHover} text-white font-medium rounded-lg text-sm transition-colors shadow-md hover:shadow-lg flex items-center gap-2`}
+            >
+              <UserPlus className="h-4 w-4" />
+              Create Employer with Permissions
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  </AnimatePresence>
+)}
+      {/* View Employer Modal */}
       {openViewModal && selectedEmployer && (
         <AnimatePresence>
           <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -5590,7 +5922,6 @@ function AdminPage() {
           </div>
         </AnimatePresence>
       )}
-
     </div>
   );
 }

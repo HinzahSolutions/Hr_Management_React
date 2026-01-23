@@ -3,8 +3,10 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Building, User, Key, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 
 export default function Login2() {
+  const { employerLogin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [companyCode, setCompanyCode] = useState('');
   const [name, setName] = useState('');
@@ -18,7 +20,7 @@ export default function Login2() {
     e.preventDefault();
     setError('');
 
-    // Validation - Based on your API screenshot
+    // Validation
     if (!companyCode.trim() || !name.trim() || !password.trim()) {
       setError('Please enter company name, company code, and password');
       return;
@@ -27,8 +29,8 @@ export default function Login2() {
     setIsLoading(true);
 
     try {
-      // Login API call - Updated to match your screenshot
-      const loginResponse = await fetch(
+      // Login API call - Using employer endpoint
+      const response = await fetch(
         'https://hr.hinzah.com/api/employer/login',
         {
           method: 'POST',
@@ -44,61 +46,48 @@ export default function Login2() {
         }
       );
 
-      const loginResult = await loginResponse.json();
-      console.log('Login Response:', loginResult);
-
-      if (!loginResponse.ok) {
-        throw new Error(loginResult.message || 'Invalid credentials');
-      }
-
-      // Check if login was successful
-      if (!loginResult.status) {
-        throw new Error(loginResult.message || 'Login failed');
-      }
-
-      // ✅ Extract token & data from response
-      const { token, data } = loginResult;
-
-      // ✅ Store securely
-      localStorage.setItem('token', token);
-      localStorage.setItem('employerData', JSON.stringify(data));
+      console.log('API Response status:', response.status);
       
-      // Store individual items for easy access
-      localStorage.setItem('employer_id', data.employer_id);
-      localStorage.setItem('company_code', data.company_code);
-      localStorage.setItem('company_name', data.name);
-
-      console.log('Stored employer data:', data);
-
-      // Optional: Fetch additional dashboard data
-      try {
-        const dashboardResponse = await fetch(
-          'http://127.0.0.1:8000/api/employer/dashboard', // Adjust this endpoint as needed
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json',
-            },
-          }
-        );
-
-        if (dashboardResponse.ok) {
-          const dashboardData = await dashboardResponse.json();
-          console.log('Dashboard Data:', dashboardData);
-          localStorage.setItem('dashboardData', JSON.stringify(dashboardData));
-        }
-      } catch (dashboardError) {
-        console.log('Dashboard fetch skipped or failed:', dashboardError);
-        // Continue to navigation even if dashboard fetch fails
+      const data = await response.json();
+      console.log('Login Response:', data);
+   
+      if (!response.ok) {
+        setError(data.message || `Login failed (Status: ${response.status})`);
+        setIsLoading(false);
+        return;
       }
 
-      // ✅ Navigate to dashboard
-      navigate('/employer/dashboard');
+      // Check the API response structure
+      if (data.status === true) {
+        // Extract company data and token from response
+        const companyData = data.company || data.data; // Try both possible locations
+        const token = data.token || data.access_token; // Try both possible token names
+        
+        if (!companyData || !token) {
+          console.error('Missing data in response:', data);
+          setError('Invalid response: missing company data or token');
+          setIsLoading(false);
+          return;
+        }
 
+        console.log('Company data:', companyData);
+        console.log('Token:', token);
+
+        // Use the employerLogin function
+        const loginSuccess = await employerLogin(companyData, token);
+        
+        if (loginSuccess) {
+          // Redirect to dashboard
+          navigate('/dashboard');
+        } else {
+          setError('Login failed. Please check your credentials.');
+        }
+      } else {
+        setError(data.message || 'Login failed. Please check your credentials.');
+      }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -139,7 +128,7 @@ export default function Login2() {
                 disabled={isLoading}
                 required
               />
-              {/* <p className="text-xs text-gray-500 mt-1">e.g., Hinzac Technologies</p> */}
+              <p className="text-xs text-gray-500 mt-1">Example: Hinzac Technologies</p>
             </div>
 
             {/* Company Code Field */}
@@ -159,7 +148,7 @@ export default function Login2() {
                 disabled={isLoading}
                 required
               />
-              {/* <p className="text-xs text-gray-500 mt-1">e.g., COMP0005</p> */}
+              <p className="text-xs text-gray-500 mt-1">Example: COMP0005</p>
             </div>
 
             {/* Password Field */}
@@ -194,32 +183,12 @@ export default function Login2() {
                   )}
                 </button>
               </div>
-              {/* <p className="text-xs text-gray-500 mt-1">Default: 123456</p> */}
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-              <a
-                href="#"
-                className="text-sm text-green-600 hover:text-green-700 hover:underline transition-colors"
-              >
-                Forgot password?
-              </a>
+              <p className="text-xs text-gray-500 mt-1">Default password: 123456</p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3 animate-pulse">
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3">
                 <div className="flex items-center">
                   <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -228,16 +197,6 @@ export default function Login2() {
                 </div>
               </div>
             )}
-
-            {/* Success Message Demo - Remove in production */}
-            {/* <div className="bg-green-50 border border-green-200 text-green-700 text-xs rounded-lg p-3">
-              <div className="font-medium mb-1">API Test Data:</div>
-              <div className="grid grid-cols-2 gap-1">
-                <div>Company: <span className="font-mono">Hinzac Technologies</span></div>
-                <div>Code: <span className="font-mono">COMP0005</span></div>
-                <div>Password: <span className="font-mono">123456</span></div>
-              </div>
-            </div> */}
 
             {/* Submit Button */}
             <button
