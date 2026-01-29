@@ -1236,7 +1236,7 @@ export default function Attendances() {
     const fallbackToValidate = [
       {
         id: 1,
-        employee: 'Vandita Sharma (PEP00)',
+        employee: '---------',
         batch: 'None',
         date: '11 November, 2025',
         day: 'Tuesday',
@@ -1254,7 +1254,7 @@ export default function Attendances() {
     const fallbackOt = [
       {
         id: 4,
-        employee: 'Vandita Sharma (PEP00)',
+        employee: '--------------',
         batch: 'None',
         date: '08 November, 2025',
         day: 'Saturday',
@@ -1272,7 +1272,7 @@ export default function Attendances() {
     const fallbackValidated = [
       {
         id: 13,
-        employee: 'ARJIT Chaudhary (arjit9800-)',
+        employee: '------------------',
         batch: 'None',
         date: '10 November, 2025',
         day: 'Monday',

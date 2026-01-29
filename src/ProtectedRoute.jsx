@@ -96,7 +96,7 @@ export default function ProtectedRoute({ children, requireAuth = true }) {
   const [hasPermission, setHasPermission] = useState(false);
 
   useEffect(() => {
-    const checkSession = () => {
+    const checkSession = async () => {
       const token = localStorage.getItem('authToken');
       const expiry = localStorage.getItem('tokenExpiry');
       const currentUser = localStorage.getItem('currentUser');
@@ -108,49 +108,54 @@ export default function ProtectedRoute({ children, requireAuth = true }) {
         isAuthenticated 
       });
       
+      // If no auth data exists, redirect to login
       if (!token || !expiry || !currentUser) {
-        console.log('Missing auth data, logging out');
-        if (isAuthenticated) {
-          logout(false);
+        console.log('Missing auth data');
+        if (requireAuth) {
+          toast.error('Please login to continue');
+          sessionStorage.setItem('redirectPath', location.pathname);
+          navigate('/login');
         }
         setChecking(false);
         return;
       }
       
+      // Check token expiry
       const now = Date.now();
       if (now > parseInt(expiry)) {
         console.log('Token expired');
-        toast.error('Session expired');
+        toast.error('Session expired. Please login again.');
         logout();
         setChecking(false);
         return;
       }
       
       console.log('Session is valid');
-      
-      // Only check permissions if user is authenticated
-      if (isAuthenticated) {
-        const hasAccess = canAccessRoute(location.pathname);
-        console.log(`Route ${location.pathname} - Has access: ${hasAccess}`);
-        setHasPermission(hasAccess);
-        
-        if (!hasAccess && location.pathname !== '/login') {
-          toast.error('You do not have permission to access this page');
-        }
-      }
-      
       setChecking(false);
     };
 
     checkSession();
-  }, [location]); // Remove dependencies that cause re-renders
+  }, [location.pathname, isAuthenticated]);
+
+  // Check permissions AFTER auth state is confirmed
+  useEffect(() => {
+    if (isAuthenticated && !loading && !checking) {
+      const hasAccess = canAccessRoute(location.pathname);
+      console.log(`Route ${location.pathname} - Has access: ${hasAccess}`);
+      setHasPermission(hasAccess);
+      
+      if (!hasAccess && location.pathname !== '/login') {
+        toast.error('You do not have permission to access this page');
+      }
+    }
+  }, [isAuthenticated, loading, checking, location.pathname, canAccessRoute]);
 
   if (loading || checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Verifying your session...</p>
+          <p className="text-gray-600">Loading session...</p>
         </div>
       </div>
     );
@@ -166,7 +171,7 @@ export default function ProtectedRoute({ children, requireAuth = true }) {
     if (location.pathname !== '/login') {
       sessionStorage.setItem('redirectPath', location.pathname);
     }
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate to="/login" replace />;
   }
 
   // Check if user has permission for this route

@@ -1,226 +1,3 @@
-// import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-// // Load initial data from localStorage
-// const loadEmployeesFromStorage = () => {
-//   if (typeof window !== 'undefined') {
-//     const saved = localStorage.getItem('employees');
-//     return saved ? JSON.parse(saved) : [
-//       // Add some default data for testing
-//       {
-//         id: 1,
-//         name: 'John Doe',
-//         email: 'john.doe@example.com',
-//         phone: '+1 (555) 123-4567',
-//         badgeId: 'EMP001',
-//         position: 'Software Engineer',
-//         department: 'IT',
-//         status: 'online',
-//         workType: 'full-time',
-//         joinDate: '2023-01-15',
-//         code: 'EMP001',
-//         highlight: false,
-//         star: true
-//       },
-//       {
-//         id: 2,
-//         name: 'Jane Smith',
-//         email: 'jane.smith@example.com',
-//         phone: '+1 (555) 987-6543',
-//         badgeId: 'EMP002',
-//         position: 'HR Manager',
-//         department: 'HR',
-//         status: 'offline',
-//         workType: 'full-time',
-//         joinDate: '2022-08-22',
-//         code: 'EMP002',
-//         highlight: false,
-//         star: false
-//       }
-//     ];
-//   }
-//   return [];
-// };
-
-// const loadFiltersFromStorage = () => {
-//   if (typeof window !== 'undefined') {
-//     const saved = localStorage.getItem('employeeFilters');
-//     return saved ? JSON.parse(saved) : {};
-//   }
-//   return {};
-// };
-
-// export const fetchEmployees = createAsyncThunk(
-//   'employees/fetchEmployees',
-//   async () => {
-//     // In a real app, you would fetch from API here
-//     return loadEmployeesFromStorage();
-//   }
-// );
-
-// export const addEmployee = createAsyncThunk(
-//   'employees/addEmployee',
-//   async (employeeData, { getState }) => {
-//     // In a real app, you would post to API here
-//     const newEmployee = {
-//       id: Date.now(),
-//       name: employeeData.fullName || '',
-//       email: employeeData.email || '',
-//       phone: employeeData.phone || '',
-//       badgeId: employeeData.docNum || 'EMP' + Date.now(),
-//       position: employeeData.designation || '',
-//       department: employeeData.department || '',
-//       status: 'offline',
-//       workType: employeeData.workType || '',
-//       joinDate: employeeData.joinDate || '',
-//       code: employeeData.docNum || 'EMP' + Date.now(),
-//       highlight: false,
-//       star: false,
-//       // Additional fields from form
-//       dob: employeeData.dob || '',
-//       address: employeeData.address || '',
-//       emergencyContact: employeeData.emergencyContact || '',
-//       photo: employeeData.photo || null,
-//       documents: employeeData.documents || [],
-//       // Work contact info
-//       workEmail: employeeData.email || '',
-//       personalEmail: employeeData.email || '',
-//       workPhone: employeeData.phone || '',
-//       personalPhone: employeeData.phone || '',
-//     };
-    
-//     // Save to localStorage
-//     const currentEmployees = loadEmployeesFromStorage();
-//     const updatedEmployees = [...currentEmployees, newEmployee];
-//     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
-    
-//     return newEmployee;
-//   }
-// );
-
-// export const updateEmployee = createAsyncThunk(
-//   'employees/updateEmployee',
-//   async (updatedEmployee) => {
-//     // In a real app, you would put to API here
-//     return updatedEmployee;
-//   }
-// );
-
-// export const deleteEmployees = createAsyncThunk(
-//   'employees/deleteEmployees',
-//   async (ids) => {
-//     // Remove from localStorage
-//     const currentEmployees = loadEmployeesFromStorage();
-//     const updatedEmployees = currentEmployees.filter(emp => !ids.includes(emp.id));
-//     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
-    
-//     return ids;
-//   }
-// );
-
-// const employeeSlice = createSlice({
-//   name: 'employees',
-//   initialState: {
-//     employees: [],
-//     filteredEmployees: [],
-//     selected: [],
-//     filters: loadFiltersFromStorage(),
-//     search: '',
-//     loading: false,
-//     error: null,
-//   },
-//   reducers: {
-//     setSearch: (state, action) => {
-//       state.search = action.payload;
-//       localStorage.setItem('employeeSearch', action.payload);
-//     },
-//     setFilters: (state, action) => {
-//       state.filters = { ...state.filters, ...action.payload };
-//       localStorage.setItem('employeeFilters', JSON.stringify(state.filters));
-//     },
-//     clearFilters: (state) => {
-//       state.filters = {};
-//       localStorage.removeItem('employeeFilters');
-//     },
-//     toggleSelect: (state, action) => {
-//       const id = action.payload;
-//       if (state.selected.includes(id)) {
-//         state.selected = state.selected.filter(x => x !== id);
-//       } else {
-//         state.selected.push(id);
-//       }
-//     },
-//     toggleSelectAll: (state, action) => {
-//       // Get filtered employees count from action payload if provided
-//       const filteredCount = action.payload?.filteredCount || state.filteredEmployees.length;
-//       const allFilteredIds = action.payload?.filteredIds || state.filteredEmployees.map(e => e.id);
-      
-//       if (state.selected.length === filteredCount && filteredCount > 0) {
-//         state.selected = [];
-//       } else {
-//         state.selected = [...allFilteredIds];
-//       }
-//     },
-//     clearSelected: (state) => {
-//       state.selected = [];
-//     },
-//     // Remove applyFilters from reducers since we'll handle it in extraReducers
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(fetchEmployees.pending, (state) => {
-//         state.loading = true;
-//       })
-//       .addCase(fetchEmployees.fulfilled, (state, action) => {
-//         state.employees = action.payload;
-//         state.filteredEmployees = action.payload; // Initialize filteredEmployees
-//         state.loading = false;
-//       })
-//       .addCase(fetchEmployees.rejected, (state, action) => {
-//         state.error = action.error.message;
-//         state.loading = false;
-//       })
-//       .addCase(addEmployee.fulfilled, (state, action) => {
-//         state.employees.push(action.payload);
-//         state.filteredEmployees.push(action.payload);
-//         localStorage.setItem('employees', JSON.stringify(state.employees));
-//       })
-//       .addCase(updateEmployee.fulfilled, (state, action) => {
-//         const index = state.employees.findIndex(emp => emp.id === action.payload.id);
-//         if (index !== -1) {
-//           state.employees[index] = action.payload;
-          
-//           // Update filteredEmployees if it contains this employee
-//           const filteredIndex = state.filteredEmployees.findIndex(emp => emp.id === action.payload.id);
-//           if (filteredIndex !== -1) {
-//             state.filteredEmployees[filteredIndex] = action.payload;
-//           }
-          
-//           localStorage.setItem('employees', JSON.stringify(state.employees));
-//         }
-//       })
-//       .addCase(deleteEmployees.fulfilled, (state, action) => {
-//         state.employees = state.employees.filter(emp => !action.payload.includes(emp.id));
-//         state.filteredEmployees = state.filteredEmployees.filter(emp => !action.payload.includes(emp.id));
-//         state.selected = state.selected.filter(id => !action.payload.includes(id));
-//         localStorage.setItem('employees', JSON.stringify(state.employees));
-//       });
-//   },
-// });
-
-// export const {
-//   setSearch,
-//   setFilters,
-//   clearFilters,
-//   toggleSelect,
-//   toggleSelectAll,
-//   clearSelected,
-// } = employeeSlice.actions;
-
-// export default employeeSlice.reducer;
-
-
-
-// employeeSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { employeeApi, transformEmployeeData, prepareEmployeeDataForAPI } from '../../superadminapis/employeeapis/employeeApiFunctions';
 
@@ -232,13 +9,17 @@ export const fetchEmployees = createAsyncThunk(
       const response = await employeeApi.getAllEmployees(params);
       
       // Check if we got a successful response
-      if (response.status === true) {
-        return response.employees; // Return the transformed array
+      if (response.status === true && Array.isArray(response.employees)) {
+        return response.employees;
+      } else if (response.status === false) {
+        return []; // Return empty array if API returned false status
+      } else if (Array.isArray(response)) {
+        return response.map(transformEmployeeData);
       } else {
-        return []; // Return empty array if status is false
+        return [];
       }
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.message || 'Failed to fetch employees');
     }
   }
 );
@@ -250,9 +31,12 @@ export const addEmployee = createAsyncThunk(
       // Prepare data for API
       const apiData = prepareEmployeeDataForAPI(employeeData);
       const response = await employeeApi.createEmployee(apiData);
-      return transformEmployeeData(response.data || response);
+      
+      // Transform and return the new employee data
+      const newEmployee = transformEmployeeData(response.data || response);
+      return newEmployee;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.response?.data?.message || error.message || 'Failed to add employee');
     }
   }
 );
@@ -290,12 +74,33 @@ export const filterEmployees = createAsyncThunk(
   'employees/filterEmployees',
   async (filters, { rejectWithValue }) => {
     try {
-      const response = await employeeApi.filterEmployees(filters);
-      return Array.isArray(response)
-        ? response.map(transformEmployeeData)
-        : response.data?.map(transformEmployeeData) || [];
+      // Filter on the client side if API doesn't support filtering
+      if (employeeApi.filterEmployees) {
+        const response = await employeeApi.filterEmployees(filters);
+        if (Array.isArray(response)) {
+          return response.map(transformEmployeeData);
+        } else if (response.data && Array.isArray(response.data)) {
+          return response.data.map(transformEmployeeData);
+        } else {
+          return [];
+        }
+      } else {
+        // Client-side filtering fallback
+        const allEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+        let filtered = [...allEmployees];
+        
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value && value !== '') {
+            filtered = filtered.filter(emp => 
+              String(emp[key] || '').toLowerCase().includes(String(value).toLowerCase())
+            );
+          }
+        });
+        
+        return filtered;
+      }
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.message || 'Failed to filter employees');
     }
   }
 );
@@ -304,12 +109,44 @@ export const searchEmployees = createAsyncThunk(
   'employees/searchEmployees',
   async ({ searchTerm, filters = {} }, { rejectWithValue }) => {
     try {
-      const response = await employeeApi.searchEmployees(searchTerm, filters);
-      return Array.isArray(response)
-        ? response.map(transformEmployeeData)
-        : response.data?.map(transformEmployeeData) || [];
+      if (employeeApi.searchEmployees) {
+        const response = await employeeApi.searchEmployees(searchTerm, filters);
+        if (Array.isArray(response)) {
+          return response.map(transformEmployeeData);
+        } else if (response.data && Array.isArray(response.data)) {
+          return response.data.map(transformEmployeeData);
+        } else {
+          return [];
+        }
+      } else {
+        // Client-side search fallback
+        const allEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+        let results = [...allEmployees];
+        
+        // Apply filters first if any
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value && value !== '') {
+            results = results.filter(emp => 
+              String(emp[key] || '').toLowerCase().includes(String(value).toLowerCase())
+            );
+          }
+        });
+        
+        // Then apply search
+        if (searchTerm && searchTerm.length >= 2) {
+          const term = searchTerm.toLowerCase();
+          results = results.filter(emp =>
+            (emp.name && emp.name.toLowerCase().includes(term)) ||
+            (emp.email && emp.email.toLowerCase().includes(term)) ||
+            (emp.code && emp.code.toLowerCase().includes(term)) ||
+            (emp.position && emp.position.toLowerCase().includes(term))
+          );
+        }
+        
+        return results;
+      }
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.message || 'Failed to search employees');
     }
   }
 );
@@ -346,6 +183,7 @@ const employeeSlice = createSlice({
     clearFilters: (state) => {
       state.filters = initialState.filters;
       state.search = '';
+      state.filteredEmployees = state.employees; // Reset filtered to all employees
     },
     toggleSelect: (state, action) => {
       const id = action.payload;
@@ -355,11 +193,12 @@ const employeeSlice = createSlice({
         state.selected.push(id);
       }
     },
-    toggleSelectAll: (state) => {
-      if (state.selected.length === state.filteredEmployees.length) {
+    toggleSelectAll: (state, action) => {
+      const allIds = action.payload || state.filteredEmployees.map(emp => emp.id);
+      if (state.selected.length === allIds.length) {
         state.selected = [];
       } else {
-        state.selected = state.filteredEmployees.map(emp => emp.id);
+        state.selected = [...allIds];
       }
     },
     clearSelected: (state) => {
@@ -367,9 +206,15 @@ const employeeSlice = createSlice({
     },
     setEmployees: (state, action) => {
       state.employees = action.payload;
+      state.filteredEmployees = action.payload; // Also set filteredEmployees
     },
     clearError: (state) => {
       state.error = null;
+    },
+    // Add a new reducer to manually refresh employees
+    refreshEmployees: (state, action) => {
+      state.employees = action.payload;
+      state.filteredEmployees = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -382,14 +227,20 @@ const employeeSlice = createSlice({
       .addCase(fetchEmployees.fulfilled, (state, action) => {
         state.loading = false;
         state.employees = action.payload;
-        state.filteredEmployees = action.payload;
+        state.filteredEmployees = action.payload; // Initialize filteredEmployees with all employees
+        state.error = null;
+        
+        // Store in localStorage for client-side operations
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('employees', JSON.stringify(action.payload));
+        }
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
 
-    // Add employee
+    // Add employee - FIXED to update both arrays
     builder
       .addCase(addEmployee.pending, (state) => {
         state.loading = true;
@@ -397,8 +248,34 @@ const employeeSlice = createSlice({
       })
       .addCase(addEmployee.fulfilled, (state, action) => {
         state.loading = false;
-        state.employees.unshift(action.payload);
-        state.filteredEmployees.unshift(action.payload);
+        const newEmployee = action.payload;
+        
+        // Add to employees array
+        state.employees = [newEmployee, ...state.employees];
+        
+        // Check if the new employee matches current filters
+        const matchesFilters = Object.entries(state.filters).every(([key, value]) => {
+          if (!value || value === '') return true;
+          const empValue = newEmployee[key] || '';
+          return String(empValue).toLowerCase().includes(String(value).toLowerCase());
+        });
+        
+        // Check if matches search
+        const matchesSearch = !state.search || state.search.length < 2 || 
+          newEmployee.name?.toLowerCase().includes(state.search.toLowerCase()) ||
+          newEmployee.email?.toLowerCase().includes(state.search.toLowerCase());
+        
+        // Add to filteredEmployees if matches both filters and search
+        if (matchesFilters && matchesSearch) {
+          state.filteredEmployees = [newEmployee, ...state.filteredEmployees];
+        }
+        
+        state.error = null;
+        
+        // Update localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('employees', JSON.stringify(state.employees));
+        }
       })
       .addCase(addEmployee.rejected, (state, action) => {
         state.loading = false;
@@ -414,9 +291,17 @@ const employeeSlice = createSlice({
       .addCase(deleteEmployees.fulfilled, (state, action) => {
         state.loading = false;
         const deletedIds = action.payload;
+        
+        // Remove from both arrays
         state.employees = state.employees.filter(emp => !deletedIds.includes(emp.id));
         state.filteredEmployees = state.filteredEmployees.filter(emp => !deletedIds.includes(emp.id));
         state.selected = state.selected.filter(id => !deletedIds.includes(id));
+        state.error = null;
+        
+        // Update localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('employees', JSON.stringify(state.employees));
+        }
       })
       .addCase(deleteEmployees.rejected, (state, action) => {
         state.loading = false;
@@ -432,6 +317,7 @@ const employeeSlice = createSlice({
       .addCase(filterEmployees.fulfilled, (state, action) => {
         state.loading = false;
         state.filteredEmployees = action.payload;
+        state.error = null;
       })
       .addCase(filterEmployees.rejected, (state, action) => {
         state.loading = false;
@@ -447,6 +333,7 @@ const employeeSlice = createSlice({
       .addCase(searchEmployees.fulfilled, (state, action) => {
         state.loading = false;
         state.filteredEmployees = action.payload;
+        state.error = null;
       })
       .addCase(searchEmployees.rejected, (state, action) => {
         state.loading = false;
@@ -465,6 +352,7 @@ export const {
   clearSelected,
   setEmployees,
   clearError,
+  refreshEmployees,
 } = employeeSlice.actions;
 
 export default employeeSlice.reducer;

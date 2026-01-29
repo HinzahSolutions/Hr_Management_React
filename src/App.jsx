@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState,useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
@@ -50,16 +50,26 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import AdminPage from './AdminPage';
 
+
+// Add this component to force re-render when auth changes
+function AuthAwareRouter() {
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
+  
+  // This forces re-render when auth changes
+  useEffect(() => {
+    console.log('AuthAwareRouter: Auth state changed', { isAuthenticated, user });
+  }, [isAuthenticated, user]);
+
+  return null;
+}
+
 function AppContent() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
-  // const [isCollapsed, setIsCollapsed] = useState(false); // desktop width
-const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { isAuthenticated, logout, user } = useAuth();
 
-
-
-   const menuData = [
+  const menuData = [
     { label: 'Dashboard', icon: 'dashboard', link: '/dashboard', active: true },
     { label: 'Recruitment', icon: 'recruitment', link: '/recruitment',
         submenu: [
@@ -81,10 +91,6 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
         { label: 'Shift Requests', link: '/employee/shift' },
         { label: 'Work Type Requests', link: '/employee/worktype' },
         { label: 'Rotating Shift Assign', link: '/employee/rotating-shift' },
-        // { label: 'Rotating Work Type Assign', link: '/employee/rotating-worktype' },
-        // { label: 'Disciplinary Actions', link: '/employee/disciplinary' },
-        // { label: 'Policies', link: '/employee/policies' },
-        // { label: 'Organization Chart', link: '/employee/org-chart' },
       ],
     },
     {
@@ -96,10 +102,7 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
         { label: 'Biometric Devices', link: '/attendance/devices' },
         { label: 'Attendances', link: '/attendance/list' },
         { label: 'Attendance Requests', link: '/attendance/requests' },
-        // { label: 'Hour Account', link: '/attendance/hour-account' },
         { label: 'Work Records', link: '/attendance/work-records' },
-        // { label: 'Attendance Activities', link: '/attendance/activities' },
-        // { label: 'Late Come Early Out', link: '/attendance/late-early' },
         { label: 'My Attendances', link: '/attendance/my' },
       ],
     },
@@ -132,7 +135,6 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
         { label: 'Federal Tax', link: '/payroll/tax' },
       ],
     },
-    // { label: 'Performance', icon: 'performance', link: '/performance' },
     { label: 'Offboarding', icon: 'offboarding', link: '/offboarding',
        submenu: [
         { label: 'Dashboard', link: '/offboard/dashboard' },
@@ -146,10 +148,7 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
     {label:'Admin Page', link:'/base/company/admin'}
   ]
      }
-  
-
   ];
-
 
   const Placeholder = ({ title }) => (
     <div className="p-6">
@@ -158,137 +157,242 @@ const [isMobileOpen, setIsMobileOpen] = useState(false);
     </div>
   );
 
+  // Render login pages if not authenticated
   if (!isAuthenticated) {
     return (
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
         <Route path="/login" element={<Login />} />
-         <Route path="/admin/login" element={<Login1 />} />
-          {/* <Route path="/company2/login" element={<Login />} /> */}
-             <Route path='/base/company' element={ <Company/>} />
-           <Route path="/employer/login" element={<Login2 />} />
-        {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
+        <Route path="/admin/login" element={<Login1 />} />
+        <Route path="/employer/login" element={<Login2 />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
 
+  // Render main app if authenticated
   return (
-     <Provider store={store}>
     <div className="flex h-screen bg-gray-50">
-     <Sidebar
-  menuItems={menuData}
-   isCollapsed={isCollapsed}
-  onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
-  isMobileOpen={isMobileOpen}
-  setIsMobileOpen={setIsMobileOpen}
-  userName={'Mona'}
- 
-/>  
+      <AuthAwareRouter />
+      
+      <Sidebar
+        menuItems={menuData}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
+        userName={user?.username || 'User'}
+      />
 
-      <div
-        className={`
-          flex-1 flex flex-col transition-all duration-300 p-2  
-          ${isCollapsed ? 'lg:ml-10' : 'lg:ml-60'}  
-        `}
-      >
-        <Navbar  onToggleSidebar={() => {
-    if (window.innerWidth >= 1024) {
-      setIsCollapsed(prev => !prev); // desktop
-    } else {
-      setIsMobileOpen(true); // mobile & tablet
-    }
-  }} onLogout={logout} />
+      <div className={`flex-1 flex flex-col transition-all duration-300 p-2 ${isCollapsed ? 'lg:ml-10' : 'lg:ml-60'}`}>
+        <Navbar onToggleSidebar={() => {
+          if (window.innerWidth >= 1024) {
+            setIsCollapsed(prev => !prev);
+          } else {
+            setIsMobileOpen(true);
+          }
+        }} onLogout={logout} />
 
-        <main className="flex-1 mt-11  md:p-6 container">
+        <main className="flex-1 mt-11 md:p-6 container">
           <Routes>
-          
-            {/* <Route path='/company' element={<Company/>} />
-                     <Route path='/company/permission-assign' element={<PermissionAssign />}  />
-                     <Route path='/company/admin' element={<AdminPage/>} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={  <Dashboard />} />   */}
-
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <Routes>
-                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={  <ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                    <Route path='recruitment/dash' element={  <ProtectedRoute><RecruitmentDashboard/></ProtectedRoute>} />   
-                    <Route path='recruitment/recruitment' element={  <ProtectedRoute><Recruitments/></ProtectedRoute>} />  
-
-                    <Route path="/dashboard" element={  <ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                    <Route path="/employee" element={  <ProtectedRoute><Employee /></ProtectedRoute>} />
-                    <Route path="/employee/profile/:id" element={  <ProtectedRoute><Profile /></ProtectedRoute>} />
-                    <Route path="/employee/shift" element={  <ProtectedRoute><ShiftRequests /></ProtectedRoute>} />
-                    <Route path="/employee/documents" element={  <ProtectedRoute><DocumentRequests /></ProtectedRoute>} />
-                    <Route path="/employee/worktype" element={  <ProtectedRoute><WorkTypeRequests /></ProtectedRoute>} />
-                    <Route path="/employee/rotating-shift" element={  <ProtectedRoute><RotatingShiftAssign /></ProtectedRoute>} />
-
-                    <Route path="/attendance/dashboard" element={  <ProtectedRoute><AttendanceDashboard /></ProtectedRoute>} />
-                    <Route path="/attendance/devices" element={  <ProtectedRoute><BiometricDevices /></ProtectedRoute>} />
-                    <Route path="/attendance/list" element={  <ProtectedRoute><Attendances /></ProtectedRoute>} />
-                    <Route path="/attendance/my" element={  <ProtectedRoute><MyAttendances /></ProtectedRoute>} />
-                    <Route path="/attendance/work-records" element={  <ProtectedRoute><WorkRecords /></ProtectedRoute>} />
-
-                    <Route path="/leave/dashboard" element={  <ProtectedRoute><LeaveDashboard /></ProtectedRoute>} />
-                    <Route path="/leave/my-requests" element={  <ProtectedRoute><MyLeaveRequests /></ProtectedRoute>} />
-                    <Route path="/leave/requests" element={  <ProtectedRoute><LeaveRequests /></ProtectedRoute>} />
-                    <Route path="/leave/assigned" element={  <ProtectedRoute><AllAssignedLeaves /></ProtectedRoute>} />
-                    <Route path="/leave/types" element={  <ProtectedRoute><LeaveTypes /></ProtectedRoute>} />
-
-                    <Route path="/payroll/dashboard" element={  <ProtectedRoute><PayrollDashboard /></ProtectedRoute>} />
-                    <Route path="/payroll/contract" element={  <ProtectedRoute><Contracts /></ProtectedRoute>} />
-                    <Route path="/payroll/allowances" element={  <ProtectedRoute><Allowances /></ProtectedRoute>} />
-                    <Route path="/payroll/payslips" element={  <ProtectedRoute><Payslip /></ProtectedRoute>} />
-                    <Route path="/payroll/loan" element={  <ProtectedRoute><LoanAdvancedSalary /></ProtectedRoute>} />
-
-
-
-                    <Route path='/offboard/dashboard' element={  <ProtectedRoute><OffboardingDashboard/></ProtectedRoute>} />
-                    <Route path='/offboard/Offboarding' element={  <ProtectedRoute><Offboarding/></ProtectedRoute>} />
-                    <Route path='Onboarding/candidates' element={  <ProtectedRoute><CandidatesView/></ProtectedRoute>} />
-
-
-                    <Route path='/base/company' element={  <ProtectedRoute><Company/></ProtectedRoute>} />
-                     <Route path='/base/company/permission-assign' element={  <ProtectedRoute><PermissionAssign /></ProtectedRoute>}  />
-                     <Route path='base/company/admin' element={  <ProtectedRoute><AdminPage/></ProtectedRoute>} />
-
-
-                      <Route path='admin/setting' element={  <ProtectedRoute><Settings/></ProtectedRoute>} />
-                     
-
-                   
-                    <Route path="*" element={<Placeholder title="Page Not Found" />} />
-                    
-
-                  </Routes>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Dashboard */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Recruitment */}
+            <Route path="recruitment/dash" element={
+              <ProtectedRoute>
+                <RecruitmentDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="recruitment/recruitment" element={
+              <ProtectedRoute>
+                <Recruitments />
+              </ProtectedRoute>
+            } />
+            
+            {/* Employee Routes */}
+            <Route path="/employee" element={
+              <ProtectedRoute>
+                <Employee />
+              </ProtectedRoute>
+            } />
+            <Route path="/employee/profile/:id" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/employee/shift" element={
+              <ProtectedRoute>
+                <ShiftRequests />
+              </ProtectedRoute>
+            } />
+            <Route path="/employee/documents" element={
+              <ProtectedRoute>
+                <DocumentRequests />
+              </ProtectedRoute>
+            } />
+            <Route path="/employee/worktype" element={
+              <ProtectedRoute>
+                <WorkTypeRequests />
+              </ProtectedRoute>
+            } />
+            <Route path="/employee/rotating-shift" element={
+              <ProtectedRoute>
+                <RotatingShiftAssign />
+              </ProtectedRoute>
+            } />
+            
+            {/* Attendance */}
+            <Route path="/attendance/dashboard" element={
+              <ProtectedRoute>
+                <AttendanceDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/attendance/devices" element={
+              <ProtectedRoute>
+                <BiometricDevices />
+              </ProtectedRoute>
+            } />
+            <Route path="/attendance/list" element={
+              <ProtectedRoute>
+                <Attendances />
+              </ProtectedRoute>
+            } />
+            <Route path="/attendance/my" element={
+              <ProtectedRoute>
+                <MyAttendances />
+              </ProtectedRoute>
+            } />
+            <Route path="/attendance/work-records" element={
+              <ProtectedRoute>
+                <WorkRecords />
+              </ProtectedRoute>
+            } />
+            
+            {/* Leave */}
+            <Route path="/leave/dashboard" element={
+              <ProtectedRoute>
+                <LeaveDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/leave/my-requests" element={
+              <ProtectedRoute>
+                <MyLeaveRequests />
+              </ProtectedRoute>
+            } />
+            <Route path="/leave/requests" element={
+              <ProtectedRoute>
+                <LeaveRequests />
+              </ProtectedRoute>
+            } />
+            <Route path="/leave/assigned" element={
+              <ProtectedRoute>
+                <AllAssignedLeaves />
+              </ProtectedRoute>
+            } />
+            <Route path="/leave/types" element={
+              <ProtectedRoute>
+                <LeaveTypes />
+              </ProtectedRoute>
+            } />
+            
+            {/* Payroll */}
+            <Route path="/payroll/dashboard" element={
+              <ProtectedRoute>
+                <PayrollDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/payroll/contract" element={
+              <ProtectedRoute>
+                <Contracts />
+              </ProtectedRoute>
+            } />
+            <Route path="/payroll/allowances" element={
+              <ProtectedRoute>
+                <Allowances />
+              </ProtectedRoute>
+            } />
+            <Route path="/payroll/payslips" element={
+              <ProtectedRoute>
+                <Payslip />
+              </ProtectedRoute>
+            } />
+            <Route path="/payroll/loan" element={
+              <ProtectedRoute>
+                <LoanAdvancedSalary />
+              </ProtectedRoute>
+            } />
+            
+            {/* Offboarding */}
+            <Route path="/offboard/dashboard" element={
+              <ProtectedRoute>
+                <OffboardingDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/offboard/offboarding" element={
+              <ProtectedRoute>
+                <Offboarding />
+              </ProtectedRoute>
+            } />
+            <Route path="Onboarding/candidates" element={
+              <ProtectedRoute>
+                <CandidatesView />
+              </ProtectedRoute>
+            } />
+            
+            {/* Base/Admin Routes */}
+            <Route path="/base/company" element={
+              <ProtectedRoute>
+                <Company />
+              </ProtectedRoute>
+            } />
+            <Route path="/base/company/permission-assign" element={
+              <ProtectedRoute>
+                <PermissionAssign />
+              </ProtectedRoute>
+            } />
+            <Route path="/base/company/admin" element={
+              <ProtectedRoute>
+                <AdminPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Settings */}
+            <Route path="/admin/setting" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            
+            {/* Fallback */}
+            <Route path="*" element={<Placeholder title="Page Not Found" />} />
           </Routes>
         </main>
       </div>
 
       <FloatingActionButton />
-
-      
     </div>
-    </Provider>
   );
 }
 
 export default function App() {
   return (
-    <BrowserRouter>
-    
-      <AuthProvider>
-        <ThemeProvider>
-           <AppContent />
-        </ThemeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <Provider store={store}>
+      <BrowserRouter>
+        <AuthProvider>
+          <ThemeProvider>
+            <Toaster position="top-center" />
+            <AppContent />
+          </ThemeProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </Provider>
   );
 }
 

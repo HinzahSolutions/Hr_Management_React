@@ -1315,7 +1315,6 @@
 //   );
 // }
 
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -1327,7 +1326,8 @@ import {
   Edit2, Phone, Mail, Building, FileText, Badge, Smartphone, MoreVertical,
   Menu, X, ArrowLeft, Shield, Home, Clock as ClockIcon, CheckCircle,
   XCircle, AlertCircle, ArrowUpRight, ArrowDownRight,
-  Download, ChevronDown, RefreshCw, FileSpreadsheet, Clipboard
+  Download, ChevronDown, RefreshCw, FileSpreadsheet, Clipboard,
+  ChevronLeft, ChevronRight, Calendar as CalendarIcon, Filter
 } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1384,8 +1384,18 @@ export default function Profile() {
   const [attendanceData, setAttendanceData] = useState(null);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [attendanceError, setAttendanceError] = useState(null);
-  const [dateRange, setDateRange] = useState('today'); // 'today', 'week', 'month', 'custom'
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  // Date filter states
+  const [dateFilter, setDateFilter] = useState('month'); // 'today', 'week', 'month', 'custom', 'all'
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 30); // Last 30 days by default
+    return date.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+  const [showDatePicker, setShowDatePicker] = useState(false);
   
   // Export states
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -1413,9 +1423,9 @@ export default function Profile() {
     if (activeTab === 'attendance' && employee.code !== 'N/A') {
       fetchAttendanceData();
     }
-  }, [activeTab, employee.code, dateRange, selectedDate]);
+  }, [activeTab, employee.code, dateFilter, startDate, endDate]);
 
-  // Function to fetch attendance data
+  // Function to fetch attendance data with date filters
   const fetchAttendanceData = async () => {
     setAttendanceLoading(true);
     setAttendanceError(null);
@@ -1438,15 +1448,41 @@ export default function Profile() {
 
       console.log("Fetching attendance data for:", { companyCode, employeeCode });
 
-      const response = await fetch(
-        `https://hr.hinzah.com/api/attendance/company/${companyCode}/employee/${employeeCode}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+      // Build query parameters
+      const params = new URLSearchParams();
+      
+      if (dateFilter !== 'all') {
+        if (dateFilter === 'today') {
+          const today = new Date().toISOString().split('T')[0];
+          params.append('start_date', today);
+          params.append('end_date', today);
+        } else if (dateFilter === 'week') {
+          const today = new Date();
+          const weekAgo = new Date(today);
+          weekAgo.setDate(today.getDate() - 7);
+          params.append('start_date', weekAgo.toISOString().split('T')[0]);
+          params.append('end_date', today.toISOString().split('T')[0]);
+        } else if (dateFilter === 'month') {
+          const today = new Date();
+          const monthAgo = new Date(today);
+          monthAgo.setDate(today.getDate() - 30);
+          params.append('start_date', monthAgo.toISOString().split('T')[0]);
+          params.append('end_date', today.toISOString().split('T')[0]);
+        } else if (dateFilter === 'custom') {
+          if (startDate) params.append('start_date', startDate);
+          if (endDate) params.append('end_date', endDate);
         }
-      );
+      }
+
+      const url = `https://hr.hinzah.com/api/attendance/company/${companyCode}/employee/${employeeCode}?${params.toString()}`;
+      console.log('API URL:', url);
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       console.log('API Response status:', response.status);
 
@@ -1487,16 +1523,75 @@ export default function Profile() {
     }
   };
 
+  // Helper function to apply date filter presets
+  const applyDateFilter = (filter) => {
+    setDateFilter(filter);
+    
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    switch(filter) {
+      case 'today':
+        setStartDate(todayStr);
+        setEndDate(todayStr);
+        break;
+      case 'week':
+        const weekAgo = new Date(today);
+        weekAgo.setDate(today.getDate() - 7);
+        setStartDate(weekAgo.toISOString().split('T')[0]);
+        setEndDate(todayStr);
+        break;
+      case 'month':
+        const monthAgo = new Date(today);
+        monthAgo.setDate(today.getDate() - 30);
+        setStartDate(monthAgo.toISOString().split('T')[0]);
+        setEndDate(todayStr);
+        break;
+      case 'custom':
+        setShowDatePicker(true);
+        break;
+      case 'all':
+        setStartDate('');
+        setEndDate('');
+        break;
+    }
+  };
+
+  // Filter attendance data based on date range
+  const getFilteredAttendanceData = () => {
+    if (!attendanceData?.data) return [];
+    
+    let filteredData = [...attendanceData.data];
+    
+    // Filter by custom date range
+    if (startDate && endDate) {
+      filteredData = filteredData.filter(record => {
+        if (!record.date) return false;
+        const recordDate = new Date(record.date);
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999); // Include entire end date
+        
+        return recordDate >= start && recordDate <= end;
+      });
+    }
+    
+    return filteredData;
+  };
+
+  // Get filtered data
+  const filteredAttendanceData = getFilteredAttendanceData();
+
   // Export Functions
   const exportToExcel = (format = 'xlsx') => {
     try {
-      if (!attendanceData?.data || attendanceData.data.length === 0) {
+      if (!filteredAttendanceData || filteredAttendanceData.length === 0) {
         alert('No attendance data to export');
         return;
       }
 
       // Prepare data for Excel
-      const excelData = attendanceData.data.map((record, index) => {
+      const excelData = filteredAttendanceData.map((record, index) => {
         const status = getAttendanceStatus(record.check_in, record.check_out);
         const statusConfig = getStatusConfig(status);
         
@@ -1522,6 +1617,18 @@ export default function Profile() {
       // Create worksheet
       const worksheet = XLSX.utils.json_to_sheet(excelData);
       
+      // Auto-size columns
+      const maxWidth = Object.keys(excelData[0]).reduce((acc, key) => {
+        const maxLength = Math.max(
+          key.length,
+          ...excelData.map(row => String(row[key]).length)
+        );
+        acc[key] = { wch: Math.min(maxLength, 50) }; // Cap at 50 chars
+        return acc;
+      }, {});
+      
+      worksheet['!cols'] = Object.values(maxWidth);
+      
       // Create workbook
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Records');
@@ -1543,7 +1650,7 @@ export default function Profile() {
       );
       
       const date = new Date().toISOString().split('T')[0];
-      const filename = `${employee.name.replace(/\s+/g, '_')}_attendance_${dateRange}_${date}.${format === 'csv' ? 'csv' : 'xlsx'}`;
+      const filename = `${employee.name.replace(/\s+/g, '_')}_attendance_${getDateRangeText()}_${date}.${format === 'csv' ? 'csv' : 'xlsx'}`;
       saveAs(blob, filename);
       
       console.log(`${format.toUpperCase()} export completed successfully`);
@@ -1556,26 +1663,31 @@ export default function Profile() {
 
   const exportToPDF = () => {
     try {
-      if (!attendanceData?.data || attendanceData.data.length === 0) {
+      if (!filteredAttendanceData || filteredAttendanceData.length === 0) {
         alert('No attendance data to export');
         return;
       }
 
       // Create PDF document
       const doc = new jsPDF('landscape');
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
       
       // Add header
       doc.setFontSize(20);
-      doc.text(`${employee.name} - Attendance Report`, 14, 15);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${employee.name} - Attendance Report`, pageWidth / 2, 15, { align: 'center' });
       
-      doc.setFontSize(12);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(100);
       doc.text(`Employee ID: ${employee.code} | Department: ${employee.department}`, 14, 25);
-      doc.text(`Period: ${getDateRangeText()} | Total Records: ${attendanceData.data.length}`, 14, 32);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 39);
+      doc.text(`Period: ${getDateRangeText()} | Total Records: ${filteredAttendanceData.length}`, 14, 32);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 39);
       
       // Prepare table data
-      const tableData = attendanceData.data.map((record, index) => {
+      const tableData = filteredAttendanceData.map((record, index) => {
         const status = getAttendanceStatus(record.check_in, record.check_out);
         const statusConfig = getStatusConfig(status);
         
@@ -1598,37 +1710,55 @@ export default function Profile() {
         head: [['#', 'Date', 'Day', 'Check In', 'Check Out', 'Hours', 'Status', 'Remarks']],
         body: tableData,
         startY: 45,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [66, 66, 66] },
+        styles: { 
+          fontSize: 8,
+          cellPadding: 2,
+          overflow: 'linebreak'
+        },
+        headStyles: { 
+          fillColor: [41, 128, 185],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
         columnStyles: {
-          0: { cellWidth: 10 },
+          0: { cellWidth: 10, halign: 'center' },
           1: { cellWidth: 25 },
-          2: { cellWidth: 15 },
-          3: { cellWidth: 20 },
-          4: { cellWidth: 20 },
-          5: { cellWidth: 15 },
-          6: { cellWidth: 20 },
+          2: { cellWidth: 15, halign: 'center' },
+          3: { cellWidth: 20, halign: 'center' },
+          4: { cellWidth: 20, halign: 'center' },
+          5: { cellWidth: 15, halign: 'center' },
+          6: { cellWidth: 20, halign: 'center' },
           7: { cellWidth: 40 }
         },
-        margin: { left: 14 }
+        margin: { left: 14, right: 14 },
+        didDrawPage: function(data) {
+          // Footer on each page
+          doc.setFontSize(8);
+          doc.setTextColor(150);
+          doc.text(
+            `Page ${data.pageNumber} of ${data.pageCount}`,
+            pageWidth - 14,
+            pageHeight - 10,
+            { align: 'right' }
+          );
+        }
       });
       
-      // Add footer
-      const pageCount = doc.internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.text(
-          `Page ${i} of ${pageCount} • ${employee.name} - Attendance Report • Confidential`,
-          doc.internal.pageSize.width / 2,
-          doc.internal.pageSize.height - 10,
-          { align: 'center' }
-        );
-      }
+      // Add summary statistics
+      const finalY = doc.lastAutoTable.finalY || 50;
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Summary Statistics:', 14, finalY + 10);
+      
+      const stats = calculateAttendanceStats(filteredAttendanceData);
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text(`Total Days: ${stats.totalDays} | Present: ${stats.present} | Absent: ${stats.absent} | Late: ${stats.late} | Average Hours: ${stats.averageHours}`, 14, finalY + 18);
       
       // Save PDF
       const date = new Date().toISOString().split('T')[0];
-      doc.save(`${employee.name.replace(/\s+/g, '_')}_attendance_${dateRange}_${date}.pdf`);
+      const filename = `${employee.name.replace(/\s+/g, '_')}_attendance_${getDateRangeText()}_${date}.pdf`;
+      doc.save(filename);
       
       console.log('PDF export completed successfully');
       setShowExportMenu(false);
@@ -1638,14 +1768,62 @@ export default function Profile() {
     }
   };
 
+  const exportToText = () => {
+    try {
+      if (!filteredAttendanceData || filteredAttendanceData.length === 0) {
+        alert('No attendance data to export');
+        return;
+      }
+
+      // Prepare text content
+      let textContent = `Attendance Report - ${employee.name}\n`;
+      textContent += `Employee ID: ${employee.code}\n`;
+      textContent += `Department: ${employee.department}\n`;
+      textContent += `Period: ${getDateRangeText()}\n`;
+      textContent += `Report Generated: ${new Date().toLocaleString()}\n`;
+      textContent += '='.repeat(50) + '\n\n';
+      
+      textContent += 'Date\tDay\tCheck In\tCheck Out\tHours\tStatus\tRemarks\n';
+      textContent += '-'.repeat(80) + '\n';
+      
+      filteredAttendanceData.forEach((record) => {
+        const status = getAttendanceStatus(record.check_in, record.check_out);
+        const statusConfig = getStatusConfig(status);
+        
+        textContent += `${formatDate(record.date)}\t${record.day}\t${formatTime(record.check_in)}\t${formatTime(record.check_out)}\t${record.check_in && record.check_out ? calculateWorkHours(record.check_in, record.check_out) : '--'}\t${statusConfig.text}\t${getRemarksText(record, true)}\n`;
+      });
+      
+      // Create and download text file
+      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `${employee.name.replace(/\s+/g, '_')}_attendance_${getDateRangeText()}_${date}.txt`;
+      saveAs(blob, filename);
+      
+      console.log('Text export completed successfully');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting to Text:', error);
+      alert('Error generating Text file. Please try again.');
+    }
+  };
+
   const handleExport = async (format = 'xlsx') => {
     try {
       setIsExporting(true);
       
-      if (format === 'pdf') {
-        exportToPDF();
-      } else {
-        exportToExcel(format);
+      switch(format) {
+        case 'pdf':
+          exportToPDF();
+          break;
+        case 'csv':
+          exportToExcel('csv');
+          break;
+        case 'text':
+          exportToText();
+          break;
+        case 'xlsx':
+        default:
+          exportToExcel('xlsx');
       }
       
     } catch (error) {
@@ -1656,14 +1834,42 @@ export default function Profile() {
     }
   };
 
+  // Calculate attendance statistics
+  const calculateAttendanceStats = (data) => {
+    const present = data.filter(item => getAttendanceStatus(item.check_in, item.check_out) === 'present').length;
+    const absent = data.filter(item => getAttendanceStatus(item.check_in, item.check_out) === 'absent').length;
+    const late = data.filter(item => getAttendanceStatus(item.check_in, item.check_out) === 'late').length;
+    const pending = data.filter(item => getAttendanceStatus(item.check_in, item.check_out) === 'pending').length;
+    
+    // Calculate average hours
+    const hoursData = data.filter(item => item.check_in && item.check_out);
+    let totalMinutes = 0;
+    hoursData.forEach(item => {
+      const [inH, inM] = item.check_in.split(':').map(Number);
+      const [outH, outM] = item.check_out.split(':').map(Number);
+      totalMinutes += ((outH * 60 + outM) - (inH * 60 + inM));
+    });
+    const averageHours = hoursData.length > 0 ? (totalMinutes / hoursData.length / 60).toFixed(1) : 0;
+    
+    return {
+      totalDays: data.length,
+      present,
+      absent,
+      late,
+      pending,
+      averageHours: `${averageHours}h`
+    };
+  };
+
   // Helper functions for export
   const getDateRangeText = () => {
-    switch(dateRange) {
+    switch(dateFilter) {
       case 'today': return 'Today';
-      case 'week': return 'This Week';
-      case 'month': return 'This Month';
-      case 'custom': return 'Custom Range';
-      default: return 'All';
+      case 'week': return 'Week';
+      case 'month': return 'Month';
+      case 'custom': return `${formatDate(startDate)} to ${formatDate(endDate)}`;
+      case 'all': return 'All Records';
+      default: return 'Custom Range';
     }
   };
 
@@ -1947,7 +2153,7 @@ export default function Profile() {
             </div>
             
             {/* Export Button - Only show on attendance tab */}
-            {activeTab === 'attendance' && attendanceData?.data && attendanceData.data.length > 0 && (
+            {activeTab === 'attendance' && filteredAttendanceData.length > 0 && (
               <div className="relative">
                 <button
                   onClick={() => setShowExportMenu(!showExportMenu)}
@@ -1962,7 +2168,7 @@ export default function Profile() {
                   ) : (
                     <>
                       <Download className="h-4 w-4" />
-                      Export Attendance
+                      Export ({filteredAttendanceData.length})
                       <ChevronDown className="h-4 w-4" />
                     </>
                   )}
@@ -1979,7 +2185,7 @@ export default function Profile() {
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2"
                     >
                       <FileSpreadsheet className="h-4 w-4 text-green-600" />
-                      Export to Excel (.xlsx)
+                      Excel (.xlsx)
                     </button>
                     
                     <button
@@ -1987,7 +2193,7 @@ export default function Profile() {
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2"
                     >
                       <FileText className="h-4 w-4 text-blue-600" />
-                      Export to CSV (.csv)
+                      CSV (.csv)
                     </button>
                     
                     <button
@@ -1995,12 +2201,23 @@ export default function Profile() {
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2"
                     >
                       <FileText className="h-4 w-4 text-red-600" />
-                      Export to PDF (.pdf)
+                      PDF (.pdf)
+                    </button>
+                    
+                    <button
+                      onClick={() => handleExport('text')}
+                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <FileText className="h-4 w-4 text-gray-600" />
+                      Text (.txt)
                     </button>
                     
                     <div className="border-t border-gray-100 mt-2 pt-2 px-4">
                       <div className="text-xs text-gray-500">
-                        Exporting {attendanceData.data.length} records
+                        Exporting {filteredAttendanceData.length} records
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Period: {getDateRangeText()}
                       </div>
                     </div>
                   </div>
@@ -2057,81 +2274,128 @@ export default function Profile() {
               </div>
             ) : activeTab === 'attendance' ? (
               <div className="space-y-6">
-                {/* Attendance Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <SummaryCard
-                    title="Total Days"
-                    value={attendanceData?.data?.length || 0}
-                    subtitle="This month"
-                    icon={<Calendar className="h-5 w-5" />}
-                    color="blue"
-                  />
-                  <SummaryCard
-                    title="Present"
-                    value={attendanceData?.data?.filter(item => item.check_in).length || 0}
-                    subtitle="Days"
-                    icon={<CheckCircle className="h-5 w-5" />}
-                    color="green"
-                  />
-                  <SummaryCard
-                    title="Late Arrivals"
-                    value={attendanceData?.data?.filter(item => {
-                      const [hours] = item.check_in?.split(':') || [];
-                      return hours && parseInt(hours) >= 9 && parseInt(hours) <= 10;
-                    }).length || 0}
-                    subtitle="This month"
-                    icon={<AlertCircle className="h-5 w-5" />}
-                    color="amber"
-                  />
-                  <SummaryCard
-                    title="Avg. Hours"
-                    value={(() => {
-                      const records = attendanceData?.data?.filter(item => item.check_in && item.check_out) || [];
-                      if (records.length === 0) return '0h';
-                      const totalMinutes = records.reduce((sum, item) => {
-                        const [inH, inM] = item.check_in.split(':').map(Number);
-                        const [outH, outM] = item.check_out.split(':').map(Number);
-                        return sum + ((outH * 60 + outM) - (inH * 60 + inM));
-                      }, 0);
-                      const avgHours = Math.round(totalMinutes / records.length / 60);
-                      return `${avgHours}h`;
-                    })()}
-                    subtitle="Per day"
-                    icon={<ClockIcon className="h-5 w-5" />}
-                    color="purple"
-                  />
+                {/* Date Filter Controls */}
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-gray-900">Date Range Filter</h3>
+                      <Filter className="h-5 w-5 text-gray-500" />
+                    </div>
+                    
+                    {/* Quick Filter Buttons */}
+                    <div className="flex flex-wrap gap-2">
+                      {['today', 'week', 'month', 'all', 'custom'].map((filter) => (
+                        <button
+                          key={filter}
+                          onClick={() => applyDateFilter(filter)}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                            dateFilter === filter
+                              ? `${themeClasses.buttonBg} text-white`
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {filter === 'custom' ? 'Custom Range' : filter}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Custom Date Range Picker */}
+                    {dateFilter === 'custom' && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Start Date
+                          </label>
+                          <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            End Date
+                          </label>
+                          <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <button
+                            onClick={fetchAttendanceData}
+                            className={`px-4 py-2 ${themeClasses.buttonBg} text-white rounded-lg font-medium text-sm`}
+                          >
+                            Apply Filter
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Current Filter Info */}
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">
+                        Showing records for: <span className="font-medium">{getDateRangeText()}</span>
+                      </span>
+                      <span className="text-gray-500">
+                        {filteredAttendanceData.length} records found
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Date Filter Controls */}
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    {['today', 'week', 'month', 'custom'].map((range) => (
-                      <button
-                        key={range}
-                        onClick={() => setDateRange(range)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
-                          dateRange === range
-                            ? `${themeClasses.buttonBg} text-white`
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {range}
-                      </button>
-                    ))}
+                {/* Attendance Summary */}
+                {filteredAttendanceData.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {(() => {
+                      const stats = calculateAttendanceStats(filteredAttendanceData);
+                      return (
+                        <>
+                          <SummaryCard
+                            title="Total Days"
+                            value={stats.totalDays}
+                            subtitle="In selected range"
+                            icon={<Calendar className="h-5 w-5" />}
+                            color="blue"
+                          />
+                          <SummaryCard
+                            title="Present"
+                            value={stats.present}
+                            subtitle="Days"
+                            icon={<CheckCircle className="h-5 w-5" />}
+                            color="green"
+                          />
+                          <SummaryCard
+                            title="Late Arrivals"
+                            value={stats.late}
+                            subtitle="Days"
+                            icon={<AlertCircle className="h-5 w-5" />}
+                            color="amber"
+                          />
+                          <SummaryCard
+                            title="Avg. Hours"
+                            value={stats.averageHours}
+                            subtitle="Per day"
+                            icon={<ClockIcon className="h-5 w-5" />}
+                            color="purple"
+                          />
+                        </>
+                      );
+                    })()}
                   </div>
-                  <div className="text-sm text-gray-500">
-                    Showing records for {dateRange === 'today' ? 'today' : `this ${dateRange}`}
-                  </div>
-                </div>
+                )}
 
                 {/* Attendance Table */}
                 <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                   <div className={`px-6 py-4 ${themeClasses.lightBg} border-b border-gray-200`}>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <h3 className="font-bold text-gray-900">Attendance Records</h3>
-                      {attendanceData?.data && (
+                      {filteredAttendanceData.length > 0 && (
                         <div className="text-sm text-gray-600">
-                          {attendanceData.data.length} records
+                          {filteredAttendanceData.length} records • {getDateRangeText()}
                         </div>
                       )}
                     </div>
@@ -2154,11 +2418,15 @@ export default function Profile() {
                         Retry
                       </button>
                     </div>
-                  ) : !attendanceData?.data || attendanceData.data.length === 0 ? (
+                  ) : filteredAttendanceData.length === 0 ? (
                     <div className="p-8 text-center">
                       <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                       <p className="text-gray-600">No attendance records found</p>
-                      <p className="text-gray-500 text-sm mt-1">Attendance data will appear here once recorded</p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        {dateFilter === 'custom' 
+                          ? `No records found between ${formatDate(startDate)} and ${formatDate(endDate)}`
+                          : 'Attendance data will appear here once recorded'}
+                      </p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
@@ -2168,14 +2436,14 @@ export default function Profile() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
-                            <th className="px6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                          {attendanceData.data.map((record) => {
+                          {filteredAttendanceData.map((record) => {
                             const status = getAttendanceStatus(record.check_in, record.check_out);
                             const statusConfig = getStatusConfig(status);
                             const permissions = record.permissions ? JSON.parse(record.permissions) : null;
@@ -2238,12 +2506,12 @@ export default function Profile() {
                 </div>
 
                 {/* Today's Status (if available) */}
-                {attendanceData?.data?.some(record => record.date === new Date().toISOString().split('T')[0]) && (
+                {filteredAttendanceData.some(record => record.date === new Date().toISOString().split('T')[0]) && (
                   <div className="bg-white rounded-lg border border-gray-200 p-6">
                     <h3 className="font-bold text-gray-900 mb-4">Today's Attendance</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {(() => {
-                        const todayRecord = attendanceData.data.find(
+                        const todayRecord = filteredAttendanceData.find(
                           record => record.date === new Date().toISOString().split('T')[0]
                         );
                         const status = getAttendanceStatus(todayRecord?.check_in, todayRecord?.check_out);
@@ -2403,31 +2671,6 @@ function NavButton({ active, onClick, icon, label, themeClasses }) {
       </div>
       <span className="text-xs mt-1 font-medium">{label}</span>
     </button>
-  );
-}
-
-// Contact Detail Component
-function ContactDetail({ label, value, action, icon, themeClasses }) {
-  return (
-    <div className="bg-gray-50 rounded-lg p-3">
-      <div className="flex items-start gap-3">
-        <div className={`p-2 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-lg`}>
-          {icon}
-        </div>
-        <div className="flex-1">
-          <p className="text-sm text-gray-500 mb-1">{label}</p>
-          <p className="text-base font-medium text-gray-900 break-all">{value}</p>
-        </div>
-        {action && (
-          <a
-            href={action}
-            className={`p-2 ${themeClasses.lightBg} ${themeClasses.textColor} rounded-lg`}
-          >
-            {icon}
-          </a>
-        )}
-      </div>
-    </div>
   );
 }
 
